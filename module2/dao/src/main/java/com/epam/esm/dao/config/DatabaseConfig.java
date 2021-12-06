@@ -1,4 +1,4 @@
-package com.epam.esm.config;
+package com.epam.esm.dao.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +12,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan("com.epam.esm")
+@ComponentScan("com.epam.esm.dao")
 @PropertySource({"classpath:database.properties"})
 public class DatabaseConfig {
 

@@ -1,7 +1,7 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.dao.entity.GiftCertificate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,15 +17,15 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.esm.util.ColumnLabel.COLUMN_LABEL_CREATE_DATE;
-import static com.epam.esm.util.ColumnLabel.COLUMN_LABEL_DESCRIPTION;
-import static com.epam.esm.util.ColumnLabel.COLUMN_LABEL_DURATION;
-import static com.epam.esm.util.ColumnLabel.COLUMN_LABEL_ID;
-import static com.epam.esm.util.ColumnLabel.COLUMN_LABEL_LAST_UPDATE_DATE;
-import static com.epam.esm.util.ColumnLabel.COLUMN_LABEL_NAME;
-import static com.epam.esm.util.ColumnLabel.COLUMN_LABEL_PRICE;
-import static com.epam.esm.util.SqlQuery.*;
-import static com.epam.esm.util.SqlQuery.GIFT_CERTIFICATE_FIND_BY_NAME;
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_CREATE_DATE;
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_DESCRIPTION;
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_DURATION;
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_ID;
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_LAST_UPDATE_DATE;
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_NAME;
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_PRICE;
+import static com.epam.esm.dao.util.SqlQuery.*;
+import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_FIND_BY_NAME;
 
 @Component
 @RequiredArgsConstructor

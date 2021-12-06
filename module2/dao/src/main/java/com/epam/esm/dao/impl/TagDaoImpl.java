@@ -1,7 +1,7 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.TagDao;
-import com.epam.esm.entity.Tag;
+import com.epam.esm.dao.entity.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,14 +14,14 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.esm.util.ColumnLabel.COLUMN_LABEL_ID;
-import static com.epam.esm.util.ColumnLabel.COLUMN_LABEL_NAME;
-import static com.epam.esm.util.SqlQuery.TAG_CREATE;
-import static com.epam.esm.util.SqlQuery.TAG_DELETE;
-import static com.epam.esm.util.SqlQuery.TAG_FIND_ALL;
-import static com.epam.esm.util.SqlQuery.TAG_FIND_BY_GIFT_CERTIFICATE_ID;
-import static com.epam.esm.util.SqlQuery.TAG_FIND_BY_ID;
-import static com.epam.esm.util.SqlQuery.TAG_FIND_BY_NAME;
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_ID;
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_NAME;
+import static com.epam.esm.dao.util.SqlQuery.TAG_CREATE;
+import static com.epam.esm.dao.util.SqlQuery.TAG_DELETE;
+import static com.epam.esm.dao.util.SqlQuery.TAG_FIND_ALL;
+import static com.epam.esm.dao.util.SqlQuery.TAG_FIND_BY_GIFT_CERTIFICATE_ID;
+import static com.epam.esm.dao.util.SqlQuery.TAG_FIND_BY_ID;
+import static com.epam.esm.dao.util.SqlQuery.TAG_FIND_BY_NAME;
 
 
 @Component

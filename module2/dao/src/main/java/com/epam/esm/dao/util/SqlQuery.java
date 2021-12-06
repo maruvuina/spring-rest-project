@@ -1,4 +1,4 @@
-package com.epam.esm.util;
+package com.epam.esm.dao.util;
 
 import org.intellij.lang.annotations.Language;
 
