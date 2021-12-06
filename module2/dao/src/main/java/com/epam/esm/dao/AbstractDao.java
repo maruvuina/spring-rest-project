@@ -1,16 +1,15 @@
 package com.epam.esm.dao;
 
 import java.util.List;
+import java.util.Optional;
 
-public abstract class AbstractDao<T> {
+public interface AbstractDao<T> {
 
-    public abstract T create(T t);
+    Optional<T> create(T t);
 
-    public abstract void update(T entity);
+    void delete(Integer id);
 
-    public abstract void delete(int id);
+    Optional<T> findById(Integer id);
 
-    public abstract T findById(int id);
-
-    public abstract List<T> findAll();
+    Optional<List<T>> findAll();
 }

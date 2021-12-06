@@ -6,9 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.postgresql.util.PGInterval;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.Instant;
 
 @Builder
 @Data
@@ -16,22 +14,11 @@ import java.util.Date;
 @NoArgsConstructor
 public class GiftCertificate {
 
-    private int id;
-
-    @NotBlank(message = "Name should not be empty")
+    private Integer id;
     private String name;
-
-    @NotBlank(message = "Description should not be empty")
     private String description;
-
-    private double price;
-
-    @NotNull
+    private Double price;
     private PGInterval duration;
-
-    @NotNull
-    private Date createDate;
-
-    @NotNull
-    private Date lastUpdateDate;
+    private Instant createDate;
+    private Instant lastUpdateDate;
 }

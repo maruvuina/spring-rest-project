@@ -2,32 +2,25 @@ plugins {
     id 'java'
 }
 
-group 'com.epam.esm'
-version '1.0-SNAPSHOT'
-
 repositories {
     mavenCentral()
 }
 
+ext {
+    spring_version = '5.3.13'
+    lombok_version = '1.18.22'
+    postgresql_version = '42.3.1'
+    annotations_version = '12.0'
+}
+
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-
-    implementation group: 'org.springframework', name: 'spring-core', version: '5.3.13'
-
-    implementation group: 'org.springframework', name: 'spring-context', version: '5.3.13'
-
-    implementation group: 'org.springframework', name: 'spring-jdbc', version: '5.3.13'
-
-    implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.1'
-
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
-
-    implementation group: 'com.intellij', name: 'annotations', version: '12.0'
-
-    implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
-
+    implementation group: 'org.springframework', name: 'spring-core', version: spring_version
+    implementation group: 'org.springframework', name: 'spring-context', version: spring_version
+    implementation group: 'org.springframework', name: 'spring-jdbc', version: spring_version
+    implementation group: 'org.postgresql', name: 'postgresql', version: postgresql_version
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: lombok_version
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombok_version
+    implementation group: 'com.intellij', name: 'annotations', version: annotations_version
 }
 
 test {
