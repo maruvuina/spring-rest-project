@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    spring_version = '5.3.13'
+    lombok_version = '1.18.22'
+    postgresql_version = '42.3.1'
+}
+
+dependencies {
+    implementation project(':dao')
+    implementation group: 'org.springframework', name: 'spring-core', version: spring_version
+    implementation(group: 'org.springframework', name: 'spring-context', version: spring_version) {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: lombok_version
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombok_version
+    implementation group: 'org.postgresql', name: 'postgresql', version: postgresql_version
+}
+
+test {
+    useJUnitPlatform()
+}
