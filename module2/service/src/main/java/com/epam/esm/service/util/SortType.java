@@ -6,7 +6,7 @@ public enum SortType {
 
     BY_NAME_DESC("name:desc"), BY_NAME_ASC("name:asc");
 
-    public String label;
+    String label;
 
     SortType(String label) {
         this.label = label;
