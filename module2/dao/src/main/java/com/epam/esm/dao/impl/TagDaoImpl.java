@@ -36,39 +36,33 @@ public class TagDaoImpl implements TagDao {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         namedParameterJdbcTemplate.update(TAG_CREATE, new MapSqlParameterSource()
                 .addValue(COLUMN_LABEL_NAME, tag.getName()), keyHolder, new String[]{COLUMN_LABEL_ID});
-        return findById(keyHolder.getKey().intValue());
+        return findById(keyHolder.getKey().longValue());
     }
 
     @Override
-    public void delete(Integer id) {
+    public void delete(Long id) {
         jdbcTemplate.update(TAG_DELETE, id);
     }
 
     @Override
-    public Optional<Tag> findById(Integer id) {
-        return Optional
-                .ofNullable(jdbcTemplate.queryForObject(TAG_FIND_BY_ID,
-                        BeanPropertyRowMapper.newInstance(Tag.class), id));
+    public Optional<Tag> findById(Long id) {
+        return Optional.ofNullable(jdbcTemplate.queryForObject(TAG_FIND_BY_ID,
+                BeanPropertyRowMapper.newInstance(Tag.class), id));
     }
 
     @Override
-    public Optional<List<Tag>> findAll() {
-        return Optional
-                .of(jdbcTemplate.query(TAG_FIND_ALL,
-                        BeanPropertyRowMapper.newInstance(Tag.class)));
+    public List<Tag> findAll() {
+        return jdbcTemplate.query(TAG_FIND_ALL, BeanPropertyRowMapper.newInstance(Tag.class));
     }
 
     @Override
     public Optional<Tag> findByName(String name) {
-        return Optional
-                .ofNullable(jdbcTemplate.queryForObject(TAG_FIND_BY_NAME,
-                        BeanPropertyRowMapper.newInstance(Tag.class), name));
+        return Optional.ofNullable(jdbcTemplate.queryForObject(TAG_FIND_BY_NAME,
+                BeanPropertyRowMapper.newInstance(Tag.class), name));
     }
 
     @Override
-    public Optional<List<Tag>> findTagsByGiftCertificateId(Integer giftCertificateId) {
-        return Optional
-                .of(jdbcTemplate.query(TAG_FIND_BY_GIFT_CERTIFICATE_ID,
-                        BeanPropertyRowMapper.newInstance(Tag.class), giftCertificateId));
+    public List<Tag> findTagsByGiftCertificateId(Long giftCertificateId) {
+        return jdbcTemplate.query(TAG_FIND_BY_GIFT_CERTIFICATE_ID, BeanPropertyRowMapper.newInstance(Tag.class), giftCertificateId);
     }
 }

@@ -6,17 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GiftCertificateDao extends AbstractDao<GiftCertificate> {
-    Optional<GiftCertificate> update(GiftCertificate giftCertificate);
 
-    void createGiftCertificateTag(int giftCertificateId, int tagId);
+    List<GiftCertificate> findGiftCertificatesByParameter(String parameter);
 
-    Optional<List<GiftCertificate>> findSortedGiftCertificates(String query);
-
-    Optional<GiftCertificate> findByName(String name);
-
-    Optional<List<GiftCertificate>> findByTagName(String tagName);
-
-    Optional<List<GiftCertificate>> findByPartOfName(String partOfName);
-
-    Optional<List<GiftCertificate>> findByPartOfDescription(String partOfDescription);
+    Optional<GiftCertificate> update(Long id, GiftCertificate giftCertificate);
 }

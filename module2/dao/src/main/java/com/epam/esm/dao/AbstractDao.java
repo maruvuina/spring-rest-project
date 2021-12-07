@@ -7,9 +7,9 @@ public interface AbstractDao<T> {
 
     Optional<T> create(T t);
 
-    void delete(Integer id);
+    void delete(Long id);
 
-    Optional<T> findById(Integer id);
+    Optional<T> findById(Long id);
 
-    Optional<List<T>> findAll();
+    List<T> findAll();
 }

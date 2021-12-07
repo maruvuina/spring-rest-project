@@ -1,8 +1,6 @@
 package com.epam.esm.dao.util;
 
-public class ColumnLabel {
-
-    private ColumnLabel() {}
+public final class ColumnLabel {
 
     public static final String COLUMN_LABEL_ID = "id";
     public static final String COLUMN_LABEL_NAME = "name";
@@ -13,4 +11,6 @@ public class ColumnLabel {
     public static final String COLUMN_LABEL_LAST_UPDATE_DATE = "last_update_date";
     public static final String COLUMN_LABEL_GIFT_CERTIFICATE_ID = "gift_certificate_id";
     public static final String COLUMN_LABEL_TAG_ID = "tag_id";
+
+    private ColumnLabel() {}
 }
