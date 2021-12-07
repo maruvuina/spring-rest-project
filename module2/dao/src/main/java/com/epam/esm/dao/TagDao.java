@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TagDao extends AbstractDao<Tag> {
+
     Optional<Tag> findByName(String name);
 
-    Optional<List<Tag>> findTagsByGiftCertificateId(Integer giftCertificateId);
+    List<Tag> findTagsByGiftCertificateId(Integer giftCertificateId);
 }

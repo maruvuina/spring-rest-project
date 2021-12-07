@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.postgresql.util.PGInterval;
 
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Builder
 @Data
@@ -14,11 +16,12 @@ import java.time.Instant;
 @NoArgsConstructor
 public class GiftCertificate {
 
-    private Integer id;
+    private Long id;
     private String name;
     private String description;
-    private Double price;
+    private BigDecimal price;
     private PGInterval duration;
     private Instant createDate;
     private Instant lastUpdateDate;
+    private List<Tag> tags;
 }

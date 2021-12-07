@@ -2,9 +2,7 @@ package com.epam.esm.dao.util;
 
 import org.intellij.lang.annotations.Language;
 
-public class SqlQuery {
-
-    private SqlQuery() {}
+public final class SqlQuery {
 
     @Language("PostgreSQL")
     public static final String TAG_CREATE = "INSERT INTO tag (name) VALUES (:name)";
@@ -92,4 +90,6 @@ public class SqlQuery {
             "SELECT id, name, description, price, duration, create_date, last_update_date " +
                     "FROM gift_certificate " +
                     "ORDER BY name DESC";
+
+    private SqlQuery() {}
 }
