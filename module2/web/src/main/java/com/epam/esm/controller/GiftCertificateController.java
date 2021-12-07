@@ -1,8 +1,8 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.service.dto.GiftCertificateDto;
+import com.epam.esm.service.GiftCertificateService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,33 +24,27 @@ public class GiftCertificateController {
     private final GiftCertificateService giftCertificateService;
 
     @PostMapping
-    public ResponseEntity<GiftCertificateRetrieveDto> create(@RequestBody GiftCertificateRequestDto requestDto) throws ServiceException {
-        return new ResponseEntity<>(giftCertificateService.create(requestDto), HttpStatus.OK);
+    public GiftCertificateDto create(@RequestBody GiftCertificateDto giftCertificateDto) {
+        return giftCertificateService.create(giftCertificateDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
+    public void delete(@PathVariable("id") Long id) {
         giftCertificateService.delete(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GiftCertificateRetrieveDto> getById(@PathVariable("id") Integer id) throws ServiceException {
-        return new ResponseEntity<>(giftCertificateService.getById(id), HttpStatus.OK);
+    public GiftCertificateDto getById(@PathVariable("id") Long id) {
+        return giftCertificateService.retrieveById(id);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<GiftCertificateRetrieveDto> update(@PathVariable("id") Integer id, @RequestBody GiftCertificateRequestDto requestDto) throws ServiceException {
-        return new ResponseEntity<>(giftCertificateService.update(requestDto), HttpStatus.OK);
+    public GiftCertificateDto update(@PathVariable("id") Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
+        return giftCertificateService.update(id, giftCertificateDto);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<GiftCertificateRetrieveDto> updatePart(@PathVariable("id") Integer id, @RequestBody GiftCertificateRequestDto requestDto) throws ServiceException {
-        return null;
-    }
-
-    @GetMapping()
-    public ResponseEntity<List<GiftCertificateRetrieveDto>> getSortedGiftCertificates(@RequestParam String sortType) throws ServiceException {
-        return new ResponseEntity<>(giftCertificateService.getSortedGiftCertificates(sortType), HttpStatus.OK);
+    public GiftCertificateDto updatePart(@PathVariable("id") Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
+        return giftCertificateService.updatePart(id, giftCertificateDto);
     }
 }

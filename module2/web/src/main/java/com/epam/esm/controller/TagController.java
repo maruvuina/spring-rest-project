@@ -1,8 +1,8 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.service.TagService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,23 +21,22 @@ public class TagController {
     private final TagService tagService;
 
     @PostMapping
-    public ResponseEntity<TagDto> create(@RequestBody TagDto tagDto) throws ServiceException {
-        return new ResponseEntity<>(tagService.create(tagDto), HttpStatus.OK);
+    public TagDto create(@RequestBody TagDto tagDto) {
+        return tagService.create(tagDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Integer id) {
+    public void delete(@PathVariable("id") Long id) {
         tagService.delete(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping
-    public ResponseEntity<List<TagDto>> getAll() throws ServiceException {
-        return new ResponseEntity<>(tagService.getAll(), HttpStatus.OK);
+    public List<TagDto> retrieveAll() {
+        return tagService.retrieveAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TagDto> getById(@PathVariable("id") Integer id) throws ServiceException {
-        return new ResponseEntity<>(tagService.getById(id), HttpStatus.OK);
+    public TagDto retrieveById(@PathVariable("id") Long id) {
+        return tagService.retrieveById(id);
     }
 }
