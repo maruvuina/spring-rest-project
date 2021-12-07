@@ -1,4 +1,4 @@
-package com.epam.esm.service.exception;
+package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.service.exception.ServiceException;

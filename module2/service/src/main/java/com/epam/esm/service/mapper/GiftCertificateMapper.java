@@ -48,27 +48,6 @@ public class GiftCertificateMapper {
                 .build();
     }
 
-    private String retrieveFormatterDate(Instant instant) {
-        return DateTimeFormatter
-                .ofPattern(DATE_FORMAT)
-                .withZone(ZoneId.of(TIME_ZONE))
-                .format(Instant.parse(instant.toString()));
-    }
-
-    private List<TagDto> retrieveTagDtoList(List<Tag> tagList) {
-        return tagList.stream().map(tagMapper::mapToTagDto).collect(Collectors.toList());
-    }
-
-    private PGInterval retrieveDuration(Integer days) {
-        var interval = new PGInterval();
-        interval.setDays(days);
-        return interval;
-    }
-
-    private Instant retrieveDate() {
-        return Instant.now();
-    }
-
     public void mergeGiftCertificate(GiftCertificate newGiftCertificate, GiftCertificate oldGiftCertificate) {
         if (newGiftCertificate != null) {
             if (newGiftCertificate.getName() != null) {
@@ -90,5 +69,26 @@ public class GiftCertificateMapper {
                 oldGiftCertificate.setLastUpdateDate(newGiftCertificate.getLastUpdateDate());
             }
         }
+    }
+
+    private String retrieveFormatterDate(Instant instant) {
+        return DateTimeFormatter
+                .ofPattern(DATE_FORMAT)
+                .withZone(ZoneId.of(TIME_ZONE))
+                .format(Instant.parse(instant.toString()));
+    }
+
+    private List<TagDto> retrieveTagDtoList(List<Tag> tagList) {
+        return tagList.stream().map(tagMapper::mapToTagDto).collect(Collectors.toList());
+    }
+
+    private PGInterval retrieveDuration(Integer days) {
+        var interval = new PGInterval();
+        interval.setDays(days);
+        return interval;
+    }
+
+    private Instant retrieveDate() {
+        return Instant.now();
     }
 }
