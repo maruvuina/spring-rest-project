@@ -1,21 +1,10 @@
 plugins {
     id 'war'
-    id 'java'
 }
 
-repositories {
-    mavenCentral()
-    mavenCentral()
-}
-
-ext {
-    spring_version = '5.3.13'
-    lombok_version = '1.18.22'
-}
 
 dependencies {
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: lombok_version
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombok_version
+    implementation project (':service')
     implementation group: 'org.springframework', name: 'spring-webmvc', version: '5.3.13'
     implementation group: 'org.openapitools', name: 'jackson-databind-nullable', version: '0.2.2'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.0'
@@ -24,6 +13,3 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
 }
 
-test {
-    useJUnitPlatform()
-}
