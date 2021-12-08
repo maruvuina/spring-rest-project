@@ -1,14 +1,16 @@
 package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.GiftCertificate;
 import com.epam.esm.dao.entity.Tag;
 import com.epam.esm.service.GiftCertificateService;
+import com.epam.esm.service.TagService;
+import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.mapper.GiftCertificateMapper;
 import com.epam.esm.service.mapper.TagMapper;
+import com.epam.esm.service.validator.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,30 +24,33 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
+    private final GiftCertificateDao giftCertificateDao;
+    private final TagService tagService;
+    private final GiftCertificateMapper giftCertificateMapper;
+    private final TagMapper tagMapper;
+    private final Validator validator;
+
     @Override
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
+        validator.validatedGiftCertificateDto(giftCertificateDto);
+        GiftCertificate giftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
+        giftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
         GiftCertificate createdGiftCertificate =
-                giftCertificateDao.create(giftCertificateMapper.mapToGiftCertificate(giftCertificateDto))
-                        .orElseThrow(() -> new ServiceException("An error occurred while creating gift certificate"));
-        log.info("GiftCertificate created. [giftCertificate={}]", createdGiftCertificate);
+                giftCertificateDao.create(giftCertificate).orElseThrow(() -> new ServiceException("An error occurred while creating gift certificate"));
         return setTagsAndRetrieveGiftCertificateDto(createdGiftCertificate);
     }
 
     @Override
     public void delete(Long id) {
-        if (id == null) {
-            throw new ServiceException();
-        }
+        validator.validatedId(id);
         giftCertificateDao.delete(id);
         log.info("GiftCertificate deleted with id = {}", id);
     }
 
     @Override
     public GiftCertificateDto retrieveById(Long id) {
-        if (id == null) {
-            throw new ServiceException();
-        }
+        validator.validatedId(id);
         GiftCertificate foundGiftCertificate =
                 giftCertificateDao.findById(id).orElseThrow(() -> new ServiceException("An error occurred while getting gift certificate by id = " + id));
         return setTagsAndRetrieveGiftCertificateDto(foundGiftCertificate);
@@ -62,6 +67,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
+        updateValidation(id, giftCertificateDto);
         GiftCertificate updatedGiftCertificate =
                 giftCertificateDao.update(id, giftCertificateMapper.mapToGiftCertificate(giftCertificateDto))
                         .orElseThrow(() -> new ServiceException("An error occurred while updating gift certificate"));
@@ -70,6 +76,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public GiftCertificateDto updatePart(Long id, GiftCertificateDto giftCertificateDto) {
+        updateValidation(id, giftCertificateDto);
         GiftCertificate newGiftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
         GiftCertificate savedGiftCertificate =
                 giftCertificateDao.findById(id)
@@ -84,11 +91,25 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     private GiftCertificateDto setTagsAndRetrieveGiftCertificateDto(GiftCertificate giftCertificate) {
-        giftCertificate.setTags(retrieveTagsByGiftCertificateId(giftCertificate.getId()));
-        return giftCertificateMapper.mapToGiftCertificateDto(giftCertificate);
+        GiftCertificateDto giftCertificateDto = giftCertificateMapper.mapToGiftCertificateDto(giftCertificate);
+        giftCertificateDto.setTags(tagService.retrieveTagsByGiftCertificateId(giftCertificate.getId()));
+        return giftCertificateDto;
     }
 
-    private List<Tag> retrieveTagsByGiftCertificateId(Long giftCertificateId) {
-        return tagDao.findTagsByGiftCertificateId(giftCertificateId);
+    private List<Tag> setTagsToGiftCertificate(List<TagDto> tagDtoList) {
+        return tagDtoList.stream()
+                .map(tagDto -> {
+                    String tagName = tagDto.getName();
+                    if (!tagService.existsByName(tagName)) {
+                        tagService.create(tagDto);
+                    }
+                    return tagMapper.mapToTag(tagService.retrieveByName(tagName));
+                })
+                .collect(Collectors.toList());
+    }
+
+    private void updateValidation(Long id, GiftCertificateDto giftCertificateDto) {
+        validator.validatedId(id);
+        validator.validatedGiftCertificateDto(giftCertificateDto);
     }
 }
