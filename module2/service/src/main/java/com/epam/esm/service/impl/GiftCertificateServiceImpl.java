@@ -10,36 +10,38 @@ import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.mapper.GiftCertificateMapper;
 import com.epam.esm.service.mapper.TagMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
-    private final GiftCertificateDao giftCertificateDao;
-    private final TagDao tagDao;
-    private final GiftCertificateMapper giftCertificateMapper;
-    private final TagMapper tagMapper;
-
+    @Override
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
         GiftCertificate createdGiftCertificate =
                 giftCertificateDao.create(giftCertificateMapper.mapToGiftCertificate(giftCertificateDto))
                         .orElseThrow(() -> new ServiceException("An error occurred while creating gift certificate"));
+        log.info("GiftCertificate created. [giftCertificate={}]", createdGiftCertificate);
         return setTagsAndRetrieveGiftCertificateDto(createdGiftCertificate);
     }
 
+    @Override
     public void delete(Long id) {
         if (id == null) {
             throw new ServiceException();
         }
         giftCertificateDao.delete(id);
+        log.info("GiftCertificate deleted with id = {}", id);
     }
 
+    @Override
     public GiftCertificateDto retrieveById(Long id) {
         if (id == null) {
             throw new ServiceException();
@@ -49,6 +51,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         return setTagsAndRetrieveGiftCertificateDto(foundGiftCertificate);
     }
 
+    @Override
     public List<GiftCertificateDto> retrieveAll() {
         return giftCertificateDao.findAll()
                 .stream()
@@ -56,6 +59,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
         GiftCertificate updatedGiftCertificate =
@@ -64,6 +68,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         return setTagsAndRetrieveGiftCertificateDto(updatedGiftCertificate);
     }
 
+    @Override
     public GiftCertificateDto updatePart(Long id, GiftCertificateDto giftCertificateDto) {
         GiftCertificate newGiftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
         GiftCertificate savedGiftCertificate =
@@ -73,6 +78,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         return update(id, giftCertificateMapper.mapToGiftCertificateDto(savedGiftCertificate));
     }
 
+    @Override
     public List<GiftCertificateDto> findGiftCertificatesByParameter() {
         return null;
     }
