@@ -18,11 +18,11 @@ import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_ID;
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_NAME;
 import static com.epam.esm.dao.util.SqlQuery.TAG_CREATE;
 import static com.epam.esm.dao.util.SqlQuery.TAG_DELETE;
+import static com.epam.esm.dao.util.SqlQuery.TAG_EXISTS;
 import static com.epam.esm.dao.util.SqlQuery.TAG_FIND_ALL;
 import static com.epam.esm.dao.util.SqlQuery.TAG_FIND_BY_GIFT_CERTIFICATE_ID;
 import static com.epam.esm.dao.util.SqlQuery.TAG_FIND_BY_ID;
 import static com.epam.esm.dao.util.SqlQuery.TAG_FIND_BY_NAME;
-
 
 @Component
 @RequiredArgsConstructor
@@ -64,5 +64,10 @@ public class TagDaoImpl implements TagDao {
     @Override
     public List<Tag> findTagsByGiftCertificateId(Long giftCertificateId) {
         return jdbcTemplate.query(TAG_FIND_BY_GIFT_CERTIFICATE_ID, BeanPropertyRowMapper.newInstance(Tag.class), giftCertificateId);
+    }
+
+    @Override
+    public boolean existsByName(String name) {
+        return jdbcTemplate.queryForObject(TAG_EXISTS, Boolean.class, name);
     }
 }

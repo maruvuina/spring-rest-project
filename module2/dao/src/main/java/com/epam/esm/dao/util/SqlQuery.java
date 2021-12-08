@@ -91,5 +91,9 @@ public final class SqlQuery {
                     "FROM gift_certificate " +
                     "ORDER BY name DESC";
 
+    @Language("PostgreSQL")
+    public static final String TAG_EXISTS =
+            "SELECT exists(SELECT 1 FROM tag WHERE name=:name)";
+
     private SqlQuery() {}
 }

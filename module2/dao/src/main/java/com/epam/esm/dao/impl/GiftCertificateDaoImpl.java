@@ -1,7 +1,6 @@
 package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.GiftCertificateDao;
-import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.GiftCertificate;
 import com.epam.esm.dao.entity.Tag;
 import com.epam.esm.dao.util.GiftCertificateParameter;
@@ -40,7 +39,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    private final TagDao tagDao;
 
     @Override
     public Optional<GiftCertificate> create(GiftCertificate giftCertificate) {
@@ -97,9 +95,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     private void createGiftCertificateTag(Long giftCertificateId, List<Tag> tags) {
-        tags.forEach(tag -> {
-            long tagId = tagDao.findByName(tag.getName()).get().getId();
-            jdbcTemplate.update(GIFT_CERTIFICATE_TAG_CREATE, giftCertificateId, tagId);
-        });
+        tags.forEach(tag -> jdbcTemplate.update(GIFT_CERTIFICATE_TAG_CREATE, giftCertificateId, tag.getId()));
     }
 }
