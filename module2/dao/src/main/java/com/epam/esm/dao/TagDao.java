@@ -9,5 +9,5 @@ public interface TagDao extends AbstractDao<Tag> {
 
     Optional<Tag> findByName(String name);
 
-    List<Tag> findTagsByGiftCertificateId(Integer giftCertificateId);
+    List<Tag> findTagsByGiftCertificateId(Long giftCertificateId);
 }

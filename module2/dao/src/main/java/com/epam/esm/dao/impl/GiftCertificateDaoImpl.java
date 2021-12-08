@@ -26,8 +26,12 @@ import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_ID;
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_LAST_UPDATE_DATE;
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_NAME;
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_PRICE;
-import static com.epam.esm.dao.util.SqlQuery.*;
-import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_FIND_BY_NAME;
+import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_CREATE;
+import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_DELETE;
+import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_FIND_ALL;
+import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_FIND_BY_ID;
+import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_TAG_CREATE;
+import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_UPDATE;
 
 @Component
 @RequiredArgsConstructor
