@@ -2,10 +2,9 @@ plugins {
     id 'war'
 }
 
-
 dependencies {
     implementation project (':service')
-    implementation group: 'org.springframework', name: 'spring-webmvc', version: '5.3.13'
+    implementation group: 'org.springframework', name: 'spring-webmvc', version: spring_version
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
 }
 
