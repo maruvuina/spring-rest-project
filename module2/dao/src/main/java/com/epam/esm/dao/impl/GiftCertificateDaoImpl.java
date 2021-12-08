@@ -4,6 +4,7 @@ import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.GiftCertificate;
 import com.epam.esm.dao.entity.Tag;
+import com.epam.esm.dao.util.GiftCertificateParameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -47,8 +48,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         SqlParameterSource namedParameters = getNamedParameters(giftCertificate);
         namedParameterJdbcTemplate.update(GIFT_CERTIFICATE_CREATE, namedParameters, keyHolder, new String[]{COLUMN_LABEL_ID});
         Optional<GiftCertificate> createdGiftCertificate = findById(keyHolder.getKey().longValue());
-        List<Tag> tags = giftCertificate.getTags();
-        addTags(createdGiftCertificate.get().getId(), tags);
+        createGiftCertificateTag(createdGiftCertificate.get().getId(), giftCertificate.getTags());
         return createdGiftCertificate;
     }
 
@@ -70,7 +70,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public List<GiftCertificate> findGiftCertificatesByParameter(String parameter) {
+    public List<GiftCertificate> findGiftCertificatesByParameter(GiftCertificateParameter giftCertificateParameter) {
         return null;
     }
 
@@ -80,10 +80,6 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         namedParameters.addValue(COLUMN_LABEL_ID, id);
         namedParameterJdbcTemplate.update(GIFT_CERTIFICATE_UPDATE, namedParameters);
         return findById(id);
-    }
-
-    private void createGiftCertificateTag(Long giftCertificateId, Long tagId) {
-        jdbcTemplate.update(GIFT_CERTIFICATE_TAG_CREATE, giftCertificateId, tagId);
     }
 
     private Timestamp getDate(Instant instant) {
@@ -100,10 +96,10 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
                 .addValue(COLUMN_LABEL_LAST_UPDATE_DATE, getDate(giftCertificate.getCreateDate()));
     }
 
-    private void addTags(Long giftCertificateId, List<Tag> tags) {
+    private void createGiftCertificateTag(Long giftCertificateId, List<Tag> tags) {
         tags.forEach(tag -> {
             long tagId = tagDao.findByName(tag.getName()).get().getId();
-            createGiftCertificateTag(giftCertificateId, tagId);
+            jdbcTemplate.update(GIFT_CERTIFICATE_TAG_CREATE, giftCertificateId, tagId);
         });
     }
 }

@@ -27,7 +27,7 @@ public class DatabaseConfig {
 
     @Bean
     public DataSource dataSource() {
-        var dataSource = new DriverManagerDataSource();
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(driver);
         dataSource.setUrl(url);
         dataSource.setUsername(username);
