@@ -12,7 +12,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan("com.epam.esm.dao")
+@ComponentScan("com.epam.esm")
 @PropertySource({"classpath:database.properties"})
 public class DatabaseConfig {
 

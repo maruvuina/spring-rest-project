@@ -5,11 +5,14 @@ import com.epam.esm.dao.entity.GiftCertificate;
 import com.epam.esm.dao.entity.Tag;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.TagService;
+import com.epam.esm.service.dto.DynamicQueryResult;
+import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
-import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.mapper.GiftCertificateMapper;
 import com.epam.esm.service.mapper.TagMapper;
+import com.epam.esm.service.util.DynamicQuery;
+import com.epam.esm.service.dto.GiftCertificateParameter;
 import com.epam.esm.service.validator.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -86,8 +89,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificateDto> findGiftCertificatesByParameter() {
-        return null;
+    public List<GiftCertificateDto> retrieveGiftCertificatesByParameter(GiftCertificateParameter giftCertificateParameter) {
+        DynamicQueryResult dynamicQueryResult = DynamicQuery.retrieveQuery(giftCertificateParameter);
+        return giftCertificateDao
+                .findGiftCertificatesByParameter(dynamicQueryResult.getQuery(), dynamicQueryResult.getParameter())
+                .stream()
+                .map(this::setTagsAndRetrieveGiftCertificateDto)
+                .collect(Collectors.toList());
     }
 
     private GiftCertificateDto setTagsAndRetrieveGiftCertificateDto(GiftCertificate giftCertificate) {

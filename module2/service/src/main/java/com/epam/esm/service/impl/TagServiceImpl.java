@@ -55,7 +55,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public boolean existsByName(String name) {
-        validator.validateName(name);
+        validator.validateString(name);
         return tagDao.existsByName(name);
     }
 
@@ -70,7 +70,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveByName(String name) {
-        validator.validateName(name);
+        validator.validateString(name);
         return tagMapper.mapToTagDto(tagDao.findByName(name)
                 .orElseThrow(() -> new ServiceException("An error occurred while getting tag by name = " + name)));
     }

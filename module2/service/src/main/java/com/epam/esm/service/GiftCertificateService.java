@@ -1,6 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.service.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.GiftCertificateParameter;
 
 import java.util.List;
 
@@ -10,5 +11,5 @@ public interface GiftCertificateService extends AbstractService<GiftCertificateD
 
     GiftCertificateDto updatePart(Long id, GiftCertificateDto giftCertificateDto);
 
-    List<GiftCertificateDto> findGiftCertificatesByParameter();
+    List<GiftCertificateDto> retrieveGiftCertificatesByParameter(GiftCertificateParameter giftCertificateParameter);
 }

@@ -3,7 +3,6 @@ package com.epam.esm.dao.impl;
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.entity.GiftCertificate;
 import com.epam.esm.dao.entity.Tag;
-import com.epam.esm.dao.util.GiftCertificateParameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_CREATE_DATE;
@@ -68,8 +68,8 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public List<GiftCertificate> findGiftCertificatesByParameter(GiftCertificateParameter giftCertificateParameter) {
-        return null;
+    public List<GiftCertificate> findGiftCertificatesByParameter(String query, String parameter) {
+        return !Objects.equals(parameter, "") ? jdbcTemplate.query(query, BeanPropertyRowMapper.newInstance(GiftCertificate.class), parameter) : retrieveSortedData(query);
     }
 
     @Override
@@ -96,5 +96,9 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
     private void createGiftCertificateTag(Long giftCertificateId, List<Tag> tags) {
         tags.forEach(tag -> jdbcTemplate.update(GIFT_CERTIFICATE_TAG_CREATE, giftCertificateId, tag.getId()));
+    }
+
+    private List<GiftCertificate> retrieveSortedData(String query) {
+        return jdbcTemplate.query(query, BeanPropertyRowMapper.newInstance(GiftCertificate.class));
     }
 }

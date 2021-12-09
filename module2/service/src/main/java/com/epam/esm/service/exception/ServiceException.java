@@ -1,6 +1,7 @@
 package com.epam.esm.service.exception;
 
 public class ServiceException extends RuntimeException {
+
     public ServiceException() {
         super();
     }

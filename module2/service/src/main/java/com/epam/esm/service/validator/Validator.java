@@ -3,11 +3,12 @@ package com.epam.esm.service.validator;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+@Component
 public class Validator {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
@@ -16,7 +17,7 @@ public class Validator {
         validateParam(id);
     }
 
-    public void validateName(String name) {
+    public void validateString(String name) {
         validateParam(name);
     }
 
@@ -40,7 +41,7 @@ public class Validator {
     }
 
     private void isStringParameterValid(String parameter) {
-        if (StringUtils.isEmpty(parameter)) {
+        if (parameter.isEmpty()) {
             throw new ServiceException("Incorrect string value");
         }
     }

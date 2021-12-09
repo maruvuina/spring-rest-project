@@ -1,7 +1,8 @@
-package com.epam.esm.controller;
+package com.epam.esm.web.controller;
 
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.GiftCertificateService;
+import com.epam.esm.service.dto.GiftCertificateParameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -52,5 +53,11 @@ public class GiftCertificateController {
     @ResponseStatus(code = HttpStatus.OK)
     public GiftCertificateDto updatePart(@PathVariable("id") Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.updatePart(id, giftCertificateDto);
+    }
+
+    @GetMapping
+    @ResponseStatus(code = HttpStatus.OK)
+    public List<GiftCertificateDto> retrieveAll(GiftCertificateParameter giftCertificateParameter) {
+        return giftCertificateService.retrieveGiftCertificatesByParameter(giftCertificateParameter);
     }
 }

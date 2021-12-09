@@ -1,4 +1,4 @@
-package com.epam.esm.dao.util;
+package com.epam.esm.service.dto;
 
 import lombok.Data;
 
@@ -7,7 +7,7 @@ public class GiftCertificateParameter {
 
     private String tagName;
     private String giftCertificateName;
-    private String giftCertificateDescription;
-    private String sortType;
-    private String orderType;
+    private String description;
+    private String sort;
+    private String order;
 }
