@@ -1,13 +1,13 @@
 plugins {
-    id 'java'
+    id 'war'
 }
 
 group 'com.epam.esm'
 version '1.0-SNAPSHOT'
 
-
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'java-library'
 
     repositories {
         mavenCentral()
@@ -16,6 +16,7 @@ subprojects {
     ext {
         spring_version = '5.3.13'
         lombok_version = '1.18.22'
+        junit_version = '5.8.2'
     }
 
     dependencies {
@@ -23,6 +24,10 @@ subprojects {
         implementation group: 'org.springframework', name: 'spring-context', version: spring_version
         compileOnly group: 'org.projectlombok', name: 'lombok', version: lombok_version
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombok_version
+        implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+        implementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: junit_version
+        testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
+        testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.1.0'
     }
 
     test {
@@ -30,3 +35,8 @@ subprojects {
     }
 }
 
+dependencies {
+    implementation project (':dao')
+    implementation project (':service')
+    implementation project (':web')
+}

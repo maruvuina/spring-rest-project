@@ -7,4 +7,6 @@ dependencies {
     implementation group: 'org.springframework', name: 'spring-jdbc', version: spring_version
     implementation group: 'org.postgresql', name: 'postgresql', version: postgresql_version
     implementation group: 'com.intellij', name: 'annotations', version: annotations_version
+    testImplementation group: 'com.h2database', name: 'h2', version: '2.0.202'
+    testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '2.2'
 }
