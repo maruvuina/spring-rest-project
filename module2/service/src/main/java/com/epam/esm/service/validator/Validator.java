@@ -53,8 +53,10 @@ public class Validator {
     }
 
     private void isValidDate(String date) {
-        if (!isValidDateFormat(date)) {
-            throw new ServiceException("Date format is incorrect");
+        if (date != null && !date.isBlank()) {
+            if (!isValidDateFormat(date)) {
+                throw new ServiceException("Date format is incorrect");
+            }
         }
     }
 

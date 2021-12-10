@@ -9,6 +9,7 @@ public class TagMapper {
 
     public Tag mapToTag(TagDto tagDto) {
         return Tag.builder()
+                .id(tagDto.getId())
                 .name(tagDto.getName())
                 .build();
     }
