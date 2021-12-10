@@ -26,12 +26,24 @@ public class Validator {
     }
 
     public void validatedGiftCertificateDto(GiftCertificateDto giftCertificateDto) {
-        isStringParameterValid(giftCertificateDto.getName());
-        isStringParameterValid(giftCertificateDto.getDescription());
-        isPositive(giftCertificateDto.getPrice().intValue());
-        isPositive(giftCertificateDto.getDuration());
-        isValidDate(giftCertificateDto.getCreateDate());
-        isValidDate(giftCertificateDto.getLastUpdateDate());
+        if (giftCertificateDto.getName() != null) {
+            isStringParameterValid(giftCertificateDto.getName());
+        }
+        if (giftCertificateDto.getDescription() != null) {
+            isStringParameterValid(giftCertificateDto.getDescription());
+        }
+        if (giftCertificateDto.getPrice() != null) {
+            isPositive(giftCertificateDto.getPrice().intValue());
+        }
+        if (giftCertificateDto.getDuration() != null) {
+            isPositive(giftCertificateDto.getDuration());
+        }
+        if (giftCertificateDto.getCreateDate() != null) {
+            isValidDate(giftCertificateDto.getCreateDate());
+        }
+        if (giftCertificateDto.getLastUpdateDate() != null) {
+            isValidDate(giftCertificateDto.getLastUpdateDate());
+        }
     }
 
     private void validateParam(Object param) {

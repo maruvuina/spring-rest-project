@@ -91,7 +91,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
                 .addValue(COLUMN_LABEL_PRICE, giftCertificate.getPrice())
                 .addValue(COLUMN_LABEL_DURATION, giftCertificate.getDuration())
                 .addValue(COLUMN_LABEL_CREATE_DATE, getDate(giftCertificate.getCreateDate()))
-                .addValue(COLUMN_LABEL_LAST_UPDATE_DATE, getDate(giftCertificate.getCreateDate()));
+                .addValue(COLUMN_LABEL_LAST_UPDATE_DATE, getDate(giftCertificate.getLastUpdateDate()));
     }
 
     private void createGiftCertificateTag(Long giftCertificateId, List<Tag> tags) {

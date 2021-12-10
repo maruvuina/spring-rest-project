@@ -16,6 +16,7 @@ public class GiftCertificateMapper {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
     private static final String TIME_ZONE = "UTC";
+    private static final String ZERO_HOUR_OFFSET = "Z";
 
     public GiftCertificate mapToGiftCertificate(GiftCertificateDto giftCertificateDto) {
         return GiftCertificate
@@ -24,8 +25,8 @@ public class GiftCertificateMapper {
                 .description(giftCertificateDto.getDescription())
                 .price(giftCertificateDto.getPrice())
                 .duration(retrieveDuration(giftCertificateDto.getDuration()))
-                .createDate(retrieveDate())
-                .lastUpdateDate(retrieveDate())
+                .createDate(retrieveDate(giftCertificateDto.getCreateDate()))
+                .lastUpdateDate(retrieveDate(giftCertificateDto.getLastUpdateDate()))
                 .build();
     }
 
@@ -73,12 +74,19 @@ public class GiftCertificateMapper {
     }
 
     private PGInterval retrieveDuration(Integer days) {
-        var interval = new PGInterval();
-        interval.setDays(days);
+        PGInterval interval = null;
+        if (days != null) {
+            interval = new PGInterval();
+            interval.setDays(days);
+        }
         return interval;
     }
 
-    private Instant retrieveDate() {
-        return Instant.now();
+    private Instant retrieveDate(String date) {
+        Instant instant = null;
+        if (date != null) {
+            instant = Instant.parse(date + ZERO_HOUR_OFFSET);
+        }
+        return instant;
     }
 }
