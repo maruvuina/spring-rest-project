@@ -2,9 +2,9 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.Tag;
-import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.mapper.TagMapper;
 import com.epam.esm.service.validator.Validator;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,9 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto create(TagDto tagDto) {
-        validator.validatedTagDto(tagDto);
+        if (!validator.validatedTagDto(tagDto)) {
+            throw new ServiceException("Incorrect string value");
+        }
         Tag createdTag = tagDao.create(tagMapper.mapToTag(tagDto))
                 .orElseThrow(() -> new ServiceException("An error occurred while saving the tag"));
         return tagMapper.mapToTagDto(createdTag);
@@ -33,7 +35,9 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public void delete(Long id) {
-        validator.validatedId(id);
+        if (!validator.validatedId(id)) {
+            throw new ServiceException("Null value passed");
+        }
         tagDao.delete(id);
         log.info("Tag deleted with id = {}", id);
     }
@@ -48,20 +52,26 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveById(Long id) {
-        validator.validatedId(id);
+        if (!validator.validatedId(id)) {
+            throw new ServiceException("Null value passed");
+        }
         return tagMapper.mapToTagDto(tagDao.findById(id)
                 .orElseThrow(() -> new ServiceException("An error occurred while getting tag by id = " + id)));
     }
 
     @Override
     public boolean existsByName(String name) {
-        validator.validateString(name);
+        if (!validator.validateString(name)) {
+            throw new ServiceException("Null value passed");
+        }
         return tagDao.existsByName(name);
     }
 
     @Override
     public List<TagDto> retrieveTagsByGiftCertificateId(Long id) {
-        validator.validatedId(id);
+        if (!validator.validatedId(id)) {
+            throw new ServiceException("Null value passed");
+        }
         return tagDao.findTagsByGiftCertificateId(id)
                 .stream()
                 .map(tagMapper::mapToTagDto)
@@ -70,7 +80,9 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveByName(String name) {
-        validator.validateString(name);
+        if (!validator.validateString(name)) {
+            throw new ServiceException("Null value passed");
+        }
         return tagMapper.mapToTagDto(tagDao.findByName(name)
                 .orElseThrow(() -> new ServiceException("An error occurred while getting tag by name = " + name)));
     }

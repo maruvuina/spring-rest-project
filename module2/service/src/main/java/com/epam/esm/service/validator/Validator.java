@@ -2,74 +2,82 @@ package com.epam.esm.service.validator;
 
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.TagDto;
-import com.epam.esm.service.exception.ServiceException;
 import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class Validator {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
-    public void validatedId(Long id) {
-        validateParam(id);
+    public boolean validatedId(Long id) {
+        return validateParam(id);
     }
 
-    public void validateString(String name) {
-        validateParam(name);
+    public boolean validateString(String name) {
+        return validateParam(name);
     }
 
-    public void validatedTagDto(TagDto tagDto) {
-        isStringParameterValid(tagDto.getName());
+    public boolean validatedTagDto(TagDto tagDto) {
+        return isStringParameterValid(tagDto.getName());
     }
 
-    public void validatedGiftCertificateDto(GiftCertificateDto giftCertificateDto) {
+    public boolean validatedGiftCertificateDto(GiftCertificateDto giftCertificateDto) {
+        return isStringParameterValid(giftCertificateDto.getName()) &&
+                isStringParameterValid(giftCertificateDto.getDescription()) &&
+                isPositive(giftCertificateDto.getPrice().intValue()) &&
+                isPositive(giftCertificateDto.getDuration()) &&
+                isValidDate(giftCertificateDto.getCreateDate()) &&
+                isValidDate(giftCertificateDto.getLastUpdateDate());
+    }
+
+    public List<Boolean> validatedUpdatedGiftCertificateDto(GiftCertificateDto giftCertificateDto) {
+        List<Boolean> booleanList = new ArrayList<>();
         if (giftCertificateDto.getName() != null) {
-            isStringParameterValid(giftCertificateDto.getName());
+            booleanList.add(isStringParameterValid(giftCertificateDto.getName()));
         }
         if (giftCertificateDto.getDescription() != null) {
-            isStringParameterValid(giftCertificateDto.getDescription());
+            booleanList.add(isStringParameterValid(giftCertificateDto.getDescription()));
         }
         if (giftCertificateDto.getPrice() != null) {
-            isPositive(giftCertificateDto.getPrice().intValue());
+            booleanList.add(isPositive(giftCertificateDto.getPrice().intValue()));
         }
         if (giftCertificateDto.getDuration() != null) {
-            isPositive(giftCertificateDto.getDuration());
+            booleanList.add(isPositive(giftCertificateDto.getDuration()));
         }
         if (giftCertificateDto.getCreateDate() != null) {
-            isValidDate(giftCertificateDto.getCreateDate());
+            booleanList.add(isValidDate(giftCertificateDto.getCreateDate()));
         }
         if (giftCertificateDto.getLastUpdateDate() != null) {
-            isValidDate(giftCertificateDto.getLastUpdateDate());
+            booleanList.add(isValidDate(giftCertificateDto.getLastUpdateDate()));
         }
+        return booleanList;
     }
 
-    private void validateParam(Object param) {
-        if (param == null) {
-            throw new ServiceException("Null value passed");
-        }
+    private boolean validateParam(Object param) {
+        return param != null;
     }
 
-    private void isStringParameterValid(String parameter) {
-        if (parameter.isEmpty()) {
-            throw new ServiceException("Incorrect string value");
-        }
+    private boolean isStringParameterValid(String parameter) {
+        return parameter.isEmpty();
     }
 
-    private void isPositive(Integer value) {
-        if (value <= 0) {
-            throw new ServiceException("Value is less than zero");
-        }
+    private boolean isPositive(Integer value) {
+        return value <= 0;
     }
 
-    private void isValidDate(String date) {
+    private boolean isValidDate(String date) {
+        boolean isValidDate = false;
         if (date != null && !date.isBlank()) {
-            if (!isValidDateFormat(date)) {
-                throw new ServiceException("Date format is incorrect");
+            if (isValidDateFormat(date)) {
+                isValidDate = true;
             }
         }
+        return isValidDate;
     }
 
     private boolean isValidDateFormat(String date) {

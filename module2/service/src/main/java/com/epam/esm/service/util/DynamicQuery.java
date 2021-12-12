@@ -33,6 +33,8 @@ public final class DynamicQuery {
     private static final String DESC = "desc";
     private static final String ASC = "asc";
 
+    private DynamicQuery() {}
+
     public static DynamicQueryResult retrieveQuery(GiftCertificateParameter giftCertificateParameter) {
         String parameter = "";
         StringBuilder queryBuilder = new StringBuilder();
@@ -43,10 +45,12 @@ public final class DynamicQuery {
             parameter = giftCertificateParameter.getTagName();
         }
         if (isParameterValid(giftCertificateParameter.getGiftCertificateName())) {
-            parameter = searchQueryFill(queryBuilder, COLUMN_LABEL_NAME, giftCertificateParameter.getGiftCertificateName());
+            parameter = searchQueryFill(queryBuilder, COLUMN_LABEL_NAME,
+                    giftCertificateParameter.getGiftCertificateName());
         }
         if (isParameterValid(giftCertificateParameter.getDescription())) {
-            parameter = searchQueryFill(queryBuilder, COLUMN_LABEL_DESCRIPTION, giftCertificateParameter.getDescription());
+            parameter = searchQueryFill(queryBuilder, COLUMN_LABEL_DESCRIPTION,
+                    giftCertificateParameter.getDescription());
         }
         if (isParameterValid(giftCertificateParameter.getSort()) &&
                 isParameterValid(giftCertificateParameter.getOrder())) {
@@ -66,7 +70,12 @@ public final class DynamicQuery {
     }
 
     private static String searchQueryFill(StringBuilder queryBuilder, String columnLabel, String searchValue) {
-        queryBuilder.append(WHERE + SPACE).append(columnLabel).append(SPACE).append(ILIKE).append(SPACE).append(PREPARED_OPERATOR);
+        queryBuilder.append(WHERE + SPACE)
+                .append(columnLabel)
+                .append(SPACE)
+                .append(ILIKE)
+                .append(SPACE)
+                .append(PREPARED_OPERATOR);
         return searchValue + PERCENT;
     }
 
@@ -89,6 +98,4 @@ public final class DynamicQuery {
     private static boolean isStringValueSatisfied(Stream<String> stringStream, String value) {
         return stringStream.anyMatch(value::equalsIgnoreCase);
     }
-
-    private DynamicQuery() {}
 }

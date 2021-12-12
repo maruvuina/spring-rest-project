@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Builder
@@ -22,5 +21,5 @@ public class GiftCertificateDto {
     private Integer duration;
     private String createDate;
     private String lastUpdateDate;
-    private List<TagDto> tags = new ArrayList<>();
+    private List<TagDto> tags;
 }
