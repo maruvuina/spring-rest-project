@@ -63,11 +63,11 @@ public class Validator {
     }
 
     private boolean isStringParameterValid(String parameter) {
-        return parameter.isEmpty();
+        return !parameter.isBlank();
     }
 
     private boolean isPositive(Integer value) {
-        return value <= 0;
+        return value > 0;
     }
 
     private boolean isValidDate(String date) {

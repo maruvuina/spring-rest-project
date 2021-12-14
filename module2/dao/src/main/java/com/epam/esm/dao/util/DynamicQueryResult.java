@@ -1,12 +1,14 @@
-package com.epam.esm.service.dto;
+package com.epam.esm.dao.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.List;
 
 @AllArgsConstructor
 @Getter
 public class DynamicQueryResult {
 
     private String query;
-    private String parameter;
+    private List<String> parameter;
 }

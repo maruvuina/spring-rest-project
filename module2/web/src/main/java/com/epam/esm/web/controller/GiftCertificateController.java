@@ -2,7 +2,7 @@ package com.epam.esm.web.controller;
 
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.GiftCertificateService;
-import com.epam.esm.service.dto.GiftCertificateParameter;
+import com.epam.esm.dao.util.GiftCertificateParameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;

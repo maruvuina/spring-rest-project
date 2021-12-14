@@ -1,7 +1,7 @@
 package com.epam.esm.service;
 
 import com.epam.esm.service.dto.GiftCertificateDto;
-import com.epam.esm.service.dto.GiftCertificateParameter;
+import com.epam.esm.dao.util.GiftCertificateParameter;
 
 import java.util.List;
 

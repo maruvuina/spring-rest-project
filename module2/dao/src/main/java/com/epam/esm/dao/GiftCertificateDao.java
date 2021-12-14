@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface GiftCertificateDao extends AbstractDao<GiftCertificate> {
 
-    List<GiftCertificate> findGiftCertificatesByParameter(String query, String parameter);
+    List<GiftCertificate> findGiftCertificatesByParameter(String query, List<String> parameter);
 
     Optional<GiftCertificate> update(Long id, GiftCertificate giftCertificate);
 }
