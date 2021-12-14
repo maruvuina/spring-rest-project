@@ -8,5 +8,5 @@ import lombok.Data;
 public class ErrorApi {
 
     private String errorMessage;
-    private int errorCode;
+    private String errorCode;
 }

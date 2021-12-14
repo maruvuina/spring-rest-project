@@ -22,6 +22,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.epam.esm.service.util.ErrorMessage.ERROR_GIFT_CERTIFICATE_CREATE;
+import static com.epam.esm.service.util.ErrorMessage.ERROR_GIFT_CERTIFICATE_CREATE_DTO;
+import static com.epam.esm.service.util.ErrorMessage.ERROR_GIFT_CERTIFICATE_GET_BY_ID;
+import static com.epam.esm.service.util.ErrorMessage.ERROR_GIFT_CERTIFICATE_GET_UPDATE;
+import static com.epam.esm.service.util.ErrorMessage.ERROR_GIFT_CERTIFICATE_GET_UPDATE_DTO;
+import static com.epam.esm.service.util.ErrorMessage.ERROR_PARAM;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,20 +44,20 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
         if (!validator.validatedGiftCertificateDto(giftCertificateDto)) {
-            throw new ServiceException("GiftCertificate parameters not valid");
+            throw new ServiceException(ERROR_GIFT_CERTIFICATE_CREATE_DTO);
         }
         GiftCertificate giftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
         giftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
         GiftCertificate createdGiftCertificate =
                 giftCertificateDao.create(giftCertificate)
-                        .orElseThrow(() -> new ServiceException("An error occurred while creating gift certificate"));
+                        .orElseThrow(() -> new ServiceException(ERROR_GIFT_CERTIFICATE_CREATE));
         return setTagsAndRetrieveGiftCertificateDto(createdGiftCertificate);
     }
 
     @Override
     public void delete(Long id) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException("Null value passed");
+            throw new ServiceException(ERROR_PARAM);
         }
         giftCertificateDao.delete(id);
         log.info("GiftCertificate deleted with id = {}", id);
@@ -59,11 +66,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public GiftCertificateDto retrieveById(Long id) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException("Null value passed");
+            throw new ServiceException(ERROR_PARAM);
         }
         GiftCertificate foundGiftCertificate =
                 giftCertificateDao.findById(id).orElseThrow(() ->
-                        new ServiceException("An error occurred while getting gift certificate by id = " + id));
+                        new ServiceException(ERROR_GIFT_CERTIFICATE_GET_BY_ID));
         return setTagsAndRetrieveGiftCertificateDto(foundGiftCertificate);
     }
 
@@ -79,29 +86,29 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException("Null value passed");
+            throw new ServiceException(ERROR_PARAM);
         }
         if (!validator.validatedGiftCertificateDto(giftCertificateDto)) {
-            throw new ServiceException("GiftCertificate parameters to update not valid");
+            throw new ServiceException(ERROR_GIFT_CERTIFICATE_GET_UPDATE_DTO);
         }
         GiftCertificate updatedGiftCertificate =
                 giftCertificateDao.update(id, giftCertificateMapper.mapToGiftCertificate(giftCertificateDto))
-                        .orElseThrow(() -> new ServiceException("An error occurred while updating gift certificate"));
+                        .orElseThrow(() -> new ServiceException(ERROR_GIFT_CERTIFICATE_GET_UPDATE));
         return setTagsAndRetrieveGiftCertificateDto(updatedGiftCertificate);
     }
 
     @Override
     public GiftCertificateDto updatePart(Long id, GiftCertificateDto giftCertificateDto) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException("Null value passed");
+            throw new ServiceException(ERROR_PARAM);
         }
         if (updateValidation(giftCertificateDto)) {
-            throw new ServiceException("GiftCertificate parameters to part update not valid");
+            throw new ServiceException(ERROR_GIFT_CERTIFICATE_GET_UPDATE_DTO);
         }
         GiftCertificate newGiftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
         GiftCertificate savedGiftCertificate =
                 giftCertificateDao.findById(id).orElseThrow(() ->
-                        new ServiceException("An error occurred while getting gift certificate by id = " + id));
+                        new ServiceException(ERROR_GIFT_CERTIFICATE_GET_BY_ID));
         giftCertificateMapper.mergeGiftCertificate(newGiftCertificate, savedGiftCertificate);
         return update(id, giftCertificateMapper.mapToGiftCertificateDto(savedGiftCertificate));
     }

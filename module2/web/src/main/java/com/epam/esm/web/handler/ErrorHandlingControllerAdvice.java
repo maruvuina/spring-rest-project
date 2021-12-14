@@ -11,7 +11,7 @@ public class ErrorHandlingControllerAdvice {
 
     @ExceptionHandler
     public ResponseEntity<ErrorApi> handleResourceNotFoundException(ServiceException ex) {
-        return new ResponseEntity<>(new ErrorApi(ex.getMessage(),
-                ErrorCode.ERROR_40404.getValue()), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorApi(ex.getLocalizedMessage(),
+                ex.getErrorCode().getValue()), HttpStatus.NOT_FOUND);
     }
 }

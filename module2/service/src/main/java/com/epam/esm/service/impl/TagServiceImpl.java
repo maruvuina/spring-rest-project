@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.epam.esm.service.util.ErrorMessage.ERROR_PARAM;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,7 +38,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public void delete(Long id) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException("Null value passed");
+            throw new ServiceException(ERROR_PARAM);
         }
         tagDao.delete(id);
         log.info("Tag deleted with id = {}", id);
@@ -53,7 +55,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagDto retrieveById(Long id) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException("Null value passed");
+            throw new ServiceException(ERROR_PARAM);
         }
         return tagMapper.mapToTagDto(tagDao.findById(id)
                 .orElseThrow(() -> new ServiceException("An error occurred while getting tag by id = " + id)));
@@ -62,7 +64,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public boolean existsByName(String name) {
         if (!validator.validateString(name)) {
-            throw new ServiceException("Null value passed");
+            throw new ServiceException(ERROR_PARAM);
         }
         return tagDao.existsByName(name);
     }
@@ -70,7 +72,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public List<TagDto> retrieveTagsByGiftCertificateId(Long id) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException("Null value passed");
+            throw new ServiceException(ERROR_PARAM);
         }
         return tagDao.findTagsByGiftCertificateId(id)
                 .stream()
@@ -81,7 +83,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagDto retrieveByName(String name) {
         if (!validator.validateString(name)) {
-            throw new ServiceException("Null value passed");
+            throw new ServiceException(ERROR_PARAM);
         }
         return tagMapper.mapToTagDto(tagDao.findByName(name)
                 .orElseThrow(() -> new ServiceException("An error occurred while getting tag by name = " + name)));
