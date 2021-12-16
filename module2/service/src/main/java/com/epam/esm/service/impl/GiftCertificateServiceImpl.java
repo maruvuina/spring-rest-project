@@ -22,12 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.service.util.ErrorMessage.ERROR_GIFT_CERTIFICATE_CREATE;
-import static com.epam.esm.service.util.ErrorMessage.ERROR_GIFT_CERTIFICATE_CREATE_DTO;
-import static com.epam.esm.service.util.ErrorMessage.ERROR_GIFT_CERTIFICATE_GET_BY_ID;
-import static com.epam.esm.service.util.ErrorMessage.ERROR_GIFT_CERTIFICATE_GET_UPDATE;
-import static com.epam.esm.service.util.ErrorMessage.ERROR_GIFT_CERTIFICATE_GET_UPDATE_DTO;
-import static com.epam.esm.service.util.ErrorMessage.ERROR_PARAM;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_001400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_100400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_101400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_102400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_103400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_104400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_105400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_200400;
 
 @Slf4j
 @Service
@@ -44,20 +46,23 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
         if (!validator.validatedGiftCertificateDto(giftCertificateDto)) {
-            throw new ServiceException(ERROR_GIFT_CERTIFICATE_CREATE_DTO);
+            throw new ServiceException(ERROR_104400);
         }
         GiftCertificate giftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
+        if (giftCertificateDto.getTags() == null) {
+            throw new ServiceException(ERROR_100400);
+        }
+        validateTags(giftCertificateDto.getTags());
         giftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
-        GiftCertificate createdGiftCertificate =
-                giftCertificateDao.create(giftCertificate)
-                        .orElseThrow(() -> new ServiceException(ERROR_GIFT_CERTIFICATE_CREATE));
+        GiftCertificate createdGiftCertificate = giftCertificateDao.create(giftCertificate)
+                        .orElseThrow(() -> new ServiceException(ERROR_103400));
         return setTagsAndRetrieveGiftCertificateDto(createdGiftCertificate);
     }
 
     @Override
     public void delete(Long id) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException(ERROR_PARAM);
+            throw new ServiceException(ERROR_001400);
         }
         giftCertificateDao.delete(id);
         log.info("GiftCertificate deleted with id = {}", id);
@@ -66,11 +71,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public GiftCertificateDto retrieveById(Long id) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException(ERROR_PARAM);
+            throw new ServiceException(ERROR_001400);
         }
-        GiftCertificate foundGiftCertificate =
-                giftCertificateDao.findById(id).orElseThrow(() ->
-                        new ServiceException(ERROR_GIFT_CERTIFICATE_GET_BY_ID));
+        GiftCertificate foundGiftCertificate = giftCertificateDao.findById(id).orElseThrow(() ->
+                        new ServiceException(ERROR_101400, String.valueOf(id)));
         return setTagsAndRetrieveGiftCertificateDto(foundGiftCertificate);
     }
 
@@ -86,31 +90,37 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException(ERROR_PARAM);
+            throw new ServiceException(ERROR_001400);
         }
         if (!validator.validatedGiftCertificateDto(giftCertificateDto)) {
-            throw new ServiceException(ERROR_GIFT_CERTIFICATE_GET_UPDATE_DTO);
+            throw new ServiceException(ERROR_105400);
         }
-        GiftCertificate updatedGiftCertificate =
-                giftCertificateDao.update(id, giftCertificateMapper.mapToGiftCertificate(giftCertificateDto))
-                        .orElseThrow(() -> new ServiceException(ERROR_GIFT_CERTIFICATE_GET_UPDATE));
+        GiftCertificate giftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
+        if (giftCertificateDto.getTags() != null) {
+            validateTags(giftCertificateDto.getTags());
+        }
+        giftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
+        GiftCertificate updatedGiftCertificate = giftCertificateDao.update(id, giftCertificate)
+                        .orElseThrow(() -> new ServiceException(ERROR_102400));
         return setTagsAndRetrieveGiftCertificateDto(updatedGiftCertificate);
     }
 
     @Override
+    @Transactional
     public GiftCertificateDto updatePart(Long id, GiftCertificateDto giftCertificateDto) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException(ERROR_PARAM);
+            throw new ServiceException(ERROR_001400);
         }
         if (updateValidation(giftCertificateDto)) {
-            throw new ServiceException(ERROR_GIFT_CERTIFICATE_GET_UPDATE_DTO);
+            throw new ServiceException(ERROR_105400);
         }
         GiftCertificate newGiftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
-        GiftCertificate savedGiftCertificate =
-                giftCertificateDao.findById(id).orElseThrow(() ->
-                        new ServiceException(ERROR_GIFT_CERTIFICATE_GET_BY_ID));
+        GiftCertificate savedGiftCertificate = giftCertificateDao.findById(id).orElseThrow(() ->
+                        new ServiceException(ERROR_101400, String.valueOf(id)));
         giftCertificateMapper.mergeGiftCertificate(newGiftCertificate, savedGiftCertificate);
-        return update(id, giftCertificateMapper.mapToGiftCertificateDto(savedGiftCertificate));
+        GiftCertificateDto savedGiftCertificateDto = giftCertificateMapper.mapToGiftCertificateDto(savedGiftCertificate);
+        savedGiftCertificateDto.setTags(giftCertificateDto.getTags());
+        return update(id, savedGiftCertificateDto);
     }
 
     @Override
@@ -121,6 +131,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 .stream()
                 .map(this::setTagsAndRetrieveGiftCertificateDto)
                 .collect(Collectors.toList());
+    }
+
+    private void validateTags(List<TagDto> tagDtoList) {
+        tagDtoList.forEach(tagDto -> {
+            if (!validator.validatedTagDto(tagDto)) {
+                throw new ServiceException(ERROR_200400);
+            }
+        });
     }
 
     private GiftCertificateDto setTagsAndRetrieveGiftCertificateDto(GiftCertificate giftCertificate) {

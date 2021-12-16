@@ -14,7 +14,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.service.util.ErrorMessage.ERROR_PARAM;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_001400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_002400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_200400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_201400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_202400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_203400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_204400;
 
 @Slf4j
 @Service
@@ -28,17 +34,20 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagDto create(TagDto tagDto) {
         if (!validator.validatedTagDto(tagDto)) {
-            throw new ServiceException("Incorrect string value");
+            throw new ServiceException(ERROR_200400);
         }
         Tag createdTag = tagDao.create(tagMapper.mapToTag(tagDto))
-                .orElseThrow(() -> new ServiceException("An error occurred while saving the tag"));
+                .orElseThrow(() -> new ServiceException(ERROR_203400));
         return tagMapper.mapToTagDto(createdTag);
     }
 
     @Override
     public void delete(Long id) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException(ERROR_PARAM);
+            throw new ServiceException(ERROR_001400);
+        }
+        if (tagDao.existsInGiftCertificateTag(id)) {
+            throw new ServiceException(ERROR_204400, String.valueOf(id));
         }
         tagDao.delete(id);
         log.info("Tag deleted with id = {}", id);
@@ -55,16 +64,16 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagDto retrieveById(Long id) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException(ERROR_PARAM);
+            throw new ServiceException(ERROR_001400);
         }
         return tagMapper.mapToTagDto(tagDao.findById(id)
-                .orElseThrow(() -> new ServiceException("An error occurred while getting tag by id = " + id)));
+                .orElseThrow(() -> new ServiceException(ERROR_201400, String.valueOf(id))));
     }
 
     @Override
     public boolean existsByName(String name) {
         if (!validator.validateString(name)) {
-            throw new ServiceException(ERROR_PARAM);
+            throw new ServiceException(ERROR_002400);
         }
         return tagDao.existsByName(name);
     }
@@ -72,7 +81,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public List<TagDto> retrieveTagsByGiftCertificateId(Long id) {
         if (!validator.validatedId(id)) {
-            throw new ServiceException(ERROR_PARAM);
+            throw new ServiceException(ERROR_001400);
         }
         return tagDao.findTagsByGiftCertificateId(id)
                 .stream()
@@ -83,9 +92,9 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagDto retrieveByName(String name) {
         if (!validator.validateString(name)) {
-            throw new ServiceException(ERROR_PARAM);
+            throw new ServiceException(ERROR_002400);
         }
         return tagMapper.mapToTagDto(tagDao.findByName(name)
-                .orElseThrow(() -> new ServiceException("An error occurred while getting tag by name = " + name)));
+                .orElseThrow(() -> new ServiceException(ERROR_202400, name)));
     }
 }

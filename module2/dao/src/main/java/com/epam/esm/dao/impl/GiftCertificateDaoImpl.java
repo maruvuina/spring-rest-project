@@ -30,6 +30,7 @@ import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_DELETE;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_FIND_ALL;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_FIND_BY_ID;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_TAG_CREATE;
+import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_TAG_EXISTS;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_UPDATE;
 
 @Component
@@ -43,7 +44,8 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     public Optional<GiftCertificate> create(GiftCertificate giftCertificate) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         SqlParameterSource namedParameters = getNamedParameters(giftCertificate);
-        namedParameterJdbcTemplate.update(GIFT_CERTIFICATE_CREATE, namedParameters, keyHolder, new String[]{COLUMN_LABEL_ID});
+        namedParameterJdbcTemplate.update(GIFT_CERTIFICATE_CREATE, namedParameters, keyHolder,
+                new String[]{COLUMN_LABEL_ID});
         Optional<GiftCertificate> createdGiftCertificate = findById(keyHolder.getKey().longValue());
         createGiftCertificateTag(createdGiftCertificate.get().getId(), giftCertificate.getTags());
         return createdGiftCertificate;
@@ -76,6 +78,9 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         MapSqlParameterSource namedParameters = (MapSqlParameterSource) getNamedParameters(giftCertificate);
         namedParameters.addValue(COLUMN_LABEL_ID, id);
         namedParameterJdbcTemplate.update(GIFT_CERTIFICATE_UPDATE, namedParameters);
+        if (giftCertificate.getTags() != null) {
+            addRecordInGiftCertificateTag(id, giftCertificate.getTags());
+        }
         return findById(id);
     }
 
@@ -94,6 +99,23 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     private void createGiftCertificateTag(Long giftCertificateId, List<Tag> tags) {
-        tags.forEach(tag -> jdbcTemplate.update(GIFT_CERTIFICATE_TAG_CREATE, giftCertificateId, tag.getId()));
+        tags.forEach(tag -> createRecordInRecordInGiftCertificateTag(giftCertificateId, tag.getId()));
+    }
+
+    private void addRecordInGiftCertificateTag(Long giftCertificateId, List<Tag> tags) {
+        tags.forEach(tag -> {
+            Long tagId = tag.getId();
+            if (!existsRecordInGiftCertificateTag(giftCertificateId, tagId)) {
+                createRecordInRecordInGiftCertificateTag(giftCertificateId, tagId);
+            }
+        });
+    }
+
+    private boolean existsRecordInGiftCertificateTag(Long giftCertificateId, Long tagId) {
+        return jdbcTemplate.queryForObject(GIFT_CERTIFICATE_TAG_EXISTS, Boolean.class, giftCertificateId, tagId);
+    }
+
+    private void createRecordInRecordInGiftCertificateTag(Long giftCertificateId, Long tagId) {
+        jdbcTemplate.update(GIFT_CERTIFICATE_TAG_CREATE, giftCertificateId, tagId);
     }
 }

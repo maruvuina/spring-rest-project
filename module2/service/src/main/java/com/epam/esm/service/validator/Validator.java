@@ -15,11 +15,11 @@ public class Validator {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
     public boolean validatedId(Long id) {
-        return validateParam(id);
+        return id != null;
     }
 
     public boolean validateString(String name) {
-        return validateParam(name);
+        return isStringParameterValid(name);
     }
 
     public boolean validatedTagDto(TagDto tagDto) {
@@ -58,12 +58,8 @@ public class Validator {
         return booleanList;
     }
 
-    private boolean validateParam(Object param) {
-        return param != null;
-    }
-
     private boolean isStringParameterValid(String parameter) {
-        return !parameter.isBlank();
+        return parameter != null && !parameter.isBlank();
     }
 
     private boolean isPositive(Integer value) {
@@ -71,13 +67,7 @@ public class Validator {
     }
 
     private boolean isValidDate(String date) {
-        boolean isValidDate = false;
-        if (date != null && !date.isBlank()) {
-            if (isValidDateFormat(date)) {
-                isValidDate = true;
-            }
-        }
-        return isValidDate;
+        return isStringParameterValid(date) && isValidDateFormat(date);
     }
 
     private boolean isValidDateFormat(String date) {

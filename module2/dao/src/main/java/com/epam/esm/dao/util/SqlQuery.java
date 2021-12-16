@@ -58,5 +58,14 @@ public final class SqlQuery {
     public static final String TAG_EXISTS =
             "SELECT exists(SELECT 1 FROM tag WHERE name = ?)";
 
+    @Language("PostgreSQL")
+    public static final String GIFT_CERTIFICATE_TAG_EXISTS =
+            "SELECT exists (SELECT 1 FROM gift_certificate_tag " +
+                    "WHERE gift_certificate_id = ? AND tag_id = ?)";
+
+    @Language("PostgreSQL")
+    public static final String TAG_EXISTS_IN_GIFT_CERTIFICATE_TAG =
+            "SELECT exists (SELECT 1 FROM gift_certificate_tag WHERE tag_id = ?)";
+
     private SqlQuery() {}
 }

@@ -1,11 +1,11 @@
 package com.epam.esm.dao.util;
 
-import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_DESCRIPTION;
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_CREATE_DATE;
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_NAME;
 
 public enum SortType {
 
-    NAME(COLUMN_LABEL_NAME), DESCRIPTION(COLUMN_LABEL_DESCRIPTION);
+    NAME(COLUMN_LABEL_NAME), DATE(COLUMN_LABEL_CREATE_DATE);
 
     private final String value;
 

@@ -1,30 +1,19 @@
 package com.epam.esm.service.exception;
 
-import org.springframework.context.i18n.LocaleContextHolder;
+import lombok.Getter;
 
-import java.util.ResourceBundle;
-
+@Getter
 public class ServiceException extends RuntimeException {
 
     private ErrorCode errorCode;
+    private String messageErrorReason;
 
-    public ServiceException(String message) {
-        super(message);
-        this.errorCode = ErrorCode.ERROR_40404;
-    }
-
-    public ServiceException(String message, ErrorCode errorCode) {
-        super(message);
+    public ServiceException(ErrorCode errorCode) {
         this.errorCode = errorCode;
     }
 
-    @Override
-    public String getLocalizedMessage() {
-        return ResourceBundle.getBundle("messages",
-                LocaleContextHolder.getLocale()).getString(getMessage());
-    }
-
-    public ErrorCode getErrorCode() {
-        return errorCode;
+    public ServiceException(ErrorCode errorCode, String messageErrorReason) {
+        this.errorCode = errorCode;
+        this.messageErrorReason = messageErrorReason;
     }
 }
