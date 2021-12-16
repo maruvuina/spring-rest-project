@@ -70,15 +70,15 @@ class GiftCertificateDaoTest {
         List<GiftCertificate> giftCertificates = new ArrayList<>();
         giftCertificates.add(giftCertificate);
         String query = "query";
-        String parameter = "parameter";
-        when(giftCertificateDao.findGiftCertificatesByParameter(query, parameter)).thenReturn(giftCertificates);
-        List<GiftCertificate> actual = giftCertificateDao.findGiftCertificatesByParameter(query, parameter);
+        when(giftCertificateDao.findGiftCertificatesByParameter(query, new ArrayList<>())).thenReturn(giftCertificates);
+        List<GiftCertificate> actual = giftCertificateDao.findGiftCertificatesByParameter(query, new ArrayList<>());
         assertThat(actual, not(IsEmptyCollection.empty()));
     }
 
     @Test
     void update() {
-        when(giftCertificateDao.update(giftCertificateId, giftCertificate)).thenReturn(Optional.ofNullable(giftCertificate));
+        when(giftCertificateDao.update(giftCertificateId, giftCertificate))
+                .thenReturn(Optional.ofNullable(giftCertificate));
         GiftCertificate actual = giftCertificateDao.update(giftCertificateId, giftCertificate).get();
         assertEquals(giftCertificateId, actual.getId());
         assertEquals(giftCertificateName, actual.getName());
