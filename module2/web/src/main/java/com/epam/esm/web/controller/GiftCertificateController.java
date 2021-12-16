@@ -18,43 +18,83 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Gift certificate controller.
+ */
 @RestController
-@RequestMapping("/certificates")
+@RequestMapping("/v1/certificates")
 @RequiredArgsConstructor
 public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
 
+    /**
+     * Create gift certificate.
+     *
+     * @param giftCertificateDto the gift certificate dto
+     * @return the gift certificate dto
+     */
     @PostMapping
     @ResponseStatus(code = HttpStatus.OK)
     public GiftCertificateDto create(@RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.create(giftCertificateDto);
     }
 
+    /**
+     * Delete gift certificate.
+     *
+     * @param id the id
+     */
     @DeleteMapping("/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id) {
         giftCertificateService.delete(id);
     }
 
+    /**
+     * Get gift certificate by id.
+     *
+     * @param id the id
+     * @return the by id
+     */
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public GiftCertificateDto getById(@PathVariable("id") Long id) {
         return giftCertificateService.retrieveById(id);
     }
 
+    /**
+     * Update gift certificate.
+     *
+     * @param id                 the id
+     * @param giftCertificateDto the gift certificate dto
+     * @return the gift certificate dto
+     */
     @PutMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public GiftCertificateDto update(@PathVariable("id") Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.update(id, giftCertificateDto);
     }
 
+    /**
+     * Update part gift certificate.
+     *
+     * @param id                 the id
+     * @param giftCertificateDto the gift certificate dto
+     * @return the gift certificate dto
+     */
     @PatchMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public GiftCertificateDto updatePart(@PathVariable("id") Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.updatePart(id, giftCertificateDto);
     }
 
+    /**
+     * Retrieve all tags and by parameter.
+     *
+     * @param giftCertificateParameter the gift certificate parameter
+     * @return the list of gift certificate dto
+     */
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
     public List<GiftCertificateDto> retrieveAll(GiftCertificateParameter giftCertificateParameter) {

@@ -10,6 +10,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Represents a Gift certificate.
+ */
 @Builder
 @Data
 @AllArgsConstructor
