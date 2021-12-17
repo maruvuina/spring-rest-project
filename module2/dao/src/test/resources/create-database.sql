@@ -4,13 +4,13 @@ CREATE TABLE tag (
 );
 
 CREATE TABLE gift_certificate (
-  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  name VARCHAR(255),
-  description VARCHAR(255),
-  price NUMERIC(10, 2),
-  duration INTERVAL DAY,
-  create_date TIMESTAMP,
-  last_update_date TIMESTAMP
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(255),
+    description VARCHAR(255),
+    price NUMERIC(10, 2),
+    duration INTEGER,
+    create_date TIMESTAMP,
+    last_update_date TIMESTAMP
 );
 
 CREATE TABLE gift_certificate_tag (

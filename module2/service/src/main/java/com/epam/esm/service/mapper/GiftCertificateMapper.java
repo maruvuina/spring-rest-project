@@ -3,7 +3,6 @@ package com.epam.esm.service.mapper;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.dao.entity.GiftCertificate;
 import lombok.RequiredArgsConstructor;
-import org.postgresql.util.PGInterval;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -24,7 +23,7 @@ public class GiftCertificateMapper {
                 .name(giftCertificateDto.getName())
                 .description(giftCertificateDto.getDescription())
                 .price(giftCertificateDto.getPrice())
-                .duration(retrieveDuration(giftCertificateDto.getDuration()))
+                .duration(giftCertificateDto.getDuration())
                 .createDate(retrieveDate(giftCertificateDto.getCreateDate()))
                 .lastUpdateDate(retrieveDate(giftCertificateDto.getLastUpdateDate()))
                 .build();
@@ -37,7 +36,7 @@ public class GiftCertificateMapper {
                 .name(giftCertificate.getName())
                 .description(giftCertificate.getDescription())
                 .price(giftCertificate.getPrice())
-                .duration(giftCertificate.getDuration().getDays())
+                .duration(giftCertificate.getDuration())
                 .createDate(retrieveFormatterDate(giftCertificate.getCreateDate()))
                 .lastUpdateDate(retrieveFormatterDate(giftCertificate.getLastUpdateDate()))
                 .build();
@@ -71,15 +70,6 @@ public class GiftCertificateMapper {
                 .ofPattern(DATE_FORMAT)
                 .withZone(ZoneId.of(TIME_ZONE))
                 .format(Instant.parse(instant.toString()));
-    }
-
-    private PGInterval retrieveDuration(Integer days) {
-        PGInterval interval = null;
-        if (days != null) {
-            interval = new PGInterval();
-            interval.setDays(days);
-        }
-        return interval;
     }
 
     private Instant retrieveDate(String date) {
