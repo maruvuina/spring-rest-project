@@ -100,8 +100,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         GiftCertificate giftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
         if (giftCertificateDto.getTags() != null) {
             validateTags(giftCertificateDto.getTags());
+            giftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
         }
-        giftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
         GiftCertificate updatedGiftCertificate = giftCertificateDao.update(id, giftCertificate)
                         .orElseThrow(() -> new ServiceException(ERROR_102400));
         return setTagsAndRetrieveGiftCertificateDto(updatedGiftCertificate);

@@ -49,7 +49,7 @@ public class GiftCertificateValidatorImpl implements GiftCertificateValidator {
     }
 
     private boolean isPositive(Integer value) {
-        return value > 0;
+        return value != null && value > 0;
     }
 
     private boolean isValidDate(String date) {
