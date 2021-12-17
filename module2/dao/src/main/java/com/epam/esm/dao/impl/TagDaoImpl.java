@@ -35,8 +35,8 @@ public class TagDaoImpl implements TagDao {
     @Override
     public Optional<Tag> create(Tag tag) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        namedParameterJdbcTemplate.update(TAG_CREATE, new MapSqlParameterSource()
-                .addValue(COLUMN_LABEL_NAME, tag.getName()), keyHolder, new String[]{COLUMN_LABEL_ID});
+        namedParameterJdbcTemplate.update(TAG_CREATE, retrieveSqlParameter(tag.getName()),
+                keyHolder, new String[]{COLUMN_LABEL_ID});
         return findById(keyHolder.getKey().longValue());
     }
 
@@ -75,5 +75,9 @@ public class TagDaoImpl implements TagDao {
     @Override
     public boolean existsInGiftCertificateTag(Long tagId) {
         return jdbcTemplate.queryForObject(TAG_EXISTS_IN_GIFT_CERTIFICATE_TAG, Boolean.class, tagId);
+    }
+
+    private MapSqlParameterSource retrieveSqlParameter(String name) {
+        return new MapSqlParameterSource().addValue(COLUMN_LABEL_NAME, name);
     }
 }

@@ -13,7 +13,8 @@ import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.mapper.GiftCertificateMapper;
 import com.epam.esm.service.mapper.TagMapper;
 import com.epam.esm.dao.util.DynamicQuery;
-import com.epam.esm.service.validator.Validator;
+import com.epam.esm.service.validator.GiftCertificateValidator;
+import com.epam.esm.service.validator.TagValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,12 +41,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private final TagService tagService;
     private final GiftCertificateMapper giftCertificateMapper;
     private final TagMapper tagMapper;
-    private final Validator validator;
+    private final GiftCertificateValidator giftCertificateValidator;
+    private final TagValidator tagValidator;
 
     @Override
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
-        if (!validator.validatedGiftCertificateDto(giftCertificateDto)) {
+        if (!giftCertificateValidator.validate(giftCertificateDto)) {
             throw new ServiceException(ERROR_104400);
         }
         GiftCertificate giftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
@@ -61,7 +63,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public void delete(Long id) {
-        if (!validator.validatedId(id)) {
+        if (!giftCertificateValidator.validatedId(id)) {
             throw new ServiceException(ERROR_001400);
         }
         giftCertificateDao.delete(id);
@@ -70,7 +72,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public GiftCertificateDto retrieveById(Long id) {
-        if (!validator.validatedId(id)) {
+        if (!giftCertificateValidator.validatedId(id)) {
             throw new ServiceException(ERROR_001400);
         }
         GiftCertificate foundGiftCertificate = giftCertificateDao.findById(id).orElseThrow(() ->
@@ -89,10 +91,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
-        if (!validator.validatedId(id)) {
+        if (!giftCertificateValidator.validatedId(id)) {
             throw new ServiceException(ERROR_001400);
         }
-        if (!validator.validatedGiftCertificateDto(giftCertificateDto)) {
+        if (!giftCertificateValidator.validate(giftCertificateDto)) {
             throw new ServiceException(ERROR_105400);
         }
         GiftCertificate giftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
@@ -108,7 +110,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto updatePart(Long id, GiftCertificateDto giftCertificateDto) {
-        if (!validator.validatedId(id)) {
+        if (!giftCertificateValidator.validatedId(id)) {
             throw new ServiceException(ERROR_001400);
         }
         if (updateValidation(giftCertificateDto)) {
@@ -135,7 +137,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private void validateTags(List<TagDto> tagDtoList) {
         tagDtoList.forEach(tagDto -> {
-            if (!validator.validatedTagDto(tagDto)) {
+            if (!tagValidator.validate(tagDto)) {
                 throw new ServiceException(ERROR_200400);
             }
         });
@@ -160,7 +162,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     private boolean updateValidation(GiftCertificateDto giftCertificateDto) {
-        return validator.validatedUpdatedGiftCertificateDto(giftCertificateDto)
+        return giftCertificateValidator.validateUpdatedGiftCertificateDto(giftCertificateDto)
                 .stream()
                 .anyMatch(aBoolean -> !aBoolean);
     }

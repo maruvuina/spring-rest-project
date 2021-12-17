@@ -32,7 +32,7 @@ public class TagController {
      * @return the tag dto
      */
     @PostMapping
-    @ResponseStatus(code = HttpStatus.OK)
+    @ResponseStatus(code = HttpStatus.CREATED)
     public TagDto create(@RequestBody TagDto tagDto) {
         return tagService.create(tagDto);
     }
@@ -54,7 +54,6 @@ public class TagController {
      * @return the list
      */
     @GetMapping
-    @ResponseStatus(code = HttpStatus.OK)
     public List<TagDto> retrieveAll() {
         return tagService.retrieveAll();
     }

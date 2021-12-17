@@ -76,19 +76,27 @@ public final class DynamicQuery {
         if (isParameterValid(giftCertificateParameter.getTagName())) {
             queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
             queryBuilder.append(WHERE + SPACE + TAG_NAME_JOIN_COLUMN + EQUAL_SIGN + PREPARED_OPERATOR);
-            setSortAndOrder(giftCertificateParameter, queryBuilder);
-            parameters.add(giftCertificateParameter.getTagName());
+            parameters = setSortOrderParameterForDataWithOneParameter(giftCertificateParameter,
+                    queryBuilder, giftCertificateParameter.getTagName());
         }
         if (isParameterValid(giftCertificateParameter.getName())) {
             fillSearchQuery(queryBuilder, COLUMN_LABEL_NAME);
-            setSortAndOrder(giftCertificateParameter, queryBuilder);
-            parameters.add(giftCertificateParameter.getName() + PERCENT);
+            parameters = setSortOrderParameterForDataWithOneParameter(giftCertificateParameter,
+                    queryBuilder, giftCertificateParameter.getName() + PERCENT);
         }
         if (isParameterValid(giftCertificateParameter.getDescription())) {
             fillSearchQuery(queryBuilder, COLUMN_LABEL_DESCRIPTION);
-            setSortAndOrder(giftCertificateParameter, queryBuilder);
-            parameters.add(giftCertificateParameter.getDescription() + PERCENT);
+            parameters = setSortOrderParameterForDataWithOneParameter(giftCertificateParameter,
+                    queryBuilder, giftCertificateParameter.getDescription() + PERCENT);
         }
+        return parameters;
+    }
+
+    private static List<String> setSortOrderParameterForDataWithOneParameter(GiftCertificateParameter giftCertificateParameter,
+                   StringBuilder queryBuilder, String parameter) {
+        List<String> parameters = new ArrayList<>();
+        setSortAndOrder(giftCertificateParameter, queryBuilder);
+        parameters.add(parameter);
         return parameters;
     }
 
@@ -112,32 +120,38 @@ public final class DynamicQuery {
                 isParameterValid(giftCertificateParameter.getName())) {
             queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
             fillQueryForTwoParameters(queryBuilder, TAG_NAME_JOIN_COLUMN, GIFT_CERTIFICATE_NAME_JOIN_COLUMN);
-            setSortAndOrder(giftCertificateParameter, queryBuilder);
-            setParametersForQueryWithTwoParameters(parameters, giftCertificateParameter.getTagName(),
-                    giftCertificateParameter.getName() + PERCENT);
+            parameters = setSortOrderParameterForDataWithTwoParameters(giftCertificateParameter, queryBuilder,
+                    giftCertificateParameter.getTagName(), giftCertificateParameter.getName() + PERCENT);
         }
         if (isParameterValid(giftCertificateParameter.getTagName()) &&
                 isParameterValid(giftCertificateParameter.getDescription())) {
             queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
             fillQueryForTwoParameters(queryBuilder, TAG_NAME_JOIN_COLUMN, COLUMN_LABEL_DESCRIPTION);
-            setSortAndOrder(giftCertificateParameter, queryBuilder);
-            setParametersForQueryWithTwoParameters(parameters, giftCertificateParameter.getTagName(),
+            parameters = setSortOrderParameterForDataWithTwoParameters(giftCertificateParameter, queryBuilder,
+                    giftCertificateParameter.getTagName(),
                     giftCertificateParameter.getDescription() + PERCENT);
         }
         if (isParameterValid(giftCertificateParameter.getName()) &&
                 isParameterValid(giftCertificateParameter.getDescription())) {
             fillQueryForTwoParameters(queryBuilder, GIFT_CERTIFICATE_NAME_JOIN_COLUMN, COLUMN_LABEL_DESCRIPTION);
-            setSortAndOrder(giftCertificateParameter, queryBuilder);
-            setParametersForQueryWithTwoParameters(parameters, giftCertificateParameter.getName(),
+            parameters = setSortOrderParameterForDataWithTwoParameters(giftCertificateParameter, queryBuilder,
+                    giftCertificateParameter.getName(),
                     giftCertificateParameter.getDescription() + PERCENT);
         }
         return parameters;
     }
 
-    private static void setParametersForQueryWithTwoParameters(List<String> parameters, String firstParameter,
-                                                               String secondParameter) {
+    private static List<String> setSortOrderParameterForDataWithTwoParameters(GiftCertificateParameter giftCertificateParameter,
+                          StringBuilder queryBuilder, String firstParameter, String secondParameter) {
+        setSortAndOrder(giftCertificateParameter, queryBuilder);
+        return setParametersForQueryWithTwoParameters(firstParameter, secondParameter);
+    }
+
+    private static List<String> setParametersForQueryWithTwoParameters(String firstParameter, String secondParameter) {
+        List<String> parameters = new ArrayList<>();
         parameters.add(firstParameter);
         parameters.add(secondParameter);
+        return parameters;
     }
 
     private static void fillQueryForTwoParameters(StringBuilder queryBuilder, String firstColumnParameter,

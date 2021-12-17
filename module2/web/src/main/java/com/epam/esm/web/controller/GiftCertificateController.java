@@ -35,7 +35,7 @@ public class GiftCertificateController {
      * @return the gift certificate dto
      */
     @PostMapping
-    @ResponseStatus(code = HttpStatus.OK)
+    @ResponseStatus(code = HttpStatus.CREATED)
     public GiftCertificateDto create(@RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.create(giftCertificateDto);
     }

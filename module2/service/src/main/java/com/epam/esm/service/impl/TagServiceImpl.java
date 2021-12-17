@@ -6,7 +6,7 @@ import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.mapper.TagMapper;
-import com.epam.esm.service.validator.Validator;
+import com.epam.esm.service.validator.TagValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,11 +29,11 @@ public class TagServiceImpl implements TagService {
 
     private final TagDao tagDao;
     private final TagMapper tagMapper;
-    private final Validator validator;
+    private final TagValidator tagValidator;
 
     @Override
     public TagDto create(TagDto tagDto) {
-        if (!validator.validatedTagDto(tagDto)) {
+        if (!tagValidator.validate(tagDto)) {
             throw new ServiceException(ERROR_200400);
         }
         Tag createdTag = tagDao.create(tagMapper.mapToTag(tagDto))
@@ -43,7 +43,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public void delete(Long id) {
-        if (!validator.validatedId(id)) {
+        if (!tagValidator.validatedId(id)) {
             throw new ServiceException(ERROR_001400);
         }
         if (tagDao.existsInGiftCertificateTag(id)) {
@@ -63,7 +63,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveById(Long id) {
-        if (!validator.validatedId(id)) {
+        if (!tagValidator.validatedId(id)) {
             throw new ServiceException(ERROR_001400);
         }
         return tagMapper.mapToTagDto(tagDao.findById(id)
@@ -72,7 +72,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public boolean existsByName(String name) {
-        if (!validator.validateString(name)) {
+        if (!tagValidator.validateString(name)) {
             throw new ServiceException(ERROR_002400);
         }
         return tagDao.existsByName(name);
@@ -80,7 +80,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<TagDto> retrieveTagsByGiftCertificateId(Long id) {
-        if (!validator.validatedId(id)) {
+        if (!tagValidator.validatedId(id)) {
             throw new ServiceException(ERROR_001400);
         }
         return tagDao.findTagsByGiftCertificateId(id)
@@ -91,7 +91,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveByName(String name) {
-        if (!validator.validateString(name)) {
+        if (!tagValidator.validateString(name)) {
             throw new ServiceException(ERROR_002400);
         }
         return tagMapper.mapToTagDto(tagDao.findByName(name)

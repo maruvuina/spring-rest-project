@@ -75,7 +75,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
     @Override
     public Optional<GiftCertificate> update(Long id, GiftCertificate giftCertificate) {
-        MapSqlParameterSource namedParameters = (MapSqlParameterSource) getNamedParameters(giftCertificate);
+        MapSqlParameterSource namedParameters = getNamedParameters(giftCertificate);
         namedParameters.addValue(COLUMN_LABEL_ID, id);
         namedParameterJdbcTemplate.update(GIFT_CERTIFICATE_UPDATE, namedParameters);
         if (giftCertificate.getTags() != null) {
@@ -88,7 +88,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         return Timestamp.from(instant);
     }
 
-    private SqlParameterSource getNamedParameters(GiftCertificate giftCertificate) {
+    private MapSqlParameterSource getNamedParameters(GiftCertificate giftCertificate) {
         return new MapSqlParameterSource()
                 .addValue(COLUMN_LABEL_NAME, giftCertificate.getName())
                 .addValue(COLUMN_LABEL_DESCRIPTION, giftCertificate.getDescription())
