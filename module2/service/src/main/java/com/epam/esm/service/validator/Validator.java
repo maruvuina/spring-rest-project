@@ -14,7 +14,7 @@ public interface Validator<T> {
      * @return the boolean
      */
     default boolean validatedId(Long id) {
-        return id != null;
+        return id != null && id > 0;
     }
 
     /**

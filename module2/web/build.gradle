@@ -2,10 +2,16 @@ plugins {
     id 'war'
 }
 
+ext {
+    postgresql_version = '42.3.1'
+}
+
 dependencies {
     implementation project (':dao')
     implementation project (':service')
     implementation group: 'org.springframework', name: 'spring-webmvc', version: spring_version
+    implementation group: 'org.springframework', name: 'spring-tx', version: spring_version
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
+    implementation group: 'org.postgresql', name: 'postgresql', version: postgresql_version
 }
 

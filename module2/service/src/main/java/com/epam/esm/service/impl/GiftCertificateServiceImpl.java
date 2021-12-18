@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.service.exception.ErrorCode.ERROR_001400;
@@ -30,6 +31,7 @@ import static com.epam.esm.service.exception.ErrorCode.ERROR_102400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_103400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_104400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_105400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_106400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_200400;
 
 @Slf4j
@@ -47,36 +49,25 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
-        if (!giftCertificateValidator.validate(giftCertificateDto)) {
-            throw new ServiceException(ERROR_104400);
-        }
-        GiftCertificate giftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
-        if (giftCertificateDto.getTags() == null) {
-            throw new ServiceException(ERROR_100400);
-        }
+        validateDataToCreate(giftCertificateDto);
         validateTags(giftCertificateDto.getTags());
+        GiftCertificate giftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
         giftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
-        GiftCertificate createdGiftCertificate = giftCertificateDao.create(giftCertificate)
-                        .orElseThrow(() -> new ServiceException(ERROR_103400));
+        GiftCertificate createdGiftCertificate = retrieveCreatedGiftCertificate(giftCertificate);
         return setTagsAndRetrieveGiftCertificateDto(createdGiftCertificate);
     }
 
     @Override
     public void delete(Long id) {
-        if (!giftCertificateValidator.validatedId(id)) {
-            throw new ServiceException(ERROR_001400);
-        }
+        validateId(id);
         giftCertificateDao.delete(id);
         log.info("GiftCertificate deleted with id = {}", id);
     }
 
     @Override
     public GiftCertificateDto retrieveById(Long id) {
-        if (!giftCertificateValidator.validatedId(id)) {
-            throw new ServiceException(ERROR_001400);
-        }
-        GiftCertificate foundGiftCertificate = giftCertificateDao.findById(id).orElseThrow(() ->
-                        new ServiceException(ERROR_101400, String.valueOf(id)));
+        validateId(id);
+        GiftCertificate foundGiftCertificate = retrieveSavedGiftCertificate(id);
         return setTagsAndRetrieveGiftCertificateDto(foundGiftCertificate);
     }
 
@@ -91,34 +82,24 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
-        if (!giftCertificateValidator.validatedId(id)) {
-            throw new ServiceException(ERROR_001400);
-        }
-        if (!giftCertificateValidator.validate(giftCertificateDto)) {
-            throw new ServiceException(ERROR_105400);
-        }
+        validateId(id);
+        validateDataToUpdate(id, giftCertificateDto);
         GiftCertificate giftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
         if (giftCertificateDto.getTags() != null) {
             validateTags(giftCertificateDto.getTags());
             giftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
         }
-        GiftCertificate updatedGiftCertificate = giftCertificateDao.update(id, giftCertificate)
-                        .orElseThrow(() -> new ServiceException(ERROR_102400));
+        GiftCertificate updatedGiftCertificate = retrieveUpdatedGiftCertificate(id, giftCertificate);
         return setTagsAndRetrieveGiftCertificateDto(updatedGiftCertificate);
     }
 
     @Override
     @Transactional
     public GiftCertificateDto updatePart(Long id, GiftCertificateDto giftCertificateDto) {
-        if (!giftCertificateValidator.validatedId(id)) {
-            throw new ServiceException(ERROR_001400);
-        }
-        if (updateValidation(giftCertificateDto)) {
-            throw new ServiceException(ERROR_105400);
-        }
+        validateId(id);
+        validateDataToUpdate(id, giftCertificateDto);
         GiftCertificate newGiftCertificate = giftCertificateMapper.mapToGiftCertificate(giftCertificateDto);
-        GiftCertificate savedGiftCertificate = giftCertificateDao.findById(id).orElseThrow(() ->
-                        new ServiceException(ERROR_101400, String.valueOf(id)));
+        GiftCertificate savedGiftCertificate = retrieveSavedGiftCertificate(id);
         giftCertificateMapper.mergeGiftCertificate(newGiftCertificate, savedGiftCertificate);
         GiftCertificateDto savedGiftCertificateDto = giftCertificateMapper.mapToGiftCertificateDto(savedGiftCertificate);
         savedGiftCertificateDto.setTags(giftCertificateDto.getTags());
@@ -136,8 +117,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     private void validateTags(List<TagDto> tagDtoList) {
+        if (tagDtoList == null) {
+            log.error("GiftCertificate list tag are null");
+            throw new ServiceException(ERROR_100400);
+        }
         tagDtoList.forEach(tagDto -> {
             if (!tagValidator.validate(tagDto)) {
+                log.error("Invalid tagDto = {}", tagDto);
                 throw new ServiceException(ERROR_200400);
             }
         });
@@ -165,5 +151,55 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         return giftCertificateValidator.validateUpdatedGiftCertificateDto(giftCertificateDto)
                 .stream()
                 .anyMatch(aBoolean -> !aBoolean);
+    }
+
+    private GiftCertificate retrieveCreatedGiftCertificate(GiftCertificate giftCertificate) {
+        return giftCertificateDao.create(giftCertificate)
+                .orElseThrow(() -> {
+                    log.error("Invalid giftCertificate = {}", giftCertificate);
+                    return new ServiceException(ERROR_103400);
+                });
+    }
+
+    private GiftCertificate retrieveUpdatedGiftCertificate(Long id, GiftCertificate giftCertificate) {
+        return giftCertificateDao.update(id, giftCertificate)
+                .orElseThrow(() -> {
+                    log.error("An error occurred while updating gift certificate");
+                    return new ServiceException(ERROR_102400);
+                });
+    }
+
+    private GiftCertificate retrieveSavedGiftCertificate(Long id) {
+        return giftCertificateDao.findById(id)
+                .orElseThrow(() -> {
+                    log.error("An error occurred while getting gift certificate by id = {}", id);
+                    return new ServiceException(ERROR_101400, String.valueOf(id));
+                });
+    }
+
+    private void validateId(Long id) {
+        if (!giftCertificateValidator.validatedId(id)) {
+            log.error("Invalid id = {}", id);
+            throw new ServiceException(ERROR_001400);
+        }
+    }
+
+    private void validateDataToUpdate(Long id, GiftCertificateDto giftCertificateDto) {
+        Long giftCertificateDtoId = giftCertificateDto.getId();
+        if(!Objects.equals(id, giftCertificateDtoId)) {
+            log.error("Id = {} in url and id = {} request body are different", id, giftCertificateDtoId);
+            throw new ServiceException(ERROR_106400);
+        }
+        if (updateValidation(giftCertificateDto)) {
+            log.error("Invalid tagDto = {}", giftCertificateDto);
+            throw new ServiceException(ERROR_105400);
+        }
+    }
+
+    private void validateDataToCreate(GiftCertificateDto giftCertificateDto) {
+        if (!giftCertificateValidator.validate(giftCertificateDto)) {
+            log.error("Invalid giftCertificateDto = {}", giftCertificateDto);
+            throw new ServiceException(ERROR_104400);
+        }
     }
 }

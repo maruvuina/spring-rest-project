@@ -33,22 +33,15 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto create(TagDto tagDto) {
-        if (!tagValidator.validate(tagDto)) {
-            throw new ServiceException(ERROR_200400);
-        }
-        Tag createdTag = tagDao.create(tagMapper.mapToTag(tagDto))
-                .orElseThrow(() -> new ServiceException(ERROR_203400));
+        validateDataToCreate(tagDto);
+        Tag createdTag = retrieveCreatedTag(tagDto);
         return tagMapper.mapToTagDto(createdTag);
     }
 
     @Override
     public void delete(Long id) {
-        if (!tagValidator.validatedId(id)) {
-            throw new ServiceException(ERROR_001400);
-        }
-        if (tagDao.existsInGiftCertificateTag(id)) {
-            throw new ServiceException(ERROR_204400, String.valueOf(id));
-        }
+        validateId(id);
+        existsInGiftCertificateTag(id);
         tagDao.delete(id);
         log.info("Tag deleted with id = {}", id);
     }
@@ -63,26 +56,23 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveById(Long id) {
-        if (!tagValidator.validatedId(id)) {
-            throw new ServiceException(ERROR_001400);
-        }
+        validateId(id);
         return tagMapper.mapToTagDto(tagDao.findById(id)
-                .orElseThrow(() -> new ServiceException(ERROR_201400, String.valueOf(id))));
+                .orElseThrow(() -> {
+                    log.error("An error occurred while getting tag by id = {}", id);
+                    return new ServiceException(ERROR_201400, String.valueOf(id));
+                }));
     }
 
     @Override
     public boolean existsByName(String name) {
-        if (!tagValidator.validateString(name)) {
-            throw new ServiceException(ERROR_002400);
-        }
+        validateName(name);
         return tagDao.existsByName(name);
     }
 
     @Override
     public List<TagDto> retrieveTagsByGiftCertificateId(Long id) {
-        if (!tagValidator.validatedId(id)) {
-            throw new ServiceException(ERROR_001400);
-        }
+        validateId(id);
         return tagDao.findTagsByGiftCertificateId(id)
                 .stream()
                 .map(tagMapper::mapToTagDto)
@@ -91,10 +81,47 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveByName(String name) {
+        validateName(name);
+        return tagMapper.mapToTagDto(tagDao.findByName(name)
+                .orElseThrow(() -> {
+                    log.error("An error occurred while getting tag by name = {}", name);
+                    return new ServiceException(ERROR_202400, name);
+                }));
+    }
+
+    private void validateId(Long id) {
+        if (!tagValidator.validatedId(id)) {
+            log.error("Invalid id = {}", id);
+            throw new ServiceException(ERROR_001400);
+        }
+    }
+
+    private void validateName(String name) {
         if (!tagValidator.validateString(name)) {
+            log.error("Invalid name = {}", name);
             throw new ServiceException(ERROR_002400);
         }
-        return tagMapper.mapToTagDto(tagDao.findByName(name)
-                .orElseThrow(() -> new ServiceException(ERROR_202400, name)));
+    }
+
+    private Tag retrieveCreatedTag(TagDto tagDto) {
+        return tagDao.create(tagMapper.mapToTag(tagDto))
+                .orElseThrow(() -> {
+                    log.error("An error occurred while saving the tag");
+                    return new ServiceException(ERROR_203400);
+                });
+    }
+
+    private void validateDataToCreate(TagDto tagDto) {
+        if (!tagValidator.validate(tagDto)) {
+            log.error("Invalid tag name = {}", tagDto.getName());
+            throw new ServiceException(ERROR_200400);
+        }
+    }
+
+    private void existsInGiftCertificateTag(Long id) {
+        if (tagDao.existsInGiftCertificateTag(id)) {
+            log.error("Tag cannot be deleted because there is a link to it");
+            throw new ServiceException(ERROR_204400, String.valueOf(id));
+        }
     }
 }
