@@ -4,6 +4,8 @@ import org.intellij.lang.annotations.Language;
 
 public final class SqlQuery {
 
+    private SqlQuery() {}
+
     @Language("PostgreSQL")
     public static final String TAG_CREATE = "INSERT INTO tag (name) VALUES (:name)";
 
@@ -41,7 +43,7 @@ public final class SqlQuery {
     public static final String GIFT_CERTIFICATE_UPDATE =
             "UPDATE gift_certificate SET name = :name, description = :description, " +
                     "price = :price, duration = :duration, " +
-                    "create_date = :create_date, last_update_date = :last_update_date WHERE id = :id";
+                    "last_update_date = :last_update_date WHERE id = :id";
 
     @Language("PostgreSQL")
     public static final String GIFT_CERTIFICATE_TAG_CREATE =
@@ -67,5 +69,14 @@ public final class SqlQuery {
     public static final String TAG_EXISTS_IN_GIFT_CERTIFICATE_TAG =
             "SELECT exists (SELECT 1 FROM gift_certificate_tag WHERE tag_id = ?)";
 
-    private SqlQuery() {}
+    @Language("PostgreSQL")
+    public static final String CLEAR_TAGS_BY_GIFT_CERTIFICATE_ID =
+            "DELETE FROM gift_certificate_tag WHERE gift_certificate_id = ?";
+
+    @Language("PostgreSQL")
+    public static final String RETRIEVE_TAGS_BY_GIFT_CERTIFICATE_ID =
+            "SELECT t.id, t.name FROM tag AS t " +
+                    "INNER JOIN gift_certificate_tag AS gct ON gct.tag_id = t.id " +
+                    "INNER JOIN gift_certificate AS g ON g.id = gct.gift_certificate_id " +
+                    "WHERE g.id = ?";
 }

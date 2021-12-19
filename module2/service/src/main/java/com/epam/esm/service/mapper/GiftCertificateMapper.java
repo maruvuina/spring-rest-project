@@ -15,18 +15,18 @@ public class GiftCertificateMapper {
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
     private static final String TIME_ZONE = "UTC";
-    private static final String ZERO_HOUR_OFFSET = "Z";
 
     public GiftCertificate mapToGiftCertificate(GiftCertificateDto giftCertificateDto) {
-        return GiftCertificate
-                .builder()
-                .name(giftCertificateDto.getName())
-                .description(giftCertificateDto.getDescription())
-                .price(giftCertificateDto.getPrice())
-                .duration(giftCertificateDto.getDuration())
-                .createDate(retrieveDate(giftCertificateDto.getCreateDate()))
-                .lastUpdateDate(retrieveDate(giftCertificateDto.getLastUpdateDate()))
-                .build();
+        GiftCertificate giftCertificate = mapTo(giftCertificateDto);
+        giftCertificate.setCreateDate(retrieveDate());
+        giftCertificate.setLastUpdateDate(retrieveDate());
+        return giftCertificate;
+    }
+
+    public GiftCertificate mapToUpdateGiftCertificate(GiftCertificateDto giftCertificateDto) {
+        GiftCertificate giftCertificate = mapTo(giftCertificateDto);
+        giftCertificate.setLastUpdateDate(retrieveDate());
+        return giftCertificate;
     }
 
     public GiftCertificateDto mapToGiftCertificateDto(GiftCertificate giftCertificate) {
@@ -65,6 +65,16 @@ public class GiftCertificateMapper {
         }
     }
 
+    private GiftCertificate mapTo(GiftCertificateDto giftCertificateDto) {
+        return GiftCertificate
+                .builder()
+                .name(giftCertificateDto.getName())
+                .description(giftCertificateDto.getDescription())
+                .price(giftCertificateDto.getPrice())
+                .duration(giftCertificateDto.getDuration())
+                .build();
+    }
+
     private String retrieveFormatterDate(Instant instant) {
         return DateTimeFormatter
                 .ofPattern(DATE_FORMAT)
@@ -72,11 +82,7 @@ public class GiftCertificateMapper {
                 .format(Instant.parse(instant.toString()));
     }
 
-    private Instant retrieveDate(String date) {
-        Instant instant = null;
-        if (date != null) {
-            instant = Instant.parse(date + ZERO_HOUR_OFFSET);
-        }
-        return instant;
+    private Instant retrieveDate() {
+        return Instant.now();
     }
 }

@@ -15,7 +15,6 @@ public class Initializer implements WebApplicationInitializer {
         context.register(WebConfig.class);
         context.setServletContext(servletContext);
         servletContext.addListener(new ContextLoaderListener(context));
-        servletContext.setInitParameter("spring.profiles.active", "prod");
         ServletRegistration.Dynamic dispatcher = servletContext.addServlet(
                 "dispatcherServlet", new DispatcherServlet(context));
         dispatcher.setInitParameter("throwExceptionIfNoHandlerFound", "true");

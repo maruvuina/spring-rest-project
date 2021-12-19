@@ -1,6 +1,7 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.dao.entity.GiftCertificate;
+import com.epam.esm.dao.entity.Tag;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,4 +28,19 @@ public interface GiftCertificateDao extends AbstractDao<GiftCertificate> {
      * @return the optional of gift certificate
      */
     Optional<GiftCertificate> update(Long id, GiftCertificate giftCertificate);
+
+    /**
+     * Clear gift certificate tags.
+     *
+     * @param id the id
+     */
+    void clearGiftCertificateTags(Long id);
+
+    /**
+     * Retrieve tags by gift certificate id.
+     *
+     * @param giftCertificateId the gift certificate id
+     * @return the list of tags
+     */
+    List<Tag> retrieveTagsByGiftCertificateId(Long giftCertificateId);
 }

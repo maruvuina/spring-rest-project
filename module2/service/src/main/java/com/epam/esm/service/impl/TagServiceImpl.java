@@ -14,13 +14,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.service.exception.ErrorCode.ERROR_001400;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_002400;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_200400;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_201400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_202400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_203400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_204400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_205400;
 
 @Slf4j
 @Service
@@ -33,14 +30,14 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto create(TagDto tagDto) {
-        validateDataToCreate(tagDto);
+        tagValidator.validate(tagDto);
         Tag createdTag = retrieveCreatedTag(tagDto);
         return tagMapper.mapToTagDto(createdTag);
     }
 
     @Override
     public void delete(Long id) {
-        validateId(id);
+        tagValidator.validatedIdPathVariable(id);
         existsInGiftCertificateTag(id);
         tagDao.delete(id);
         log.info("Tag deleted with id = {}", id);
@@ -56,23 +53,23 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveById(Long id) {
-        validateId(id);
+        tagValidator.validatedIdPathVariable(id);
         return tagMapper.mapToTagDto(tagDao.findById(id)
                 .orElseThrow(() -> {
                     log.error("An error occurred while getting tag by id = {}", id);
-                    return new ServiceException(ERROR_201400, String.valueOf(id));
+                    return new ServiceException(ERROR_202400, String.valueOf(id));
                 }));
     }
 
     @Override
     public boolean existsByName(String name) {
-        validateName(name);
+        tagValidator.validateName(name);
         return tagDao.existsByName(name);
     }
 
     @Override
     public List<TagDto> retrieveTagsByGiftCertificateId(Long id) {
-        validateId(id);
+        tagValidator.validatedIdPathVariable(id);
         return tagDao.findTagsByGiftCertificateId(id)
                 .stream()
                 .map(tagMapper::mapToTagDto)
@@ -81,47 +78,26 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveByName(String name) {
-        validateName(name);
+        tagValidator.validateName(name);
         return tagMapper.mapToTagDto(tagDao.findByName(name)
                 .orElseThrow(() -> {
                     log.error("An error occurred while getting tag by name = {}", name);
-                    return new ServiceException(ERROR_202400, name);
+                    return new ServiceException(ERROR_203400, name);
                 }));
-    }
-
-    private void validateId(Long id) {
-        if (!tagValidator.validatedId(id)) {
-            log.error("Invalid id = {}", id);
-            throw new ServiceException(ERROR_001400);
-        }
-    }
-
-    private void validateName(String name) {
-        if (!tagValidator.validateString(name)) {
-            log.error("Invalid name = {}", name);
-            throw new ServiceException(ERROR_002400);
-        }
     }
 
     private Tag retrieveCreatedTag(TagDto tagDto) {
         return tagDao.create(tagMapper.mapToTag(tagDto))
                 .orElseThrow(() -> {
                     log.error("An error occurred while saving the tag");
-                    return new ServiceException(ERROR_203400);
+                    return new ServiceException(ERROR_204400);
                 });
-    }
-
-    private void validateDataToCreate(TagDto tagDto) {
-        if (!tagValidator.validate(tagDto)) {
-            log.error("Invalid tag name = {}", tagDto.getName());
-            throw new ServiceException(ERROR_200400);
-        }
     }
 
     private void existsInGiftCertificateTag(Long id) {
         if (tagDao.existsInGiftCertificateTag(id)) {
             log.error("Tag cannot be deleted because there is a link to it");
-            throw new ServiceException(ERROR_204400, String.valueOf(id));
+            throw new ServiceException(ERROR_205400, String.valueOf(id));
         }
     }
 }

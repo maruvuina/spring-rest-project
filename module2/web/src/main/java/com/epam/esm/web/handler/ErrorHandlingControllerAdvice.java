@@ -3,19 +3,16 @@ package com.epam.esm.web.handler;
 import com.epam.esm.service.exception.ErrorCode;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.web.exception.ExceptionMessageTranslator;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.RequiredArgsConstructor;
-import org.postgresql.util.PSQLException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
-
-import java.time.format.DateTimeParseException;
 
 @RequiredArgsConstructor
 @ControllerAdvice
@@ -32,37 +29,32 @@ public class ErrorHandlingControllerAdvice {
 
     @ExceptionHandler({NoHandlerFoundException.class})
     public ResponseEntity<ErrorApi> handleResourceNoHandlerFoundException() {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_000400.getValue(), HttpStatus.BAD_REQUEST);
+        return retrieveExceptionErrorApi(ErrorCode.ERROR_000404.getValue(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({HttpMessageNotReadableException.class})
+    @ExceptionHandler({JsonMappingException.class})
     public ResponseEntity<ErrorApi> handleResourceJsonMappingException() {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_001500.getValue());
-    }
-
-    @ExceptionHandler({DateTimeParseException.class})
-    public ResponseEntity<ErrorApi> handleResourceDateTimeParseException() {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_002500.getValue());
-    }
-
-    @ExceptionHandler({PSQLException.class})
-    public ResponseEntity<ErrorApi> handleResourcePSQLException() {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_003500.getValue());
+        return retrieveExceptionErrorApi(ErrorCode.ERROR_003400.getValue(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({EmptyResultDataAccessException.class})
     public ResponseEntity<ErrorApi> handleResourceEmptyResultDataAccessException() {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_004500.getValue());
+        return retrieveExceptionErrorApi(ErrorCode.ERROR_001500.getValue());
     }
 
     @ExceptionHandler({DuplicateKeyException.class})
     public ResponseEntity<ErrorApi> handleResourceDuplicateKeyException() {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_005500.getValue());
+        return retrieveExceptionErrorApi(ErrorCode.ERROR_002500.getValue());
     }
 
     @ExceptionHandler({BindException.class})
     public ResponseEntity<ErrorApi> handleResourceBindException() {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_006500.getValue());
+        return retrieveExceptionErrorApi(ErrorCode.ERROR_003500.getValue());
+    }
+
+    @ExceptionHandler({NumberFormatException.class})
+    public ResponseEntity<ErrorApi> handleResourceNumberFormatException() {
+        return retrieveExceptionErrorApi(ErrorCode.ERROR_000400.getValue(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler

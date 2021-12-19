@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -25,6 +24,7 @@ import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_ID;
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_LAST_UPDATE_DATE;
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_NAME;
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_PRICE;
+import static com.epam.esm.dao.util.SqlQuery.CLEAR_TAGS_BY_GIFT_CERTIFICATE_ID;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_CREATE;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_DELETE;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_FIND_ALL;
@@ -32,6 +32,7 @@ import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_FIND_BY_ID;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_TAG_CREATE;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_TAG_EXISTS;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_UPDATE;
+import static com.epam.esm.dao.util.SqlQuery.RETRIEVE_TAGS_BY_GIFT_CERTIFICATE_ID;
 
 @Component
 @RequiredArgsConstructor
@@ -43,7 +44,9 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     @Override
     public Optional<GiftCertificate> create(GiftCertificate giftCertificate) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        SqlParameterSource namedParameters = getNamedParameters(giftCertificate);
+        MapSqlParameterSource namedParameters = getNamedParameters(giftCertificate);
+        namedParameters.addValue(COLUMN_LABEL_CREATE_DATE, getDate(giftCertificate.getCreateDate()));
+        namedParameters.addValue(COLUMN_LABEL_LAST_UPDATE_DATE, getDate(giftCertificate.getLastUpdateDate()));
         namedParameterJdbcTemplate.update(GIFT_CERTIFICATE_CREATE, namedParameters, keyHolder,
                 new String[]{COLUMN_LABEL_ID});
         Optional<GiftCertificate> createdGiftCertificate = findById(keyHolder.getKey().longValue());
@@ -76,12 +79,24 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     @Override
     public Optional<GiftCertificate> update(Long id, GiftCertificate giftCertificate) {
         MapSqlParameterSource namedParameters = getNamedParameters(giftCertificate);
+        namedParameters.addValue(COLUMN_LABEL_LAST_UPDATE_DATE, getDate(giftCertificate.getLastUpdateDate()));
         namedParameters.addValue(COLUMN_LABEL_ID, id);
         namedParameterJdbcTemplate.update(GIFT_CERTIFICATE_UPDATE, namedParameters);
         if (giftCertificate.getTags() != null) {
             addRecordInGiftCertificateTag(id, giftCertificate.getTags());
         }
         return findById(id);
+    }
+
+    @Override
+    public void clearGiftCertificateTags(Long id) {
+        jdbcTemplate.update(CLEAR_TAGS_BY_GIFT_CERTIFICATE_ID, id);
+    }
+
+    @Override
+    public List<Tag> retrieveTagsByGiftCertificateId(Long giftCertificateId) {
+        return jdbcTemplate.query(RETRIEVE_TAGS_BY_GIFT_CERTIFICATE_ID,
+                BeanPropertyRowMapper.newInstance(Tag.class), giftCertificateId);
     }
 
     private Timestamp getDate(Instant instant) {
@@ -93,9 +108,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
                 .addValue(COLUMN_LABEL_NAME, giftCertificate.getName())
                 .addValue(COLUMN_LABEL_DESCRIPTION, giftCertificate.getDescription())
                 .addValue(COLUMN_LABEL_PRICE, giftCertificate.getPrice())
-                .addValue(COLUMN_LABEL_DURATION, giftCertificate.getDuration())
-                .addValue(COLUMN_LABEL_CREATE_DATE, getDate(giftCertificate.getCreateDate()))
-                .addValue(COLUMN_LABEL_LAST_UPDATE_DATE, getDate(giftCertificate.getLastUpdateDate()));
+                .addValue(COLUMN_LABEL_DURATION, giftCertificate.getDuration());
     }
 
     private void createGiftCertificateTag(Long giftCertificateId, List<Tag> tags) {

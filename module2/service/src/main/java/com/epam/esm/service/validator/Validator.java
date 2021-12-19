@@ -1,5 +1,10 @@
 package com.epam.esm.service.validator;
 
+import com.epam.esm.service.exception.ServiceException;
+
+import static com.epam.esm.service.exception.ErrorCode.ERROR_001400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_002400;
+
 /**
  * This is an interface for basic validation operations.
  *
@@ -11,37 +16,35 @@ public interface Validator<T> {
      * Validated id.
      *
      * @param id the id
-     * @return the boolean
      */
-    default boolean validatedId(Long id) {
-        return id != null && id > 0;
+    default void validatedIdPathVariable(Long id) {
+        if (id == null || id <= 0) {
+            throw new ServiceException(ERROR_001400);
+        }
     }
 
     /**
-     * Validate string.
+     * Validate id when create.
      *
-     * @param string the name
-     * @return the boolean
+     * @param id the id
      */
-    default boolean validateString(String string) {
-        return isStringParameterValid(string);
+    default void validateIdWhenCreate(Long id) {
+        if (id != null) {
+            throw new ServiceException(ERROR_002400);
+        }
     }
 
     /**
-     * Is string parameter valid.
+     * Validate name.
      *
-     * @param parameter the parameter
-     * @return the boolean
+     * @param name the name
      */
-    default boolean isStringParameterValid(String parameter) {
-        return parameter != null && !parameter.isBlank();
-    }
+    void validateName(String name);
 
     /**
-     * Validate boolean.
+     * Validate.
      *
      * @param t the dto entity
-     * @return the boolean
      */
-    boolean validate(T t);
+    void validate(T t);
 }
