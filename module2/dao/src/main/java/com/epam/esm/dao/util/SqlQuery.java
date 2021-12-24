@@ -1,0 +1,82 @@
+package com.epam.esm.dao.util;
+
+import org.intellij.lang.annotations.Language;
+
+public final class SqlQuery {
+
+    private SqlQuery() {}
+
+    @Language("PostgreSQL")
+    public static final String TAG_CREATE = "INSERT INTO tag (name) VALUES (:name)";
+
+    @Language("PostgreSQL")
+    public static final String TAG_DELETE = "DELETE FROM tag WHERE id = ?";
+
+    @Language("PostgreSQL")
+    public static final String TAG_FIND_BY_ID = "SELECT id, name FROM tag WHERE id = ?";
+
+    @Language("PostgreSQL")
+    public static final String TAG_FIND_ALL = "SELECT id, name FROM tag";
+
+    @Language("PostgreSQL")
+    public static final String TAG_FIND_BY_NAME = "SELECT id, name FROM tag WHERE name = ?";
+
+    @Language("PostgreSQL")
+    public static final String GIFT_CERTIFICATE_CREATE =
+            "INSERT INTO gift_certificate (name, description, price, duration, create_date, last_update_date) " +
+                    "VALUES (:name, :description, :price, :duration, :create_date, :last_update_date)";
+
+    @Language("PostgreSQL")
+    public static final String GIFT_CERTIFICATE_FIND_BY_ID =
+            "SELECT id, name, description, price, duration, create_date, last_update_date " +
+                    "FROM gift_certificate WHERE id = ?";
+
+    @Language("PostgreSQL")
+    public static final String GIFT_CERTIFICATE_FIND_ALL =
+            "SELECT id, name, description, price, duration, create_date, last_update_date " +
+                    "FROM gift_certificate";
+
+    @Language("PostgreSQL")
+    public static final String GIFT_CERTIFICATE_DELETE = "DELETE FROM gift_certificate WHERE id = ?";
+
+    @Language("PostgreSQL")
+    public static final String GIFT_CERTIFICATE_UPDATE =
+            "UPDATE gift_certificate SET name = :name, description = :description, " +
+                    "price = :price, duration = :duration, " +
+                    "last_update_date = :last_update_date WHERE id = :id";
+
+    @Language("PostgreSQL")
+    public static final String GIFT_CERTIFICATE_TAG_CREATE =
+            "INSERT INTO gift_certificate_tag (gift_certificate_id, tag_id) VALUES (?, ?)";
+
+    @Language("PostgreSQL")
+    public static final String TAG_FIND_BY_GIFT_CERTIFICATE_ID =
+            "SELECT id, name " +
+                    "FROM tag " +
+                    "INNER JOIN gift_certificate_tag gct on tag.id = gct.tag_id " +
+                    "WHERE gift_certificate_id = ?";
+
+    @Language("PostgreSQL")
+    public static final String TAG_EXISTS =
+            "SELECT exists(SELECT 1 FROM tag WHERE name = ?)";
+
+    @Language("PostgreSQL")
+    public static final String GIFT_CERTIFICATE_TAG_EXISTS =
+            "SELECT exists (SELECT 1 FROM gift_certificate_tag " +
+                    "WHERE gift_certificate_id = ? AND tag_id = ?)";
+
+    @Language("PostgreSQL")
+    public static final String TAG_EXISTS_IN_GIFT_CERTIFICATE_TAG =
+            "SELECT exists (SELECT 1 FROM gift_certificate_tag WHERE tag_id = ?)";
+
+    @Language("PostgreSQL")
+    public static final String CLEAR_TAGS_BY_GIFT_CERTIFICATE_ID =
+            "DELETE FROM gift_certificate_tag WHERE gift_certificate_id = ?";
+
+    @Language("PostgreSQL")
+    public static final String RETRIEVE_TAGS_BY_GIFT_CERTIFICATE_ID =
+            "SELECT t.id, t.name FROM tag AS t " +
+                    "INNER JOIN gift_certificate_tag AS gct ON gct.tag_id = t.id " +
+                    "INNER JOIN gift_certificate AS g ON g.id = gct.gift_certificate_id " +
+                    "WHERE g.id = ?";
+}

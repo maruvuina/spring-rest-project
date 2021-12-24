@@ -1,0 +1,29 @@
+package com.epam.esm.dao.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+
+/**
+ * Represents a Gift certificate.
+ */
+@Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class GiftCertificate {
+
+    private Long id;
+    private String name;
+    private String description;
+    private BigDecimal price;
+    private Integer duration;
+    private Instant createDate;
+    private Instant lastUpdateDate;
+    private List<Tag> tags;
+}
