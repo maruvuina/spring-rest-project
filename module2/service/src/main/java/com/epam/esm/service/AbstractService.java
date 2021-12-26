@@ -24,12 +24,15 @@ public interface AbstractService<T> {
      */
     void delete(Long id);
 
+
     /**
-     * Retrieve all.
+     * Retrieve all list.
      *
+     * @param page the page
+     * @param size the size
      * @return the list
      */
-    List<T> retrieveAll();
+    List<T> retrieveAll(Integer page, Integer size);
 
     /**
      * Retrieve by id.

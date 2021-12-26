@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import javax.validation.ConstraintViolationException;
+
 @RequiredArgsConstructor
 @ControllerAdvice
 public class ErrorHandlingControllerAdvice {
@@ -52,14 +54,9 @@ public class ErrorHandlingControllerAdvice {
         return retrieveExceptionErrorApi(ErrorCode.ERROR_003500.getValue());
     }
 
-    @ExceptionHandler({NumberFormatException.class})
-    public ResponseEntity<ErrorApi> handleResourceNumberFormatException() {
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorApi> handleConstraintViolationException() {
         return retrieveExceptionErrorApi(ErrorCode.ERROR_000400.getValue(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<ErrorApi> handleResourceException(Exception ex) {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_000500.getValue());
     }
 
     private ResponseEntity<ErrorApi> retrieveExceptionErrorApi(String errorCode, HttpStatus httpStatus) {

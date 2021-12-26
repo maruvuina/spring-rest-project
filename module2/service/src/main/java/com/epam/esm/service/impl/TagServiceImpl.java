@@ -10,14 +10,15 @@ import com.epam.esm.service.validator.TagValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.service.exception.ErrorCode.ERROR_202400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_203400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_204400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_205400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_206400;
 
 @Slf4j
 @Service
@@ -29,6 +30,7 @@ public class TagServiceImpl implements TagService {
     private final TagValidator tagValidator;
 
     @Override
+    @Transactional
     public TagDto create(TagDto tagDto) {
         tagValidator.validate(tagDto);
         Tag createdTag = retrieveCreatedTag(tagDto);
@@ -36,16 +38,17 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
-        tagValidator.validatedIdPathVariable(id);
         existsInGiftCertificateTag(id);
-        tagDao.delete(id);
+        Tag tag = tagDao.findById(id).orElseThrow(() -> new ServiceException(ERROR_206400));
+        tagDao.delete(tag);
         log.info("Tag deleted with id = {}", id);
     }
 
     @Override
-    public List<TagDto> retrieveAll() {
-        return tagDao.findAll()
+    public List<TagDto> retrieveAll(Integer page, Integer size) {
+        return tagDao.findAll(page, size)
                 .stream()
                 .map(tagMapper::mapToTagDto)
                 .collect(Collectors.toList());
@@ -53,12 +56,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveById(Long id) {
-        tagValidator.validatedIdPathVariable(id);
-        return tagMapper.mapToTagDto(tagDao.findById(id)
-                .orElseThrow(() -> {
-                    log.error("An error occurred while getting tag by id = {}", id);
-                    return new ServiceException(ERROR_202400, String.valueOf(id));
-                }));
+        return tagMapper.mapToTagDto(tagDao.findById(id).get());
     }
 
     @Override
@@ -69,7 +67,6 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<TagDto> retrieveTagsByGiftCertificateId(Long id) {
-        tagValidator.validatedIdPathVariable(id);
         return tagDao.findTagsByGiftCertificateId(id)
                 .stream()
                 .map(tagMapper::mapToTagDto)

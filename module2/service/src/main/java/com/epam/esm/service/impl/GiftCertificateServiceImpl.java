@@ -20,19 +20,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.service.exception.ErrorCode.ERROR_100400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_101400;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_102400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_103400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_104400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_105400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_106400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_111400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_112400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_113400;
 
 @Slf4j
 @Service
@@ -57,9 +59,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
-        giftCertificateValidator.validatedIdPathVariable(id);
-        giftCertificateDao.delete(id);
+        GiftCertificate giftCertificate = giftCertificateDao.findById(id)
+                .orElseThrow(() -> new ServiceException(ERROR_113400));
+        giftCertificateDao.delete(giftCertificate);
         log.info("GiftCertificate deleted with id = {}", id);
     }
 
@@ -71,8 +75,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificateDto> retrieveAll() {
-        return giftCertificateDao.findAll()
+    public List<GiftCertificateDto> retrieveAll(Integer page, Integer size) {
+        return giftCertificateDao.findAll(page, size)
                 .stream()
                 .map(this::setTagsAndRetrieveGiftCertificateDto)
                 .collect(Collectors.toList());
@@ -83,9 +87,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
         validateDataToUpdate(id, giftCertificateDto);
         validateTags(giftCertificateDto.getTags());
-        GiftCertificate giftCertificate = giftCertificateMapper.mapToUpdateGiftCertificate(giftCertificateDto);
-        giftCertificateDao.clearGiftCertificateTags(id);
-        return updateGiftCertificate(giftCertificateDto.getTags(), id, giftCertificate);
+        return updateGiftCertificate(id, giftCertificateDto);
     }
 
     @Override
@@ -93,17 +95,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public GiftCertificateDto updatePart(Long id, GiftCertificateDto giftCertificateDto) {
         validateDataToUpdate(id, giftCertificateDto);
         validateTagsToPartUpdate(id, giftCertificateDto);
-        GiftCertificate newGiftCertificate = giftCertificateMapper.mapToUpdateGiftCertificate(giftCertificateDto);
-        GiftCertificate savedGiftCertificate = retrieveSavedGiftCertificate(id);
-        giftCertificateMapper.mergeGiftCertificate(newGiftCertificate, savedGiftCertificate);
-        return updateGiftCertificate(giftCertificateDto.getTags(), id, savedGiftCertificate);
+        return updateGiftCertificate(id, giftCertificateDto);
     }
 
     @Override
-    public List<GiftCertificateDto> retrieveGiftCertificatesByParameter(GiftCertificateParameter giftCertificateParameter) {
+    public List<GiftCertificateDto> retrieveGiftCertificatesByParameter(Integer page, Integer size, GiftCertificateParameter giftCertificateParameter) {
         DynamicQueryResult dynamicQueryResult = DynamicQuery.retrieveQuery(giftCertificateParameter);
         return giftCertificateDao
-                .findGiftCertificatesByParameter(dynamicQueryResult.getQuery(), dynamicQueryResult.getParameter())
+                .findGiftCertificatesByParameter(page, size, dynamicQueryResult)
                 .stream()
                 .map(this::setTagsAndRetrieveGiftCertificateDto)
                 .collect(Collectors.toList());
@@ -111,12 +110,18 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private GiftCertificateDto setTagsAndRetrieveGiftCertificateDto(GiftCertificate giftCertificate) {
         GiftCertificateDto giftCertificateDto = giftCertificateMapper.mapToGiftCertificateDto(giftCertificate);
-        giftCertificateDto.setTags(tagService.retrieveTagsByGiftCertificateId(giftCertificate.getId()));
+        giftCertificateDto.setTags(giftCertificate.getTags()
+                .stream().map(tagMapper::mapToTagDto)
+                .collect(Collectors.toList()));
         return giftCertificateDto;
     }
 
     private List<Tag> setTagsToGiftCertificate(List<TagDto> tagDtoList) {
-        return tagDtoList.stream()
+        Set<String> setTagName = new HashSet<>();
+        List<TagDto> tagDtos = tagDtoList.stream()
+                .filter(t -> setTagName.add(t.getName()))
+                .collect(Collectors.toList());
+        return tagDtos.stream()
                 .map(tagDto -> {
                     String tagName = tagDto.getName();
                     if (!tagService.existsByName(tagName)) {
@@ -135,14 +140,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 });
     }
 
-    private GiftCertificate retrieveUpdatedGiftCertificate(Long id, GiftCertificate giftCertificate) {
-        return giftCertificateDao.update(id, giftCertificate)
-                .orElseThrow(() -> {
-                    log.error("An error occurred while updating gift certificate");
-                    return new ServiceException(ERROR_102400);
-                });
-    }
-
     private GiftCertificate retrieveSavedGiftCertificate(Long id) {
         return giftCertificateDao.findById(id)
                 .orElseThrow(() -> {
@@ -152,7 +149,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     private void validateDataToUpdate(Long id, GiftCertificateDto giftCertificateDto) {
-        giftCertificateValidator.validatedIdPathVariable(id);
         validateIdForPartUpdate(id, giftCertificateDto.getId());
         validateDate(giftCertificateDto);
         giftCertificateValidator.validateDataToUpdate(giftCertificateDto);
@@ -195,21 +191,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     private boolean giftCertificateTagsAreExists(Long id, List<TagDto> giftCertificateDtoTags) {
-        return giftCertificateDao.retrieveTagsByGiftCertificateId(id)
+        return tagService.retrieveTagsByGiftCertificateId(id)
                 .stream()
+                .map(tagMapper::mapToTag)
                 .map(Tag::getName)
                 .anyMatch(giftCertificateDtoTags
                         .stream()
                         .map(TagDto::getName)
                         .collect(Collectors.toSet())::contains);
-    }
-
-    private GiftCertificateDto updateGiftCertificate(List<TagDto> tagDtoList, Long id, GiftCertificate giftCertificate) {
-        if (tagDtoList != null) {
-            giftCertificate.setTags(setTagsToGiftCertificate(tagDtoList));
-        }
-        GiftCertificate updatedGiftCertificate = retrieveUpdatedGiftCertificate(id, giftCertificate);
-        return setTagsAndRetrieveGiftCertificateDto(updatedGiftCertificate);
     }
 
     private void validateTagsToPartUpdate(Long id, GiftCertificateDto giftCertificateDto) {
@@ -221,5 +210,15 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                 throw new ServiceException(ERROR_104400);
             }
         }
+    }
+
+    private GiftCertificateDto updateGiftCertificate(Long id, GiftCertificateDto giftCertificateDto) {
+        GiftCertificate newGiftCertificate = giftCertificateMapper.mapToUpdateGiftCertificate(giftCertificateDto);
+        GiftCertificate savedGiftCertificate = retrieveSavedGiftCertificate(id);
+        giftCertificateMapper.mergeGiftCertificate(newGiftCertificate, savedGiftCertificate);
+        if (giftCertificateDto.getTags() != null) {
+            savedGiftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
+        }
+        return setTagsAndRetrieveGiftCertificateDto(savedGiftCertificate);
     }
 }

@@ -14,10 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -54,11 +52,6 @@ public class WebConfig implements WebMvcConfigurer {
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new StringToOrderTpeConverter());
         registry.addConverter(new StringToSortTpeConverter());
-    }
-
-    @Bean
-    public LocaleResolver localeResolver() {
-        return new AcceptHeaderLocaleResolver();
     }
 
     @Bean

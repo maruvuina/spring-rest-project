@@ -5,6 +5,7 @@ import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.dao.util.GiftCertificateParameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -13,9 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 /**
@@ -24,6 +28,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/certificates")
 @RequiredArgsConstructor
+@Validated
 public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
@@ -47,7 +52,7 @@ public class GiftCertificateController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id) {
+    public void delete(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
         giftCertificateService.delete(id);
     }
 
@@ -59,7 +64,7 @@ public class GiftCertificateController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public GiftCertificateDto getById(@PathVariable("id") Long id) {
+    public GiftCertificateDto getById(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
         return giftCertificateService.retrieveById(id);
     }
 
@@ -72,7 +77,8 @@ public class GiftCertificateController {
      */
     @PutMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public GiftCertificateDto update(@PathVariable("id") Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
+    public GiftCertificateDto update(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
+                                     @RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.update(id, giftCertificateDto);
     }
 
@@ -85,19 +91,24 @@ public class GiftCertificateController {
      */
     @PatchMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public GiftCertificateDto updatePart(@PathVariable("id") Long id, @RequestBody GiftCertificateDto giftCertificateDto) {
+    public GiftCertificateDto updatePart(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
+                                         @RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.updatePart(id, giftCertificateDto);
     }
 
     /**
      * Retrieve all tags and by parameter.
      *
+     * @param page                     the page
+     * @param size                     the size
      * @param giftCertificateParameter the gift certificate parameter
      * @return the list of gift certificate dto
      */
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
-    public List<GiftCertificateDto> retrieveAll(GiftCertificateParameter giftCertificateParameter) {
-        return giftCertificateService.retrieveGiftCertificatesByParameter(giftCertificateParameter);
+    public List<GiftCertificateDto> retrieveAll(@RequestParam(defaultValue = "0") @Min(1) @Max(Integer.MAX_VALUE) Integer page,
+                                                @RequestParam(defaultValue = "3") @Min(1) @Max(Integer.MAX_VALUE) Integer size,
+                                                GiftCertificateParameter giftCertificateParameter) {
+        return giftCertificateService.retrieveGiftCertificatesByParameter(page, size, giftCertificateParameter);
     }
 }

@@ -1,35 +1,39 @@
 package com.epam.esm.dao.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_DESCRIPTION;
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_NAME;
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_TAG_ID;
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_TAG_NAME;
 
 public final class DynamicQuery {
 
     private static final String SPACE = " ";
-    private static final String SELECT_FROM =
-            "SELECT g.id, g.name, description, price, duration, create_date, last_update_date " +
-                    "FROM gift_certificate AS g";
+    private static final String SELECT_FROM = "select g from GiftCertificate g";
     private static final String PERCENT = "%";
-    private static final String JOIN_GIFT_CERTIFICATE_TAG =
-            "INNER JOIN gift_certificate_tag AS gct ON g.id = gct.gift_certificate_id " +
-                    "INNER JOIN tag AS t ON gct.tag_id = t.id";
-    private static final String TAG_NAME_JOIN_COLUMN = "t.name";
-    private static final String GIFT_CERTIFICATE_NAME_JOIN_COLUMN = "g.name";
+    private static final String JOIN_GIFT_CERTIFICATE_TAG = "inner join g.tags t";
+    private static final String GIFT_CERTIFICATE_NAME_COLUMN = "g.name";
+    private static final String TAG_NAME_COLUMN = "t.name";
+    private static final String GIFT_CERTIFICATE_NAME_COLUMN = "g.name";
+    private static final String GIFT_CERTIFICATE_DESCRIPTION_COLUMN = "g.description";
     private static final String EQUAL_SIGN = "=";
-    private static final String WHERE = "WHERE";
-    private static final String AND = "AND";
+    private static final String WHERE = "where";
+    private static final String AND = "and";
     private static final String ILIKE = "ILIKE";
     private static final String PREPARED_OPERATOR = "?";
-    private static final String ORDER_BY = "ORDER BY";
+    private static final String ORDER_BY = "order by";
+    private static final String COLON_OPERATOR = ":";
 
     private DynamicQuery() {}
 
     public static DynamicQueryResult retrieveQuery(GiftCertificateParameter giftCertificateParameter) {
-        List<String> parameters = new ArrayList<>();
+        Map<String, Object> parameters = new HashMap<>();
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append(SELECT_FROM + SPACE);
         ParameterCountType parameterCountType = retrieveParameterCount(giftCertificateParameter);
@@ -70,33 +74,33 @@ public final class DynamicQuery {
         return parameterCountType;
     }
 
-    private static List<String> retrieveDataForOneParameter(GiftCertificateParameter giftCertificateParameter,
+    private static Map<String, String> retrieveDataForOneParameter(GiftCertificateParameter giftCertificateParameter,
                                                             StringBuilder queryBuilder) {
-        List<String> parameters = new ArrayList<>();
+        Map<String, String> parameters = new HashMap<>();
         if (isParameterValid(giftCertificateParameter.getTagName())) {
             queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
-            queryBuilder.append(WHERE + SPACE + TAG_NAME_JOIN_COLUMN + EQUAL_SIGN + PREPARED_OPERATOR);
+            queryBuilder.append(WHERE + SPACE + TAG_NAME_COLUMN + SPACE + COLON_OPERATOR + COLUMN_LABEL_NAME);
             parameters = setSortOrderParameterForDataWithOneParameter(giftCertificateParameter,
-                    queryBuilder, giftCertificateParameter.getTagName());
+                    queryBuilder, COLUMN_LABEL_NAME, giftCertificateParameter.getTagName());
         }
         if (isParameterValid(giftCertificateParameter.getName())) {
-            fillSearchQuery(queryBuilder, COLUMN_LABEL_NAME);
+            fillSearchQuery(queryBuilder, GIFT_CERTIFICATE_NAME_COLUMN, COLUMN_LABEL_NAME);
             parameters = setSortOrderParameterForDataWithOneParameter(giftCertificateParameter,
-                    queryBuilder, giftCertificateParameter.getName() + PERCENT);
+                    queryBuilder, COLUMN_LABEL_NAME, giftCertificateParameter.getName());
         }
         if (isParameterValid(giftCertificateParameter.getDescription())) {
-            fillSearchQuery(queryBuilder, COLUMN_LABEL_DESCRIPTION);
+            fillSearchQuery(queryBuilder, GIFT_CERTIFICATE_DESCRIPTION_COLUMN, COLUMN_LABEL_DESCRIPTION);
             parameters = setSortOrderParameterForDataWithOneParameter(giftCertificateParameter,
-                    queryBuilder, giftCertificateParameter.getDescription() + PERCENT);
+                    queryBuilder, COLUMN_LABEL_DESCRIPTION, giftCertificateParameter.getDescription());
         }
         return parameters;
     }
 
-    private static List<String> setSortOrderParameterForDataWithOneParameter(GiftCertificateParameter giftCertificateParameter,
-                   StringBuilder queryBuilder, String parameter) {
-        List<String> parameters = new ArrayList<>();
+    private static Map<String, String> setSortOrderParameterForDataWithOneParameter(GiftCertificateParameter giftCertificateParameter,
+                   StringBuilder queryBuilder, String columnLabel, String parameter) {
+        Map<String, String> parameters = new HashMap<>();
         setSortAndOrder(giftCertificateParameter, queryBuilder);
-        parameters.add(parameter);
+        parameters.put(columnLabel, parameter);
         return parameters;
     }
 
@@ -113,27 +117,27 @@ public final class DynamicQuery {
         }
     }
 
-    private static List<String> retrieveDataForTwoParameters(GiftCertificateParameter giftCertificateParameter,
+    private static Map<String, String> retrieveDataForTwoParameters(GiftCertificateParameter giftCertificateParameter,
                                                              StringBuilder queryBuilder) {
-        List<String> parameters = new ArrayList<>();
+        Map<String, String> parameters = new HashMap<>();
         if (isParameterValid(giftCertificateParameter.getTagName()) &&
                 isParameterValid(giftCertificateParameter.getName())) {
             queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
-            fillQueryForTwoParameters(queryBuilder, TAG_NAME_JOIN_COLUMN, GIFT_CERTIFICATE_NAME_JOIN_COLUMN);
+            fillQueryForTwoParameters(queryBuilder, TAG_NAME_COLUMN, GIFT_CERTIFICATE_NAME_COLUMN, COLUMN_LABEL_TAG_NAME, COLUMN_LABEL_NAME);
             parameters = setSortOrderParameterForDataWithTwoParameters(giftCertificateParameter, queryBuilder,
                     giftCertificateParameter.getTagName(), giftCertificateParameter.getName() + PERCENT);
         }
         if (isParameterValid(giftCertificateParameter.getTagName()) &&
                 isParameterValid(giftCertificateParameter.getDescription())) {
             queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
-            fillQueryForTwoParameters(queryBuilder, TAG_NAME_JOIN_COLUMN, COLUMN_LABEL_DESCRIPTION);
+            fillQueryForTwoParameters(queryBuilder, TAG_NAME_COLUMN, COLUMN_LABEL_DESCRIPTION);
             parameters = setSortOrderParameterForDataWithTwoParameters(giftCertificateParameter, queryBuilder,
                     giftCertificateParameter.getTagName(),
                     giftCertificateParameter.getDescription() + PERCENT);
         }
         if (isParameterValid(giftCertificateParameter.getName()) &&
                 isParameterValid(giftCertificateParameter.getDescription())) {
-            fillQueryForTwoParameters(queryBuilder, GIFT_CERTIFICATE_NAME_JOIN_COLUMN, COLUMN_LABEL_DESCRIPTION);
+            fillQueryForTwoParameters(queryBuilder, GIFT_CERTIFICATE_NAME_COLUMN, COLUMN_LABEL_DESCRIPTION);
             parameters = setSortOrderParameterForDataWithTwoParameters(giftCertificateParameter, queryBuilder,
                     giftCertificateParameter.getName(),
                     giftCertificateParameter.getDescription() + PERCENT);
@@ -141,51 +145,52 @@ public final class DynamicQuery {
         return parameters;
     }
 
-    private static List<String> setSortOrderParameterForDataWithTwoParameters(GiftCertificateParameter giftCertificateParameter,
+    private static Map<String, String> setSortOrderParameterForDataWithTwoParameters(GiftCertificateParameter giftCertificateParameter,
                           StringBuilder queryBuilder, String firstParameter, String secondParameter) {
         setSortAndOrder(giftCertificateParameter, queryBuilder);
         return setParametersForQueryWithTwoParameters(firstParameter, secondParameter);
     }
 
-    private static List<String> setParametersForQueryWithTwoParameters(String firstParameter, String secondParameter) {
-        List<String> parameters = new ArrayList<>();
-        parameters.add(firstParameter);
-        parameters.add(secondParameter);
+    private static Map<String, String> setParametersForQueryWithTwoParameters(String firstParameter, String secondParameter) {
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put(firstParameter);
+        parameters.put(secondParameter);
         return parameters;
     }
 
     private static void fillQueryForTwoParameters(StringBuilder queryBuilder, String firstColumnParameter,
-                                                  String secondColumnParameter) {
+                                                  String secondColumnParameter, String firstColumnLabel,
+                                                  String secondColumnLabel) {
         queryBuilder.append(WHERE + SPACE)
                 .append(firstColumnParameter)
-                .append(SPACE + EQUAL_SIGN + SPACE + PREPARED_OPERATOR)
+                .append(SPACE + COLON_OPERATOR + firstColumnLabel)
                 .append(SPACE + AND + SPACE)
                 .append(secondColumnParameter)
-                .append(SPACE + ILIKE + SPACE + PREPARED_OPERATOR);
+                .append(SPACE + ILIKE + SPACE + PERCENT + COLON_OPERATOR + secondColumnLabel + PERCENT);
     }
 
-    private static List<String> retrieveDataForThreeParameters(GiftCertificateParameter giftCertificateParameter,
+    private static Map<String, String> retrieveDataForThreeParameters(GiftCertificateParameter giftCertificateParameter,
                                                                StringBuilder queryBuilder) {
-        List<String> parameters = new ArrayList<>();
+        Map<String, Object> parameters = new HashMap<>();
         if (isParameterValid(giftCertificateParameter.getTagName()) &&
                 isParameterValid(giftCertificateParameter.getName()) &&
                 isParameterValid(giftCertificateParameter.getDescription())) {
             queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
-            queryBuilder.append(WHERE + SPACE + TAG_NAME_JOIN_COLUMN + SPACE + EQUAL_SIGN + SPACE + PREPARED_OPERATOR)
-                    .append(SPACE + AND + SPACE + GIFT_CERTIFICATE_NAME_JOIN_COLUMN + SPACE + ILIKE + SPACE +
+            queryBuilder.append(WHERE + SPACE + TAG_NAME_COLUMN + SPACE + EQUAL_SIGN + SPACE + PREPARED_OPERATOR)
+                    .append(SPACE + AND + SPACE + GIFT_CERTIFICATE_NAME_COLUMN + SPACE + ILIKE + SPACE +
                             PREPARED_OPERATOR)
                     .append(SPACE + AND + SPACE + COLUMN_LABEL_DESCRIPTION + SPACE + ILIKE + SPACE + PREPARED_OPERATOR);
             setSortAndOrder(giftCertificateParameter, queryBuilder);
-            parameters.add(giftCertificateParameter.getTagName());
-            parameters.add(giftCertificateParameter.getName() + PERCENT);
-            parameters.add(giftCertificateParameter.getDescription() + PERCENT);
+            parameters.put(giftCertificateParameter.getTagName());
+            parameters.put(giftCertificateParameter.getName() + PERCENT);
+            parameters.put(giftCertificateParameter.getDescription() + PERCENT);
         }
         return parameters;
     }
 
-    private static List<String> retrieveDataForNonParameters(GiftCertificateParameter giftCertificateParameter,
+    private static Map<String, String> retrieveDataForNonParameters(GiftCertificateParameter giftCertificateParameter,
                                                              StringBuilder queryBuilder) {
-        List<String> parameters = new ArrayList<>();
+        Map<String, String> parameters = new HashMap<>();
         if (isEnumValueValid(giftCertificateParameter.getSort())) {
             queryBuilder.append(SPACE + ORDER_BY + SPACE).append(giftCertificateParameter.getSort().getValue());
             setOrder(giftCertificateParameter, queryBuilder);
@@ -197,10 +202,10 @@ public final class DynamicQuery {
         return parameter != null && !parameter.isBlank();
     }
 
-    private static void fillSearchQuery(StringBuilder queryBuilder, String columnLabel) {
+    private static void fillSearchQuery(StringBuilder queryBuilder, String columnName, String columnLabel) {
         queryBuilder.append(WHERE + SPACE)
-                .append(columnLabel)
-                .append(SPACE + ILIKE + SPACE + PREPARED_OPERATOR);
+                .append(columnName)
+                .append(SPACE + ILIKE + SPACE + PERCENT + COLON_OPERATOR + columnLabel + PERCENT);
     }
 
     private static <E extends Enum<E>> boolean isEnumValueValid(E clazz) {

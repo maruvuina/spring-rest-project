@@ -21,9 +21,9 @@ public interface AbstractDao<T> {
     /**
      * Delete entity.
      *
-     * @param id an id of entity
+     * @param t the entity
      */
-    void delete(Long id);
+    void delete(T t);
 
     /**
      * Find entity by id.
@@ -33,10 +33,13 @@ public interface AbstractDao<T> {
      */
     Optional<T> findById(Long id);
 
+
     /**
      * Find all entities.
      *
+     * @param page the page
+     * @param size the size
      * @return the list of entities
      */
-    List<T> findAll();
+    List<T> findAll(Integer page, Integer size);
 }

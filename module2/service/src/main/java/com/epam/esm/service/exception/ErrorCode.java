@@ -24,11 +24,13 @@ public enum ErrorCode {
     ERROR_110400("110400"),
     ERROR_111400("111400"),
     ERROR_112400("112400"),
+    ERROR_113400("113400"),
     ERROR_201400("201400"),
     ERROR_202400("202400"),
     ERROR_203400("203400"),
     ERROR_204400("204400"),
-    ERROR_205400("205400");
+    ERROR_205400("205400"),
+    ERROR_206400("206400");
 
     private final String value;
 

@@ -28,11 +28,14 @@ public interface GiftCertificateService extends AbstractService<GiftCertificateD
      */
     GiftCertificateDto updatePart(Long id, GiftCertificateDto giftCertificateDto);
 
+
     /**
      * Retrieve gift certificates by parameter.
      *
+     * @param page                     the page
+     * @param size                     the size
      * @param giftCertificateParameter the gift certificate parameter
      * @return the list of gift certificates dto
      */
-    List<GiftCertificateDto> retrieveGiftCertificatesByParameter(GiftCertificateParameter giftCertificateParameter);
+    List<GiftCertificateDto> retrieveGiftCertificatesByParameter(Integer page, Integer size, GiftCertificateParameter giftCertificateParameter);
 }
