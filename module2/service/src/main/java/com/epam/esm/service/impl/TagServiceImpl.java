@@ -2,10 +2,11 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.Tag;
+import com.epam.esm.dao.util.Page;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
-import com.epam.esm.service.mapper.TagMapper;
+import com.epam.esm.service.mapper.impl.TagMapperImpl;
 import com.epam.esm.service.validator.TagValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.service.exception.ErrorCode.ERROR_203400;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_204400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_205400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_206400;
 
@@ -26,7 +26,7 @@ import static com.epam.esm.service.exception.ErrorCode.ERROR_206400;
 public class TagServiceImpl implements TagService {
 
     private final TagDao tagDao;
-    private final TagMapper tagMapper;
+    private final TagMapperImpl tagMapper;
     private final TagValidator tagValidator;
 
     @Override
@@ -34,7 +34,7 @@ public class TagServiceImpl implements TagService {
     public TagDto create(TagDto tagDto) {
         tagValidator.validate(tagDto);
         Tag createdTag = retrieveCreatedTag(tagDto);
-        return tagMapper.mapToTagDto(createdTag);
+        return tagMapper.mapToDto(createdTag);
     }
 
     @Override
@@ -47,16 +47,16 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDto> retrieveAll(Integer page, Integer size) {
-        return tagDao.findAll(page, size)
+    public List<TagDto> retrieveAll(Page page) {
+        return tagDao.findAll(page)
                 .stream()
-                .map(tagMapper::mapToTagDto)
+                .map(tagMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public TagDto retrieveById(Long id) {
-        return tagMapper.mapToTagDto(tagDao.findById(id).get());
+        return tagMapper.mapToDto(tagDao.findById(id).get());
     }
 
     @Override
@@ -69,14 +69,14 @@ public class TagServiceImpl implements TagService {
     public List<TagDto> retrieveTagsByGiftCertificateId(Long id) {
         return tagDao.findTagsByGiftCertificateId(id)
                 .stream()
-                .map(tagMapper::mapToTagDto)
+                .map(tagMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public TagDto retrieveByName(String name) {
         tagValidator.validateName(name);
-        return tagMapper.mapToTagDto(tagDao.findByName(name)
+        return tagMapper.mapToDto(tagDao.findByName(name)
                 .orElseThrow(() -> {
                     log.error("An error occurred while getting tag by name = {}", name);
                     return new ServiceException(ERROR_203400, name);
@@ -84,11 +84,7 @@ public class TagServiceImpl implements TagService {
     }
 
     private Tag retrieveCreatedTag(TagDto tagDto) {
-        return tagDao.create(tagMapper.mapToTag(tagDto))
-                .orElseThrow(() -> {
-                    log.error("An error occurred while saving the tag");
-                    return new ServiceException(ERROR_204400);
-                });
+        return tagDao.create(tagMapper.mapTo(tagDto));
     }
 
     private void existsInGiftCertificateTag(Long id) {

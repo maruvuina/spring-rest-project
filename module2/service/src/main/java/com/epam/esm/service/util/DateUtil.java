@@ -10,7 +10,7 @@ public final class DateUtil {
     private static final String TIME_ZONE = "UTC";
 
     private DateUtil() {}
-    
+
     public static String retrieveFormatterDate(Instant instant) {
         return DateTimeFormatter
                 .ofPattern(DATE_FORMAT)
