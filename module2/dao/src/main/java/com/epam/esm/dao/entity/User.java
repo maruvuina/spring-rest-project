@@ -35,18 +35,4 @@ public class User {
     private String password;
     @Column(name = "name", nullable = false)
     private String name;
-    @OneToMany(mappedBy = "user",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private List<Order> orders;
-
-    public void addOrder(Order order) {
-        this.orders.add(order);
-        order.setUser(this);
-    }
-
-    public void removeOrder(Order order) {
-        this.orders.remove(order);
-        order.setUser(null);
-    }
 }

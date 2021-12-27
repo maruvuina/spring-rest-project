@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * This is an interface for dao operations of Tag entity.
  */
-public interface TagDao extends AbstractDao<Tag> {
+public interface TagDao extends CreateDao<Tag>, DeleteDao<Tag>, GetDao<Tag> {
 
     /**
      * Find tag by name.

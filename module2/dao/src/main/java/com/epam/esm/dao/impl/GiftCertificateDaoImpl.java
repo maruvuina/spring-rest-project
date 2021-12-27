@@ -2,8 +2,8 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.entity.GiftCertificate;
-import com.epam.esm.dao.entity.Tag;
 import com.epam.esm.dao.util.DynamicQueryResult;
+import com.epam.esm.dao.util.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,9 +24,9 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     private EntityManager entityManager;
 
     @Override
-    public Optional<GiftCertificate> create(GiftCertificate giftCertificate) {
+    public GiftCertificate create(GiftCertificate giftCertificate) {
         entityManager.persist(giftCertificate);
-        return Optional.of(giftCertificate);
+        return giftCertificate;
     }
 
     @Override
@@ -40,20 +40,24 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public List<GiftCertificate> findAll(Integer page, Integer size) {
+    public List<GiftCertificate> findAll(Page page) {
         return entityManager.createQuery(GIFT_CERTIFICATE_FIND_ALL, GiftCertificate.class)
-                .setFirstResult(page * size)
-                .setMaxResults(size)
+                .setFirstResult(page.getPage() * page.getSize())
+                .setMaxResults(page.getSize())
                 .getResultList();
     }
 
     @Override
-    public List<GiftCertificate> findGiftCertificatesByParameter(Integer page, Integer size, DynamicQueryResult dynamicQueryResult) {
-        Query managerQuery = entityManager.createQuery(dynamicQueryResult.getQuery(), GiftCertificate.class);
-        setParameters(managerQuery, dynamicQueryResult.getParameters());
-        return managerQuery
-                .setFirstResult(page * size)
-                .setMaxResults(size)
+    public GiftCertificate update(GiftCertificate giftCertificate) {
+        return entityManager.merge(giftCertificate);
+    }
+
+    @Override
+    public List<GiftCertificate> findGiftCertificatesByParameter(Page page, DynamicQueryResult dynamicQueryResult) {
+        Query query = entityManager.createQuery(dynamicQueryResult.getQuery(), GiftCertificate.class);
+        setParameters(query, dynamicQueryResult.getParameters());
+        return query.setFirstResult(page.getPage() * page.getSize())
+                .setMaxResults(page.getSize())
                 .getResultList();
     }
 

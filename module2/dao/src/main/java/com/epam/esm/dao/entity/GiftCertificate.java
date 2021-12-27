@@ -60,26 +60,6 @@ public class GiftCertificate {
     @OneToMany(mappedBy = "giftCertificate")
     private List<Order> orders;
 
-    public void addTag(Tag tag) {
-        this.tags.add(tag);
-        tag.getGiftCertificates().add(this);
-    }
-
-    public void removeTag(Tag tag) {
-        this.tags.remove(tag);
-        tag.getGiftCertificates().remove(this);
-    }
-
-    public void addOrder(Order order) {
-        this.orders.add(order);
-        order.setGiftCertificate(this);
-    }
-
-    public void removeOrder(Order order) {
-        this.orders.remove(order);
-        order.setGiftCertificate(null);
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("GiftCertificate{");

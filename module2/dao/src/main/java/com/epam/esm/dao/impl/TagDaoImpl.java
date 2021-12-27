@@ -2,6 +2,7 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.Tag;
+import com.epam.esm.dao.util.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,9 +27,9 @@ public class TagDaoImpl implements TagDao {
     private EntityManager entityManager;
 
     @Override
-    public Optional<Tag> create(Tag tag) {
+    public Tag create(Tag tag) {
         entityManager.persist(tag);
-        return Optional.of(tag);
+        return tag;
     }
 
     @Override
@@ -42,10 +43,10 @@ public class TagDaoImpl implements TagDao {
     }
 
     @Override
-    public List<Tag> findAll(Integer page, Integer size) {
+    public List<Tag> findAll(Page page) {
         return entityManager.createQuery(TAG_FIND_ALL, Tag.class)
-                .setFirstResult(page * size)
-                .setMaxResults(size)
+                .setFirstResult(page.getPage() * page.getSize())
+                .setMaxResults(page.getSize())
                 .getResultList();
     }
 
