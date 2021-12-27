@@ -63,7 +63,7 @@ public class TagController {
      * @return the list of tag dto
      */
     @GetMapping
-    public List<TagDto> retrieveAll(@RequestParam(defaultValue = "0") @Min(1) @Max(Integer.MAX_VALUE) Integer page,
+    public List<TagDto> retrieveAll(@RequestParam(defaultValue = "0") @Min(0) @Max(Integer.MAX_VALUE) Integer page,
                                     @RequestParam(defaultValue = "3") @Min(1) @Max(Integer.MAX_VALUE) Integer size) {
         return tagService.retrieveAll(page, size);
     }

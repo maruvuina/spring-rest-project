@@ -90,7 +90,6 @@ public class GiftCertificate {
         sb.append(", duration='").append(duration).append('\'');
         sb.append(", createDate=").append(createDate);
         sb.append(", lastUpdateDate=").append(lastUpdateDate);
-        sb.append(", tags=").append(tags);
         sb.append('}');
         return sb.toString();
     }

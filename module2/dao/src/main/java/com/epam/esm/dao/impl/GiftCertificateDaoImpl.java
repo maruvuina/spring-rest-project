@@ -57,7 +57,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
                 .getResultList();
     }
 
-    private void setParameters(Query query, Map<String, Object> parameters) {
+    private void setParameters(Query query, Map<String, String> parameters) {
         parameters.forEach(query::setParameter);
     }
 }

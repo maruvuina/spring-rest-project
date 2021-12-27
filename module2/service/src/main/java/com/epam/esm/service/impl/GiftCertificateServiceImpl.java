@@ -99,6 +99,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
+    @Transactional
     public List<GiftCertificateDto> retrieveGiftCertificatesByParameter(Integer page, Integer size, GiftCertificateParameter giftCertificateParameter) {
         DynamicQueryResult dynamicQueryResult = DynamicQuery.retrieveQuery(giftCertificateParameter);
         return giftCertificateDao

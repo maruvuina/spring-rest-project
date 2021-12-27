@@ -106,7 +106,7 @@ public class GiftCertificateController {
      */
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
-    public List<GiftCertificateDto> retrieveAll(@RequestParam(defaultValue = "0") @Min(1) @Max(Integer.MAX_VALUE) Integer page,
+    public List<GiftCertificateDto> retrieveAll(@RequestParam(defaultValue = "0") @Min(0) @Max(Integer.MAX_VALUE) Integer page,
                                                 @RequestParam(defaultValue = "3") @Min(1) @Max(Integer.MAX_VALUE) Integer size,
                                                 GiftCertificateParameter giftCertificateParameter) {
         return giftCertificateService.retrieveGiftCertificatesByParameter(page, size, giftCertificateParameter);

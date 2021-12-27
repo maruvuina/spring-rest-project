@@ -26,5 +26,9 @@ public final class SqlQuery {
             "SELECT exists (SELECT 1 FROM gift_certificate_tag WHERE tag_id = :id)";
 
     @Language("JPAQL")
+    public static final String G =
+            "select g from GiftCertificate g where g.name like ':name'";
+
+    @Language("JPAQL")
     public static final String GIFT_CERTIFICATE_FIND_ALL = "select distinct g from GiftCertificate g order by g.id";
 }
