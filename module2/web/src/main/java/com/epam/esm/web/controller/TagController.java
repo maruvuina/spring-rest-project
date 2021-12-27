@@ -1,5 +1,6 @@
 package com.epam.esm.web.controller;
 
+import com.epam.esm.dao.util.Page;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.TagService;
 import lombok.RequiredArgsConstructor;
@@ -65,11 +66,11 @@ public class TagController {
     @GetMapping
     public List<TagDto> retrieveAll(@RequestParam(defaultValue = "0") @Min(0) @Max(Integer.MAX_VALUE) Integer page,
                                     @RequestParam(defaultValue = "3") @Min(1) @Max(Integer.MAX_VALUE) Integer size) {
-        return tagService.retrieveAll(page, size);
+        return tagService.retrieveAll(new Page(page, size));
     }
 
     /**
-     * Retrieve tag by id tag.
+     * Retrieve tag by id.
      *
      * @param id the id
      * @return the tag dto
