@@ -1,32 +1,38 @@
 package com.epam.esm.service.mapper.impl;
 
+import com.epam.esm.dao.entity.GiftCertificate;
 import com.epam.esm.dao.entity.Order;
-import com.epam.esm.service.dto.OrderDto;
+import com.epam.esm.dao.entity.User;
+import com.epam.esm.service.dto.OrderRetrieveDto;
+import com.epam.esm.service.mapper.GiftCertificateMapper;
 import com.epam.esm.service.mapper.OrderMapper;
-import com.epam.esm.service.mapper.TransferredOrderData;
+import com.epam.esm.service.util.DateUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class OrderMapperImpl implements OrderMapper {
 
+    private final GiftCertificateMapper giftCertificateMapper;
+
     @Override
-    public Order mapTo(OrderDto orderDto, TransferredOrderData transferredOrderData) {
+    public Order mapTo(User user, GiftCertificate giftCertificate) {
         return Order.builder()
-                .id(orderDto.getId())
-                .user(transferredOrderData.getUser())
-                .giftCertificate(transferredOrderData.getGiftCertificate())
-                .purchaseDate(orderDto.getPurchaseDate())
-                .cost(orderDto.getCost())
+                .user(user)
+                .giftCertificate(giftCertificate)
+                .purchaseDate(DateUtil.retrieveDate())
+                .cost(giftCertificate.getPrice())
                 .build();
     }
 
     @Override
-    public OrderDto mapToDto(Order order) {
-        return OrderDto.builder()
+    public OrderRetrieveDto mapToDto(Order order) {
+        return OrderRetrieveDto.builder()
                 .id(order.getId())
                 .userId(order.getUser().getId())
-                .giftCertificateId(order.getGiftCertificate().getId())
-                .purchaseDate(order.getPurchaseDate())
+                .giftCertificateDto(giftCertificateMapper.mapToDto(order.getGiftCertificate()))
+                .purchaseDate(DateUtil.retrieveFormatterDate(order.getPurchaseDate()))
                 .cost(order.getCost())
                 .build();
     }

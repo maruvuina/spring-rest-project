@@ -1,19 +1,21 @@
 package com.epam.esm.service.mapper;
 
+import com.epam.esm.dao.entity.GiftCertificate;
 import com.epam.esm.dao.entity.Order;
-import com.epam.esm.service.dto.OrderDto;
+import com.epam.esm.dao.entity.User;
+import com.epam.esm.service.dto.OrderRetrieveDto;
 
 /**
  * The interface Order mapper.
  */
-public interface OrderMapper extends MapperDto<Order, OrderDto> {
+public interface OrderMapper extends MapperDto<Order, OrderRetrieveDto> {
 
     /**
      * Map to order.
      *
-     * @param orderDto             the order dto
-     * @param transferredOrderData the transferred order data
+     * @param user            the user
+     * @param giftCertificate the gift certificate
      * @return the order
      */
-    Order mapTo(OrderDto orderDto, TransferredOrderData transferredOrderData);
+    Order mapTo(User user, GiftCertificate giftCertificate);
 }
