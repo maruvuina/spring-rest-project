@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 public class Page {
 
-    private Integer page;
+    private Integer pageNumber;
     private Integer size;
 }

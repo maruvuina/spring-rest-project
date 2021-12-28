@@ -10,5 +10,5 @@ import java.util.Map;
 public class DynamicQueryResult {
 
     private String query;
-    private Map<String, String> parameters;
+    private Map<String, Object> parameters;
 }

@@ -25,11 +25,12 @@ public final class DynamicQuery {
     private static final String LIKE_END = "";
     private static final String ORDER_BY = "order by";
     private static final String COLON_OPERATOR = ":";
+    private static final String IN = "in";
 
     private DynamicQuery() {}
 
     public static DynamicQueryResult retrieveQuery(GiftCertificateParameter giftCertificateParameter) {
-        Map<String, String> parameters = new HashMap<>();
+        Map<String, Object> parameters = new HashMap<>();
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append(SELECT_FROM + SPACE);
         ParameterCountType parameterCountType = retrieveParameterCount(giftCertificateParameter);
@@ -55,7 +56,9 @@ public final class DynamicQuery {
         int two = 2;
         int three = 3;
         List<String> list = new ArrayList<>();
-        list.add(giftCertificateParameter.getTagName());
+        if (giftCertificateParameter.getTagName() != null) {
+            list.add(giftCertificateParameter.getTagName().get(0));
+        }
         list.add(giftCertificateParameter.getName());
         list.add(giftCertificateParameter.getDescription());
         int count = (int) list.stream().filter(Objects::nonNull).count();
@@ -70,14 +73,15 @@ public final class DynamicQuery {
         return parameterCountType;
     }
 
-    private static Map<String, String> retrieveDataForOneParameter(GiftCertificateParameter giftCertificateParameter,
+    private static Map<String, Object> retrieveDataForOneParameter(GiftCertificateParameter giftCertificateParameter,
                                                             StringBuilder queryBuilder) {
-        Map<String, String> parameters = new HashMap<>();
-        if (isParameterValid(giftCertificateParameter.getTagName())) {
+        Map<String, Object> parameters = new HashMap<>();
+        if (isValidTagNames(giftCertificateParameter.getTagName())) {
             queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
-            queryBuilder.append(WHERE + SPACE + TAG_NAME_COLUMN + SPACE + COLON_OPERATOR + COLUMN_LABEL_NAME);
+            queryBuilder.append(WHERE + SPACE + TAG_NAME_COLUMN + SPACE + IN + SPACE +
+                    COLON_OPERATOR + COLUMN_LABEL_TAG_NAME);
             parameters = setSortOrderParameterForDataWithOneParameter(giftCertificateParameter,
-                    queryBuilder, COLUMN_LABEL_NAME, giftCertificateParameter.getTagName());
+                    queryBuilder, COLUMN_LABEL_TAG_NAME, giftCertificateParameter.getTagName());
         }
         if (isParameterValid(giftCertificateParameter.getName())) {
             fillSearchQuery(queryBuilder, GIFT_CERTIFICATE_NAME_COLUMN, COLUMN_LABEL_NAME);
@@ -92,9 +96,9 @@ public final class DynamicQuery {
         return parameters;
     }
 
-    private static Map<String, String> setSortOrderParameterForDataWithOneParameter(GiftCertificateParameter giftCertificateParameter,
-                   StringBuilder queryBuilder, String columnLabel, String parameter) {
-        Map<String, String> parameters = new HashMap<>();
+    private static Map<String, Object> setSortOrderParameterForDataWithOneParameter(GiftCertificateParameter giftCertificateParameter,
+                   StringBuilder queryBuilder, String columnLabel, Object parameter) {
+        Map<String, Object> parameters = new HashMap<>();
         setSortAndOrder(giftCertificateParameter, queryBuilder);
         parameters.put(columnLabel, parameter);
         return parameters;
@@ -113,10 +117,10 @@ public final class DynamicQuery {
         }
     }
 
-    private static Map<String, String> retrieveDataForTwoParameters(GiftCertificateParameter giftCertificateParameter,
+    private static Map<String, Object> retrieveDataForTwoParameters(GiftCertificateParameter giftCertificateParameter,
                                                              StringBuilder queryBuilder) {
-        Map<String, String> parameters = new HashMap<>();
-        if (isParameterValid(giftCertificateParameter.getTagName()) &&
+        Map<String, Object> parameters = new HashMap<>();
+        if (isValidTagNames(giftCertificateParameter.getTagName()) &&
                 isParameterValid(giftCertificateParameter.getName())) {
             queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
             fillQueryForTwoParameters(queryBuilder, TAG_NAME_COLUMN,
@@ -125,7 +129,7 @@ public final class DynamicQuery {
             parameters.put(COLUMN_LABEL_TAG_NAME, giftCertificateParameter.getTagName());
             parameters.put(COLUMN_LABEL_NAME, giftCertificateParameter.getName() + PERCENT);
         }
-        if (isParameterValid(giftCertificateParameter.getTagName()) &&
+        if (isValidTagNames(giftCertificateParameter.getTagName()) &&
                 isParameterValid(giftCertificateParameter.getDescription())) {
             queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
             fillQueryForTwoParameters(queryBuilder, TAG_NAME_COLUMN,
@@ -150,7 +154,7 @@ public final class DynamicQuery {
                                                   String secondColumnLabel) {
         queryBuilder.append(WHERE + SPACE)
                 .append(firstColumnParameter)
-                .append(SPACE + COLON_OPERATOR)
+                .append(SPACE + IN + SPACE + COLON_OPERATOR)
                 .append(firstColumnLabel)
                 .append(SPACE + AND + SPACE)
                 .append(secondColumnParameter)
@@ -159,34 +163,38 @@ public final class DynamicQuery {
                 .append(LIKE_END);
     }
 
-    private static Map<String, String> retrieveDataForThreeParameters(GiftCertificateParameter giftCertificateParameter,
+    private static Map<String, Object> retrieveDataForThreeParameters(GiftCertificateParameter giftCertificateParameter,
                                                                StringBuilder queryBuilder) {
-        Map<String, String> parameters = new HashMap<>();
-        if (isParameterValid(giftCertificateParameter.getTagName()) &&
+        Map<String, Object> parameters = new HashMap<>();
+        if (isValidTagNames(giftCertificateParameter.getTagName()) &&
                 isParameterValid(giftCertificateParameter.getName()) &&
                 isParameterValid(giftCertificateParameter.getDescription())) {
             queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
-            queryBuilder.append(WHERE + SPACE + TAG_NAME_COLUMN + SPACE + COLON_OPERATOR + COLUMN_LABEL_TAG_NAME)
+            queryBuilder.append(WHERE + SPACE + TAG_NAME_COLUMN + SPACE + IN + SPACE + COLON_OPERATOR + COLUMN_LABEL_TAG_NAME)
                     .append(SPACE + AND + SPACE + GIFT_CERTIFICATE_NAME_COLUMN + SPACE + LIKE_START +
                             COLON_OPERATOR + COLUMN_LABEL_NAME + LIKE_END)
                     .append(SPACE + AND + SPACE + COLUMN_LABEL_DESCRIPTION + SPACE + LIKE_START +
                             COLON_OPERATOR + COLUMN_LABEL_DESCRIPTION + LIKE_END);
             setSortAndOrder(giftCertificateParameter, queryBuilder);
-            parameters.put(GIFT_CERTIFICATE_NAME_COLUMN, giftCertificateParameter.getTagName());
+            parameters.put(COLUMN_LABEL_TAG_NAME, giftCertificateParameter.getTagName());
             parameters.put(COLUMN_LABEL_NAME, giftCertificateParameter.getName() + PERCENT);
             parameters.put(COLUMN_LABEL_DESCRIPTION, giftCertificateParameter.getDescription() + PERCENT);
         }
         return parameters;
     }
 
-    private static Map<String, String> retrieveDataForNonParameters(GiftCertificateParameter giftCertificateParameter,
+    private static Map<String, Object> retrieveDataForNonParameters(GiftCertificateParameter giftCertificateParameter,
                                                              StringBuilder queryBuilder) {
-        Map<String, String> parameters = new HashMap<>();
+        Map<String, Object> parameters = new HashMap<>();
         if (isEnumValueValid(giftCertificateParameter.getSort())) {
             queryBuilder.append(SPACE + ORDER_BY + SPACE).append(giftCertificateParameter.getSort().getValue());
             setOrder(giftCertificateParameter, queryBuilder);
         }
         return parameters;
+    }
+
+    private static boolean isValidTagNames(List<String> tagNames) {
+        return tagNames.stream().anyMatch(DynamicQuery::isParameterValid);
     }
 
     private static boolean isParameterValid(String parameter) {

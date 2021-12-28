@@ -2,7 +2,8 @@ package com.epam.esm.web.controller;
 
 import com.epam.esm.dao.util.Page;
 import com.epam.esm.service.OrderService;
-import com.epam.esm.service.dto.OrderDto;
+import com.epam.esm.service.dto.OrderCreateDto;
+import com.epam.esm.service.dto.OrderRetrieveDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -34,13 +35,13 @@ public class OrderController {
     /**
      * Create order.
      *
-     * @param orderDto the order dto
-     * @return the order dto
+     * @param orderCreateDto the order create dto
+     * @return the order retrieve dto
      */
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public OrderDto create(@Valid @RequestBody OrderDto orderDto) {
-        return orderService.create(orderDto);
+    public OrderRetrieveDto create(@Valid @RequestBody OrderCreateDto orderCreateDto) {
+        return orderService.create(orderCreateDto);
     }
 
     /**
@@ -51,8 +52,10 @@ public class OrderController {
      * @return the list of order dto
      */
     @GetMapping
-    public List<OrderDto> retrieveAll(@RequestParam(defaultValue = "0") @Min(0) @Max(Integer.MAX_VALUE) Integer page,
-                                      @RequestParam(defaultValue = "3") @Min(1) @Max(Integer.MAX_VALUE) Integer size) {
+    public List<OrderRetrieveDto> retrieveAll(@RequestParam(defaultValue = "0")
+                                      @Min(0) @Max(Integer.MAX_VALUE) Integer page,
+                                      @RequestParam(defaultValue = "3")
+                                      @Min(1) @Max(Integer.MAX_VALUE) Integer size) {
         return orderService.retrieveAll(new Page(page, size));
     }
 
@@ -64,7 +67,23 @@ public class OrderController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public OrderDto retrieveById(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
+    public OrderRetrieveDto retrieveById(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
         return orderService.retrieveById(id);
+    }
+
+    /**
+     * Retrieve order by user id order.
+     *
+     * @param userId the user id
+     * @return the order retrieve dto
+     */
+    @GetMapping("/users/{id}")
+    @ResponseStatus(code = HttpStatus.OK)
+    public List<OrderRetrieveDto> retrieveByUserId(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long userId,
+                                                   @RequestParam(defaultValue = "0")
+                                                   @Min(0) @Max(Integer.MAX_VALUE) Integer page,
+                                                   @RequestParam(defaultValue = "3")
+                                                   @Min(1) @Max(Integer.MAX_VALUE) Integer size) {
+        return orderService.retrieveByUserId(userId, new Page(page, size));
     }
 }

@@ -42,7 +42,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     @Override
     public List<GiftCertificate> findAll(Page page) {
         return entityManager.createQuery(GIFT_CERTIFICATE_FIND_ALL, GiftCertificate.class)
-                .setFirstResult(page.getPage() * page.getSize())
+                .setFirstResult(page.getPageNumber() * page.getSize())
                 .setMaxResults(page.getSize())
                 .getResultList();
     }
@@ -56,12 +56,12 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     public List<GiftCertificate> findGiftCertificatesByParameter(Page page, DynamicQueryResult dynamicQueryResult) {
         Query query = entityManager.createQuery(dynamicQueryResult.getQuery(), GiftCertificate.class);
         setParameters(query, dynamicQueryResult.getParameters());
-        return query.setFirstResult(page.getPage() * page.getSize())
+        return query.setFirstResult(page.getPageNumber() * page.getSize())
                 .setMaxResults(page.getSize())
                 .getResultList();
     }
 
-    private void setParameters(Query query, Map<String, String> parameters) {
+    private void setParameters(Query query, Map<String, Object> parameters) {
         parameters.forEach(query::setParameter);
     }
 }

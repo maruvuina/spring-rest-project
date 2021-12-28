@@ -45,7 +45,7 @@ public class TagDaoImpl implements TagDao {
     @Override
     public List<Tag> findAll(Page page) {
         return entityManager.createQuery(TAG_FIND_ALL, Tag.class)
-                .setFirstResult(page.getPage() * page.getSize())
+                .setFirstResult(page.getPageNumber() * page.getSize())
                 .setMaxResults(page.getSize())
                 .getResultList();
     }

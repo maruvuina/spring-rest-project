@@ -34,7 +34,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<User> findAll(Page page) {
         return entityManager.createQuery(USER_FIND_ALL, User.class)
-                .setFirstResult(page.getPage() * page.getSize())
+                .setFirstResult(page.getPageNumber() * page.getSize())
                 .setMaxResults(page.getSize())
                 .getResultList();
     }

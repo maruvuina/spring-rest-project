@@ -33,4 +33,9 @@ public final class SqlQuery {
 
     @Language("JPAQL")
     public static final String ORDER_FIND_ALL = "select distinct o from Order o order by o.id";
+
+    public static final String ORDER_FIND_BY_USER_ID =
+            "select o from Order o " +
+                    "inner join o.user u " +
+                    "where u.id = :id";
 }
