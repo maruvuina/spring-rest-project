@@ -33,4 +33,12 @@ public interface TagService extends CreateService<TagDto>,
      * @return the tag dto
      */
     TagDto retrieveByName(String name);
+
+    /**
+     * Retrieve most popular user tag by user id.
+     *
+     * @param id the user id
+     * @return the tag dto
+     */
+    TagDto retrieveMostPopularUserTagByUserId(Long id);
 }

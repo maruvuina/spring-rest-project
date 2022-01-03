@@ -1,7 +1,7 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.dao.entity.GiftCertificate;
-import com.epam.esm.dao.util.DynamicQueryResult;
+import com.epam.esm.dao.util.GiftCertificateParameter;
 import com.epam.esm.dao.util.Page;
 
 import java.util.List;
@@ -17,9 +17,10 @@ public interface GiftCertificateDao extends CreateDao<GiftCertificate>,
     /**
      * Find gift certificates by parameter.
      *
-     * @param page               the page
-     * @param dynamicQueryResult the dynamic query result
+     * @param page                     the page
+     * @param giftCertificateParameter the gift certificate parameter
      * @return the list of gift certificates
      */
-    List<GiftCertificate> findGiftCertificatesByParameter(Page page, DynamicQueryResult dynamicQueryResult);
+    List<GiftCertificate> findGiftCertificatesByParameter(Page page,
+                                                          GiftCertificateParameter giftCertificateParameter);
 }

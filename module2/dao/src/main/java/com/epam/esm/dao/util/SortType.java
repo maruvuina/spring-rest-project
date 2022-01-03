@@ -1,11 +1,10 @@
 package com.epam.esm.dao.util;
 
-import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_CREATE_DATE;
-import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_NAME;
+import com.epam.esm.dao.entity.GiftCertificate_;
 
 public enum SortType {
 
-    NAME(COLUMN_LABEL_NAME), DATE(COLUMN_LABEL_CREATE_DATE);
+    NAME(GiftCertificate_.NAME), DATE(GiftCertificate_.CREATE_DATE);
 
     private final String value;
 

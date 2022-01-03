@@ -1,196 +1,80 @@
 package com.epam.esm.dao.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import com.epam.esm.dao.entity.GiftCertificate;
+import com.epam.esm.dao.entity.GiftCertificate_;
+import com.epam.esm.dao.entity.Tag_;
 
-import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_DESCRIPTION;
-import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_NAME;
-import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_TAG_NAME;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class DynamicQuery {
 
-    private static final String SPACE = " ";
-    private static final String SELECT_FROM = "select g from GiftCertificate g";
     private static final String PERCENT = "%";
-    private static final String JOIN_GIFT_CERTIFICATE_TAG = "inner join g.tags t";
-    private static final String GIFT_CERTIFICATE_NAME_COLUMN = "g.name";
-    private static final String TAG_NAME_COLUMN = "t.name";
-    private static final String GIFT_CERTIFICATE_DESCRIPTION_COLUMN = "g.description";
-    private static final String WHERE = "where";
-    private static final String AND = "and";
-    private static final String LIKE_START = "like ";
-    private static final String LIKE_END = "";
-    private static final String ORDER_BY = "order by";
-    private static final String COLON_OPERATOR = ":";
-    private static final String IN = "in";
 
     private DynamicQuery() {}
 
-    public static DynamicQueryResult retrieveQuery(GiftCertificateParameter giftCertificateParameter) {
-        Map<String, Object> parameters = new HashMap<>();
-        StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append(SELECT_FROM + SPACE);
-        ParameterCountType parameterCountType = retrieveParameterCount(giftCertificateParameter);
-        switch (parameterCountType) {
-            case ONE:
-                parameters = retrieveDataForOneParameter(giftCertificateParameter, queryBuilder);
-                break;
-            case TWO:
-                parameters = retrieveDataForTwoParameters(giftCertificateParameter, queryBuilder);
-                break;
-            case THREE:
-                parameters = retrieveDataForThreeParameters(giftCertificateParameter, queryBuilder);
-                break;
-            case NON:
-                parameters = retrieveDataForNonParameters(giftCertificateParameter, queryBuilder);
-                break;
-        }
-        return new DynamicQueryResult(queryBuilder.toString(), parameters);
-    }
-    
-    private static ParameterCountType retrieveParameterCount(GiftCertificateParameter giftCertificateParameter) {
-        int one = 1;
-        int two = 2;
-        int three = 3;
-        List<String> list = new ArrayList<>();
-        if (giftCertificateParameter.getTagName() != null) {
-            list.add(giftCertificateParameter.getTagName().get(0));
-        }
-        list.add(giftCertificateParameter.getName());
-        list.add(giftCertificateParameter.getDescription());
-        int count = (int) list.stream().filter(Objects::nonNull).count();
-        ParameterCountType parameterCountType = ParameterCountType.NON;
-        if (count == one) {
-            parameterCountType = ParameterCountType.ONE;
-        } else if (count == two) {
-            parameterCountType = ParameterCountType.TWO;
-        } else if (count == three) {
-            parameterCountType = ParameterCountType.THREE;
-        }
-        return parameterCountType;
+    public static CriteriaQuery<GiftCertificate> retrieveCriteria(GiftCertificateParameter giftCertificateParameter,
+                          CriteriaBuilder criteriaBuilder) {
+        CriteriaQuery<GiftCertificate> giftCertificateCriteria = criteriaBuilder.createQuery(GiftCertificate.class);
+        Root<GiftCertificate> giftCertificateRoot = giftCertificateCriteria.from(GiftCertificate.class);
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.addAll(retrieveByName(giftCertificateParameter, criteriaBuilder, giftCertificateRoot));
+        predicates.addAll(retrieveByDescription(giftCertificateParameter, criteriaBuilder, giftCertificateRoot));
+        predicates.addAll(retrieveByTagName(giftCertificateParameter, giftCertificateRoot));
+        giftCertificateCriteria.select(giftCertificateRoot)
+                .where(predicates.toArray(new Predicate[]{}));
+        setSortAndOrder(giftCertificateParameter, criteriaBuilder, giftCertificateCriteria, giftCertificateRoot);
+        return giftCertificateCriteria;
     }
 
-    private static Map<String, Object> retrieveDataForOneParameter(GiftCertificateParameter giftCertificateParameter,
-                                                            StringBuilder queryBuilder) {
-        Map<String, Object> parameters = new HashMap<>();
-        if (isValidTagNames(giftCertificateParameter.getTagName())) {
-            queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
-            queryBuilder.append(WHERE + SPACE + TAG_NAME_COLUMN + SPACE + IN + SPACE +
-                    COLON_OPERATOR + COLUMN_LABEL_TAG_NAME);
-            parameters = setSortOrderParameterForDataWithOneParameter(giftCertificateParameter,
-                    queryBuilder, COLUMN_LABEL_TAG_NAME, giftCertificateParameter.getTagName());
+    private static void setSortAndOrder(GiftCertificateParameter giftCertificateParameter,
+                         CriteriaBuilder criteriaBuilder,
+                         CriteriaQuery<GiftCertificate> giftCertificateCriteria,
+                         Root<GiftCertificate> giftCertificateRoot) {
+        if (isEnumValueValid(giftCertificateParameter.getSort())) {
+            giftCertificateCriteria
+                    .orderBy(OrderType.ASC.equals(giftCertificateParameter.getOrder()) ?
+                            criteriaBuilder.asc(giftCertificateRoot
+                                    .get(giftCertificateParameter.getSort().getValue())) :
+                            criteriaBuilder.desc(giftCertificateRoot
+                                    .get(giftCertificateParameter.getSort().getValue())));
         }
+    }
+
+    private static List<Predicate> retrieveByName(GiftCertificateParameter giftCertificateParameter,
+                                            CriteriaBuilder criteriaBuilder,
+                                            Root<GiftCertificate> giftCertificateRoot) {
+        List<Predicate> predicates = new ArrayList<>();
         if (isParameterValid(giftCertificateParameter.getName())) {
-            fillSearchQuery(queryBuilder, GIFT_CERTIFICATE_NAME_COLUMN, COLUMN_LABEL_NAME);
-            parameters = setSortOrderParameterForDataWithOneParameter(giftCertificateParameter,
-                    queryBuilder, COLUMN_LABEL_NAME, giftCertificateParameter.getName() + PERCENT);
+            predicates.add(criteriaBuilder.like(giftCertificateRoot.get(GiftCertificate_.NAME),
+                    giftCertificateParameter.getName() + PERCENT));
         }
+        return predicates;
+    }
+
+    private static List<Predicate> retrieveByDescription(GiftCertificateParameter giftCertificateParameter,
+                                                   CriteriaBuilder criteriaBuilder,
+                                                   Root<GiftCertificate> giftCertificateRoot) {
+        List<Predicate> predicates = new ArrayList<>();
         if (isParameterValid(giftCertificateParameter.getDescription())) {
-            fillSearchQuery(queryBuilder, GIFT_CERTIFICATE_DESCRIPTION_COLUMN, COLUMN_LABEL_DESCRIPTION);
-            parameters = setSortOrderParameterForDataWithOneParameter(giftCertificateParameter,
-                    queryBuilder, COLUMN_LABEL_DESCRIPTION, giftCertificateParameter.getDescription() + PERCENT);
+            predicates.add(criteriaBuilder.like(giftCertificateRoot.get(GiftCertificate_.DESCRIPTION),
+                    giftCertificateParameter.getDescription() + PERCENT));
         }
-        return parameters;
+        return predicates;
     }
 
-    private static Map<String, Object> setSortOrderParameterForDataWithOneParameter(GiftCertificateParameter giftCertificateParameter,
-                   StringBuilder queryBuilder, String columnLabel, Object parameter) {
-        Map<String, Object> parameters = new HashMap<>();
-        setSortAndOrder(giftCertificateParameter, queryBuilder);
-        parameters.put(columnLabel, parameter);
-        return parameters;
-    }
-
-    private static void setSortAndOrder(GiftCertificateParameter giftCertificateParameter, StringBuilder queryBuilder) {
-        if (isEnumValueValid(giftCertificateParameter.getSort())) {
-            queryBuilder.append(SPACE + ORDER_BY + SPACE).append(giftCertificateParameter.getSort().getValue());
-            setOrder(giftCertificateParameter, queryBuilder);
+    private static List<Predicate> retrieveByTagName(GiftCertificateParameter giftCertificateParameter,
+                                               Root<GiftCertificate> giftCertificateRoot) {
+        List<Predicate> predicates = new ArrayList<>();
+        if (giftCertificateParameter.getTagName() != null && isValidTagNames(giftCertificateParameter.getTagName())) {
+            predicates.add(giftCertificateRoot.join(GiftCertificate_.tags).get(Tag_.NAME)
+                    .in(giftCertificateParameter.getTagName()));
         }
-    }
-
-    private static void setOrder(GiftCertificateParameter giftCertificateParameter, StringBuilder queryBuilder) {
-        if (isEnumValueValid(giftCertificateParameter.getOrder())) {
-            queryBuilder.append(SPACE).append(giftCertificateParameter.getOrder().getValue());
-        }
-    }
-
-    private static Map<String, Object> retrieveDataForTwoParameters(GiftCertificateParameter giftCertificateParameter,
-                                                             StringBuilder queryBuilder) {
-        Map<String, Object> parameters = new HashMap<>();
-        if (isValidTagNames(giftCertificateParameter.getTagName()) &&
-                isParameterValid(giftCertificateParameter.getName())) {
-            queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
-            fillQueryForTwoParameters(queryBuilder, TAG_NAME_COLUMN,
-                    GIFT_CERTIFICATE_NAME_COLUMN, COLUMN_LABEL_TAG_NAME, COLUMN_LABEL_NAME);
-            setSortAndOrder(giftCertificateParameter, queryBuilder);
-            parameters.put(COLUMN_LABEL_TAG_NAME, giftCertificateParameter.getTagName());
-            parameters.put(COLUMN_LABEL_NAME, giftCertificateParameter.getName() + PERCENT);
-        }
-        if (isValidTagNames(giftCertificateParameter.getTagName()) &&
-                isParameterValid(giftCertificateParameter.getDescription())) {
-            queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
-            fillQueryForTwoParameters(queryBuilder, TAG_NAME_COLUMN,
-                    COLUMN_LABEL_DESCRIPTION, COLUMN_LABEL_TAG_NAME, COLUMN_LABEL_DESCRIPTION);
-            setSortAndOrder(giftCertificateParameter, queryBuilder);
-            parameters.put(COLUMN_LABEL_TAG_NAME, giftCertificateParameter.getTagName());
-            parameters.put(COLUMN_LABEL_DESCRIPTION, giftCertificateParameter.getDescription() + PERCENT);
-        }
-        if (isParameterValid(giftCertificateParameter.getName()) &&
-                isParameterValid(giftCertificateParameter.getDescription())) {
-            fillQueryForTwoParameters(queryBuilder, GIFT_CERTIFICATE_NAME_COLUMN,
-                    COLUMN_LABEL_DESCRIPTION, COLUMN_LABEL_NAME, COLUMN_LABEL_DESCRIPTION);
-            setSortAndOrder(giftCertificateParameter, queryBuilder);
-            parameters.put(COLUMN_LABEL_NAME, giftCertificateParameter.getName() + PERCENT);
-            parameters.put(COLUMN_LABEL_DESCRIPTION, giftCertificateParameter.getDescription() + PERCENT);
-        }
-        return parameters;
-    }
-
-    private static void fillQueryForTwoParameters(StringBuilder queryBuilder, String firstColumnParameter,
-                                                  String secondColumnParameter, String firstColumnLabel,
-                                                  String secondColumnLabel) {
-        queryBuilder.append(WHERE + SPACE)
-                .append(firstColumnParameter)
-                .append(SPACE + IN + SPACE + COLON_OPERATOR)
-                .append(firstColumnLabel)
-                .append(SPACE + AND + SPACE)
-                .append(secondColumnParameter)
-                .append(SPACE + LIKE_START + COLON_OPERATOR)
-                .append(secondColumnLabel)
-                .append(LIKE_END);
-    }
-
-    private static Map<String, Object> retrieveDataForThreeParameters(GiftCertificateParameter giftCertificateParameter,
-                                                               StringBuilder queryBuilder) {
-        Map<String, Object> parameters = new HashMap<>();
-        if (isValidTagNames(giftCertificateParameter.getTagName()) &&
-                isParameterValid(giftCertificateParameter.getName()) &&
-                isParameterValid(giftCertificateParameter.getDescription())) {
-            queryBuilder.append(JOIN_GIFT_CERTIFICATE_TAG + SPACE);
-            queryBuilder.append(WHERE + SPACE + TAG_NAME_COLUMN + SPACE + IN + SPACE + COLON_OPERATOR + COLUMN_LABEL_TAG_NAME)
-                    .append(SPACE + AND + SPACE + GIFT_CERTIFICATE_NAME_COLUMN + SPACE + LIKE_START +
-                            COLON_OPERATOR + COLUMN_LABEL_NAME + LIKE_END)
-                    .append(SPACE + AND + SPACE + COLUMN_LABEL_DESCRIPTION + SPACE + LIKE_START +
-                            COLON_OPERATOR + COLUMN_LABEL_DESCRIPTION + LIKE_END);
-            setSortAndOrder(giftCertificateParameter, queryBuilder);
-            parameters.put(COLUMN_LABEL_TAG_NAME, giftCertificateParameter.getTagName());
-            parameters.put(COLUMN_LABEL_NAME, giftCertificateParameter.getName() + PERCENT);
-            parameters.put(COLUMN_LABEL_DESCRIPTION, giftCertificateParameter.getDescription() + PERCENT);
-        }
-        return parameters;
-    }
-
-    private static Map<String, Object> retrieveDataForNonParameters(GiftCertificateParameter giftCertificateParameter,
-                                                             StringBuilder queryBuilder) {
-        Map<String, Object> parameters = new HashMap<>();
-        if (isEnumValueValid(giftCertificateParameter.getSort())) {
-            queryBuilder.append(SPACE + ORDER_BY + SPACE).append(giftCertificateParameter.getSort().getValue());
-            setOrder(giftCertificateParameter, queryBuilder);
-        }
-        return parameters;
+        return predicates;
     }
 
     private static boolean isValidTagNames(List<String> tagNames) {
@@ -199,14 +83,6 @@ public final class DynamicQuery {
 
     private static boolean isParameterValid(String parameter) {
         return parameter != null && !parameter.isBlank();
-    }
-
-    private static void fillSearchQuery(StringBuilder queryBuilder, String columnName, String columnLabel) {
-        queryBuilder.append(WHERE + SPACE)
-                .append(columnName)
-                .append(SPACE + LIKE_START + COLON_OPERATOR)
-                .append(columnLabel)
-                .append(LIKE_END);
     }
 
     private static <E extends Enum<E>> boolean isEnumValueValid(E clazz) {

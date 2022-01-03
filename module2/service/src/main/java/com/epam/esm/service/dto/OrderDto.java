@@ -6,16 +6,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderRetrieveDto {
+public class OrderDto {
 
     private Long id;
     private Long userId;
     private GiftCertificateDto giftCertificateDto;
-    private String purchaseDate;
+    private Instant purchaseDate;
     private BigDecimal cost;
 }

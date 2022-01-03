@@ -10,7 +10,7 @@ public interface GiftCertificateMapper extends Mapper<GiftCertificate, GiftCerti
         MapperDto<GiftCertificate, GiftCertificateDto> {
 
     /**
-     * Map method to update gift certificate data.
+     * Map method to update gift certificate.
      *
      * @param giftCertificateDto the gift certificate dto
      * @return the gift certificate
@@ -24,4 +24,12 @@ public interface GiftCertificateMapper extends Mapper<GiftCertificate, GiftCerti
      * @param oldGiftCertificate the old gift certificate
      */
     void mergeGiftCertificate(GiftCertificate newGiftCertificate, GiftCertificate oldGiftCertificate);
+
+    /**
+     * Map method to create gift certificate.
+     *
+     * @param giftCertificateDto the gift certificate dto
+     * @return the gift certificate
+     */
+    GiftCertificate mapToCreateGiftCertificate(GiftCertificateDto giftCertificateDto);
 }

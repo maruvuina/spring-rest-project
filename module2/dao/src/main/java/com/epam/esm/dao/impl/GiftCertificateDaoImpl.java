@@ -2,16 +2,16 @@ package com.epam.esm.dao.impl;
 
 import com.epam.esm.dao.GiftCertificateDao;
 import com.epam.esm.dao.entity.GiftCertificate;
-import com.epam.esm.dao.util.DynamicQueryResult;
+import com.epam.esm.dao.util.DynamicQuery;
+import com.epam.esm.dao.util.GiftCertificateParameter;
 import com.epam.esm.dao.util.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_FIND_ALL;
@@ -53,15 +53,13 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public List<GiftCertificate> findGiftCertificatesByParameter(Page page, DynamicQueryResult dynamicQueryResult) {
-        Query query = entityManager.createQuery(dynamicQueryResult.getQuery(), GiftCertificate.class);
-        setParameters(query, dynamicQueryResult.getParameters());
-        return query.setFirstResult(page.getPageNumber() * page.getSize())
+    public List<GiftCertificate> findGiftCertificatesByParameter(Page page,
+                                                                 GiftCertificateParameter giftCertificateParameter) {
+        CriteriaQuery<GiftCertificate> giftCertificateCriteria =
+                DynamicQuery.retrieveCriteria(giftCertificateParameter, entityManager.getCriteriaBuilder());
+        return entityManager.createQuery(giftCertificateCriteria)
+                .setFirstResult(page.getPageNumber() * page.getSize())
                 .setMaxResults(page.getSize())
                 .getResultList();
-    }
-
-    private void setParameters(Query query, Map<String, Object> parameters) {
-        parameters.forEach(query::setParameter);
     }
 }

@@ -1,27 +1,41 @@
 package com.epam.esm.service.mapper.impl;
 
 import com.epam.esm.dao.entity.GiftCertificate;
+import com.epam.esm.dao.entity.Tag;
 import com.epam.esm.service.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.mapper.GiftCertificateMapper;
-import com.epam.esm.service.util.DateUtil;
+import com.epam.esm.service.mapper.TagMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
+@RequiredArgsConstructor
 public class GiftCertificateMapperImpl implements GiftCertificateMapper {
+
+    private final TagMapper tagMapper;
 
     @Override
     public GiftCertificate mapTo(GiftCertificateDto giftCertificateDto) {
-        GiftCertificate giftCertificate = mapToGiftCertificate(giftCertificateDto);
-        giftCertificate.setCreateDate(DateUtil.retrieveDate());
-        giftCertificate.setLastUpdateDate(DateUtil.retrieveDate());
+        GiftCertificate giftCertificate = mapToCreateGiftCertificate(giftCertificateDto);
+        giftCertificate.setTags(retrieveTagsToGiftCertificate(giftCertificateDto.getTags()));
         return giftCertificate;
     }
 
     @Override
     public GiftCertificate mapToUpdateGiftCertificate(GiftCertificateDto giftCertificateDto) {
-        GiftCertificate giftCertificate = mapToGiftCertificate(giftCertificateDto);
-        giftCertificate.setLastUpdateDate(DateUtil.retrieveDate());
-        return giftCertificate;
+        return GiftCertificate
+                .builder()
+                .id(giftCertificateDto.getId())
+                .name(giftCertificateDto.getName())
+                .description(giftCertificateDto.getDescription())
+                .price(giftCertificateDto.getPrice())
+                .duration(giftCertificateDto.getDuration())
+                .lastUpdateDate(retrieveDate())
+                .build();
     }
 
     @Override
@@ -33,8 +47,9 @@ public class GiftCertificateMapperImpl implements GiftCertificateMapper {
                 .description(giftCertificate.getDescription())
                 .price(giftCertificate.getPrice())
                 .duration(giftCertificate.getDuration())
-                .createDate(DateUtil.retrieveFormatterDate(giftCertificate.getCreateDate()))
-                .lastUpdateDate(DateUtil.retrieveFormatterDate(giftCertificate.getLastUpdateDate()))
+                .createDate(giftCertificate.getCreateDate())
+                .lastUpdateDate(giftCertificate.getLastUpdateDate())
+                .tags(retrieveTagsToGiftCertificateDto(giftCertificate.getTags()))
                 .build();
     }
 
@@ -62,13 +77,18 @@ public class GiftCertificateMapperImpl implements GiftCertificateMapper {
         }
     }
 
-    private GiftCertificate mapToGiftCertificate(GiftCertificateDto giftCertificateDto) {
-        return GiftCertificate
-                .builder()
-                .name(giftCertificateDto.getName())
-                .description(giftCertificateDto.getDescription())
-                .price(giftCertificateDto.getPrice())
-                .duration(giftCertificateDto.getDuration())
-                .build();
+    @Override
+    public GiftCertificate mapToCreateGiftCertificate(GiftCertificateDto giftCertificateDto) {
+        GiftCertificate giftCertificate = mapToUpdateGiftCertificate(giftCertificateDto);
+        giftCertificate.setCreateDate(retrieveDate());
+        return giftCertificate;
+    }
+
+    private List<TagDto> retrieveTagsToGiftCertificateDto(List<Tag> tags) {
+       return tags.stream().map(tagMapper::mapToDto).collect(Collectors.toList());
+    }
+
+    private List<Tag> retrieveTagsToGiftCertificate(List<TagDto> tagDtoList) {
+        return tagDtoList.stream().map(tagMapper::mapTo).collect(Collectors.toList());
     }
 }

@@ -2,14 +2,14 @@ package com.epam.esm.service;
 
 import com.epam.esm.dao.util.Page;
 import com.epam.esm.service.dto.OrderCreateDto;
-import com.epam.esm.service.dto.OrderRetrieveDto;
+import com.epam.esm.service.dto.OrderDto;
 
 import java.util.List;
 
 /**
  * The interface Order service.
  */
-public interface OrderService extends GetService<OrderRetrieveDto> {
+public interface OrderService extends GetService<OrderDto> {
 
     /**
      * Create order.
@@ -17,7 +17,7 @@ public interface OrderService extends GetService<OrderRetrieveDto> {
      * @param createDto the create dto
      * @return the order retrieve dto
      */
-    OrderRetrieveDto create(OrderCreateDto createDto);
+    OrderDto create(OrderCreateDto createDto);
 
 
     /**
@@ -27,5 +27,5 @@ public interface OrderService extends GetService<OrderRetrieveDto> {
      * @param page   the page
      * @return the list of orders
      */
-    List<OrderRetrieveDto> retrieveByUserId(Long userId, Page page);
+    List<OrderDto> retrieveByUserId(Long userId, Page page);
 }

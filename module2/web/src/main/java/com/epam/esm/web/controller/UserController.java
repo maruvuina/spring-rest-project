@@ -31,16 +31,16 @@ public class UserController {
     /**
      * Retrieve all users.
      *
-     * @param page the page
+     * @param pageNumber the page number
      * @param size the size
      * @return the list of user dto
      */
     @GetMapping
-    public List<UserDto> retrieveAll(@RequestParam(defaultValue = "0")
-                                     @Min(0) @Max(Integer.MAX_VALUE) Integer page,
+    public List<UserDto> retrieveAll(@RequestParam(defaultValue = "0", name = "page")
+                                     @Min(0) @Max(Integer.MAX_VALUE) Integer pageNumber,
                                      @RequestParam(defaultValue = "3")
                                      @Min(1) @Max(Integer.MAX_VALUE) Integer size) {
-        return userService.retrieveAll(new Page(page, size));
+        return userService.retrieveAll(new Page(pageNumber, size));
     }
 
     /**

@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -18,7 +17,7 @@ import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-@Table(name = "order")
+@Table(name = "order_table")
 @Entity
 @Builder
 @Setter
@@ -31,14 +30,26 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
     private User user;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "id_gift_certificate", nullable = false)
     private GiftCertificate giftCertificate;
     @Column(name = "purchase_date", nullable = false)
     private Instant purchaseDate;
     @Column(name = "cost", nullable = false)
     private BigDecimal cost;
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Order{");
+        sb.append("id=").append(id);
+        sb.append(", user=").append(user);
+        sb.append(", giftCertificate=").append(giftCertificate);
+        sb.append(", purchaseDate=").append(purchaseDate);
+        sb.append(", cost=").append(cost);
+        sb.append('}');
+        return sb.toString();
+    }
 }

@@ -100,19 +100,19 @@ public class GiftCertificateController {
     /**
      * Retrieve all tags and by parameter.
      *
-     * @param page                     the page
+     * @param pageNumber               the page number
      * @param size                     the size
      * @param giftCertificateParameter the gift certificate parameter
      * @return the list of gift certificate dto
      */
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
-    public List<GiftCertificateDto> retrieveAll(@RequestParam(defaultValue = "0")
-                                                @Min(0) @Max(Integer.MAX_VALUE) Integer page,
+    public List<GiftCertificateDto> retrieveAll(@RequestParam(defaultValue = "0", name = "page")
+                                                @Min(0) @Max(Integer.MAX_VALUE) Integer pageNumber,
                                                 @RequestParam(defaultValue = "3")
                                                 @Min(1) @Max(Integer.MAX_VALUE) Integer size,
                                                 GiftCertificateParameter giftCertificateParameter) {
-        return giftCertificateService.retrieveGiftCertificatesByParameter(new Page(page, size),
+        return giftCertificateService.retrieveGiftCertificatesByParameter(new Page(pageNumber, size),
                 giftCertificateParameter);
     }
 }

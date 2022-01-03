@@ -23,6 +23,7 @@ subprojects {
             exclude group: 'commons-logging', module: 'commons-logging'
         }
         implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: spring_boot_version
+        implementation group: 'org.springframework', name: 'spring-boot-starter-hateoas', version: '2.6.2'
         implementation group: 'org.springframework', name: 'spring-orm', version: spring_version
         implementation group: 'javax.validation', name: 'validation-api', version: javax_version
         compileOnly group: 'org.projectlombok', name: 'lombok', version: lombok_version

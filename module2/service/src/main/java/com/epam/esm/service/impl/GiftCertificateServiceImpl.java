@@ -6,14 +6,12 @@ import com.epam.esm.dao.entity.Tag;
 import com.epam.esm.dao.util.Page;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.TagService;
-import com.epam.esm.dao.util.DynamicQueryResult;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.dao.util.GiftCertificateParameter;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.mapper.GiftCertificateMapper;
 import com.epam.esm.service.mapper.TagMapper;
-import com.epam.esm.dao.util.DynamicQuery;
 import com.epam.esm.service.validator.GiftCertificateValidator;
 import com.epam.esm.service.validator.TagValidator;
 import lombok.RequiredArgsConstructor;
@@ -52,10 +50,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
         validateDataToCreate(giftCertificateDto);
-        GiftCertificate giftCertificate = giftCertificateMapper.mapTo(giftCertificateDto);
+        GiftCertificate giftCertificate = giftCertificateMapper.mapToCreateGiftCertificate(giftCertificateDto);
         giftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
         GiftCertificate createdGiftCertificate = retrieveCreatedGiftCertificate(giftCertificate);
-        return setTagsAndRetrieveGiftCertificateDto(createdGiftCertificate);
+        return giftCertificateMapper.mapToDto(createdGiftCertificate);
     }
 
     @Override
@@ -71,14 +69,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public GiftCertificateDto retrieveById(Long id) {
         giftCertificateValidator.validatedIdPathVariable(id);
         GiftCertificate foundGiftCertificate = retrieveSavedGiftCertificate(id);
-        return setTagsAndRetrieveGiftCertificateDto(foundGiftCertificate);
+        return giftCertificateMapper.mapToDto(foundGiftCertificate);
     }
 
     @Override
     public List<GiftCertificateDto> retrieveAll(Page page) {
         return giftCertificateDao.findAll(page)
                 .stream()
-                .map(this::setTagsAndRetrieveGiftCertificateDto)
+                .map(giftCertificateMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
@@ -100,21 +98,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     @Transactional
-    public List<GiftCertificateDto> retrieveGiftCertificatesByParameter(Page page, GiftCertificateParameter giftCertificateParameter) {
-        DynamicQueryResult dynamicQueryResult = DynamicQuery.retrieveQuery(giftCertificateParameter);
+    public List<GiftCertificateDto> retrieveGiftCertificatesByParameter(Page page,
+                                                                        GiftCertificateParameter giftCertificateParameter) {
         return giftCertificateDao
-                .findGiftCertificatesByParameter(page, dynamicQueryResult)
+                .findGiftCertificatesByParameter(page, giftCertificateParameter)
                 .stream()
-                .map(this::setTagsAndRetrieveGiftCertificateDto)
+                .map(giftCertificateMapper::mapToDto)
                 .collect(Collectors.toList());
-    }
-
-    private GiftCertificateDto setTagsAndRetrieveGiftCertificateDto(GiftCertificate giftCertificate) {
-        GiftCertificateDto giftCertificateDto = giftCertificateMapper.mapToDto(giftCertificate);
-        giftCertificateDto.setTags(giftCertificate.getTags()
-                .stream().map(tagMapper::mapToDto)
-                .collect(Collectors.toList()));
-        return giftCertificateDto;
     }
 
     private List<Tag> setTagsToGiftCertificate(List<TagDto> tagDtoList) {
@@ -217,6 +207,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             savedGiftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
         }
         giftCertificateDao.update(savedGiftCertificate);
-        return setTagsAndRetrieveGiftCertificateDto(savedGiftCertificate);
+        return giftCertificateMapper.mapToDto(savedGiftCertificate);
     }
 }

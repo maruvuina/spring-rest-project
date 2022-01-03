@@ -41,4 +41,12 @@ public interface TagDao extends CreateDao<Tag>, DeleteDao<Tag>, GetDao<Tag> {
      * @return the boolean
      */
     boolean existsInGiftCertificateTag(Long tagId);
+
+    /**
+     * Find most popular user tag by user id.
+     *
+     * @param id the user id
+     * @return the optional tag
+     */
+    Optional<Tag> findMostPopularUserTagByUserId(Long id);
 }

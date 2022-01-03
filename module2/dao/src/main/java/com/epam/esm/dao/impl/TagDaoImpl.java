@@ -13,6 +13,7 @@ import java.util.Optional;
 
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_ID;
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_NAME;
+import static com.epam.esm.dao.util.SqlQuery.FIND_MOST_POPULAR_USER_TAG;
 import static com.epam.esm.dao.util.SqlQuery.TAG_EXISTS;
 import static com.epam.esm.dao.util.SqlQuery.TAG_EXISTS_IN_GIFT_CERTIFICATE_TAG;
 import static com.epam.esm.dao.util.SqlQuery.TAG_FIND_ALL;
@@ -72,5 +73,12 @@ public class TagDaoImpl implements TagDao {
     public boolean existsInGiftCertificateTag(Long tagId) {
         return (boolean) entityManager.createNativeQuery(TAG_EXISTS_IN_GIFT_CERTIFICATE_TAG)
                 .setParameter(COLUMN_LABEL_ID, tagId).getSingleResult();
+    }
+
+    @Override
+    public Optional<Tag> findMostPopularUserTagByUserId(Long id) {
+        Tag tag = (Tag) entityManager.createNativeQuery(FIND_MOST_POPULAR_USER_TAG, Tag.class)
+                .setParameter(COLUMN_LABEL_ID, id).getSingleResult();
+        return Optional.ofNullable(tag) ;
     }
 }

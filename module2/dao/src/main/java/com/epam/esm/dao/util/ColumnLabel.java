@@ -14,4 +14,5 @@ public final class ColumnLabel {
     public static final String COLUMN_LABEL_GIFT_CERTIFICATE_ID = "gift_certificate_id";
     public static final String COLUMN_LABEL_TAG_ID = "tag_id";
     public static final String COLUMN_LABEL_TAG_NAME = "tagName";
+    public static final String COLUMN_LABEL_TAG_COUNT = "tagCount";
 }

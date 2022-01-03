@@ -3,10 +3,9 @@ package com.epam.esm.service.mapper.impl;
 import com.epam.esm.dao.entity.GiftCertificate;
 import com.epam.esm.dao.entity.Order;
 import com.epam.esm.dao.entity.User;
-import com.epam.esm.service.dto.OrderRetrieveDto;
+import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.mapper.GiftCertificateMapper;
 import com.epam.esm.service.mapper.OrderMapper;
-import com.epam.esm.service.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -21,18 +20,18 @@ public class OrderMapperImpl implements OrderMapper {
         return Order.builder()
                 .user(user)
                 .giftCertificate(giftCertificate)
-                .purchaseDate(DateUtil.retrieveDate())
+                .purchaseDate(retrieveDate())
                 .cost(giftCertificate.getPrice())
                 .build();
     }
 
     @Override
-    public OrderRetrieveDto mapToDto(Order order) {
-        return OrderRetrieveDto.builder()
+    public OrderDto mapToDto(Order order) {
+        return OrderDto.builder()
                 .id(order.getId())
                 .userId(order.getUser().getId())
                 .giftCertificateDto(giftCertificateMapper.mapToDto(order.getGiftCertificate()))
-                .purchaseDate(DateUtil.retrieveFormatterDate(order.getPurchaseDate()))
+                .purchaseDate(order.getPurchaseDate())
                 .cost(order.getCost())
                 .build();
     }

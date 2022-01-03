@@ -16,12 +16,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Represents a Gift certificate.
@@ -52,13 +50,11 @@ public class GiftCertificate {
     @Column(name = "last_update_date", nullable = false)
     private Instant lastUpdateDate;
     @ManyToMany(cascade = CascadeType.MERGE,
-            fetch = FetchType.LAZY)
+            fetch = FetchType.EAGER)
     @JoinTable(name = "gift_certificate_tag",
             joinColumns = @JoinColumn(name = "gift_certificate_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private List<Tag> tags;
-    @OneToMany(mappedBy = "giftCertificate")
-    private List<Order> orders;
 
     @Override
     public String toString() {
@@ -70,6 +66,7 @@ public class GiftCertificate {
         sb.append(", duration='").append(duration).append('\'');
         sb.append(", createDate=").append(createDate);
         sb.append(", lastUpdateDate=").append(lastUpdateDate);
+        sb.append(", tags=").append(tags);
         sb.append('}');
         return sb.toString();
     }

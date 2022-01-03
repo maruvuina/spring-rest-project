@@ -59,14 +59,16 @@ public class TagController {
     /**
      * Retrieve all tags.
      *
-     * @param page the page
+     * @param pageNumber the page number
      * @param size the size
      * @return the list of tag dto
      */
     @GetMapping
-    public List<TagDto> retrieveAll(@RequestParam(defaultValue = "0") @Min(0) @Max(Integer.MAX_VALUE) Integer page,
-                                    @RequestParam(defaultValue = "3") @Min(1) @Max(Integer.MAX_VALUE) Integer size) {
-        return tagService.retrieveAll(new Page(page, size));
+    public List<TagDto> retrieveAll(@RequestParam(defaultValue = "0", name = "page")
+                                    @Min(0) @Max(Integer.MAX_VALUE) Integer pageNumber,
+                                    @RequestParam(defaultValue = "3")
+                                    @Min(1) @Max(Integer.MAX_VALUE) Integer size) {
+        return tagService.retrieveAll(new Page(pageNumber, size));
     }
 
     /**
@@ -79,5 +81,17 @@ public class TagController {
     @ResponseStatus(code = HttpStatus.OK)
     public TagDto retrieveById(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
         return tagService.retrieveById(id);
+    }
+
+    /**
+     * Retrieve most popular user tag by user id.
+     *
+     * @param id the user id
+     * @return the tag dto
+     */
+    @GetMapping("/users/{id}")
+    @ResponseStatus(code = HttpStatus.OK)
+    public TagDto retrieveMostPopularUserTagByUserId(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
+        return tagService.retrieveMostPopularUserTagByUserId(id);
     }
 }

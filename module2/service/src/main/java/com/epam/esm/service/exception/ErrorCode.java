@@ -30,7 +30,10 @@ public enum ErrorCode {
     ERROR_203400("203400"),
     ERROR_204400("204400"),
     ERROR_205400("205400"),
-    ERROR_206400("206400");
+    ERROR_206400("206400"),
+    ERROR_207400("207400"),
+    ERROR_301400("301400"),
+    ERROR_302400("302400");
 
     private final String value;
 

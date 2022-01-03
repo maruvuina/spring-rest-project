@@ -38,4 +38,37 @@ public final class SqlQuery {
             "select o from Order o " +
                     "inner join o.user u " +
                     "where u.id = :id";
+
+    @Language("PostgreSQL")
+    public static final String FIND_MOST_POPULAR_USER_TAG =
+            "SELECT tag.id, tag.name " +
+            "FROM tag " +
+            "WHERE tag.id = " +
+                "(SELECT gt.tag_id " +
+                "FROM order_table AS o " +
+                "INNER JOIN gift_certificate_tag AS gt ON o.id_gift_certificate = gt.gift_certificate_id " +
+                "INNER JOIN gift_certificate AS g ON g.id = gt.gift_certificate_id " +
+                "WHERE o.id_user = :id AND gt.tag_id IN " +
+                        "(SELECT tags.ti " +
+                        " FROM " +
+                        " ( SELECT tcota.ti, tcota.count_of_tag_appears " +
+                        "   FROM " +
+                        "    ( SELECT gt.tag_id AS ti, COUNT(gt.tag_id) AS count_of_tag_appears " +
+                        "     FROM order_table AS o " +
+                        "     INNER JOIN gift_certificate_tag AS gt ON o.id_gift_certificate = gt.gift_certificate_id " +
+                        "     WHERE o.id_user = :id " +
+                        "     GROUP BY gt.tag_id ) as tcota " +
+                        "     WHERE tcota.count_of_tag_appears = " +
+                        "       ( SELECT MAX(ticota.count_of_tag_appears) AS m " +
+                        "        FROM " +
+                        "         ( SELECT COUNT(gt.tag_id) AS count_of_tag_appears " +
+                        "          FROM order_table AS o " +
+                        "          INNER JOIN gift_certificate_tag AS gt ON o.id_gift_certificate = " +
+                        "gt.gift_certificate_id " +
+                        "          WHERE o.id_user = :id " +
+                        "          GROUP BY gt.tag_id " +
+                        "          ORDER BY count_of_tag_appears ) AS ticota ) ) AS tags) " +
+                "GROUP BY gt.tag_id " +
+                "ORDER BY SUM(g.price) DESC " +
+                "LIMIT 1)";
 }

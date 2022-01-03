@@ -16,9 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.epam.esm.service.exception.ErrorCode.ERROR_000400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_203400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_205400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_206400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_207400;
 
 @Slf4j
 @Service
@@ -33,7 +35,7 @@ public class TagServiceImpl implements TagService {
     @Transactional
     public TagDto create(TagDto tagDto) {
         tagValidator.validate(tagDto);
-        Tag createdTag = retrieveCreatedTag(tagDto);
+        Tag createdTag = tagDao.create(tagMapper.mapTo(tagDto));
         return tagMapper.mapToDto(createdTag);
     }
 
@@ -83,8 +85,13 @@ public class TagServiceImpl implements TagService {
                 }));
     }
 
-    private Tag retrieveCreatedTag(TagDto tagDto) {
-        return tagDao.create(tagMapper.mapTo(tagDto));
+    @Override
+    public TagDto retrieveMostPopularUserTagByUserId(Long id) {
+        return tagMapper.mapToDto(tagDao.findMostPopularUserTagByUserId(id)
+                .orElseThrow(() -> {
+                    log.error("An error occurred while getting most popular user tag by user id = {}", id);
+                    return new ServiceException(ERROR_207400, String.valueOf(id));
+                }));
     }
 
     private void existsInGiftCertificateTag(Long id) {
