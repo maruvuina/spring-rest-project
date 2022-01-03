@@ -4,6 +4,8 @@ import com.epam.esm.dao.util.Page;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.TagService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,6 +22,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * Tag controller.
@@ -41,7 +46,8 @@ public class TagController {
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
     public TagDto create(@Valid @RequestBody TagDto tagDto) {
-        return tagService.create(tagDto);
+        TagDto createdTagDto = tagService.create(tagDto);
+        return addSelfLink(createdTagDto, createdTagDto.getId());
     }
 
     /**
@@ -61,14 +67,14 @@ public class TagController {
      *
      * @param pageNumber the page number
      * @param size the size
-     * @return the list of tag dto
+     * @return the collection model of tag dto
      */
     @GetMapping
-    public List<TagDto> retrieveAll(@RequestParam(defaultValue = "0", name = "page")
+    public CollectionModel<TagDto> retrieveAll(@RequestParam(defaultValue = "0", name = "page")
                                     @Min(0) @Max(Integer.MAX_VALUE) Integer pageNumber,
                                     @RequestParam(defaultValue = "3")
                                     @Min(1) @Max(Integer.MAX_VALUE) Integer size) {
-        return tagService.retrieveAll(new Page(pageNumber, size));
+        return addSelfLinkToList(tagService.retrieveAll(new Page(pageNumber, size)));
     }
 
     /**
@@ -80,7 +86,7 @@ public class TagController {
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public TagDto retrieveById(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
-        return tagService.retrieveById(id);
+        return addSelfLink(tagService.retrieveById(id), id);
     }
 
     /**
@@ -92,6 +98,21 @@ public class TagController {
     @GetMapping("/users/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public TagDto retrieveMostPopularUserTagByUserId(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
-        return tagService.retrieveMostPopularUserTagByUserId(id);
+        return addSelfLink(tagService.retrieveMostPopularUserTagByUserId(id), id);
+    }
+
+    private CollectionModel<TagDto> addSelfLinkToList(List<TagDto> tagDtoList) {
+        tagDtoList.forEach(tagDto -> {
+            Link selfLink = linkTo(methodOn(TagController.class).retrieveById(tagDto.getId())).withSelfRel();
+            tagDto.add(selfLink);
+        });
+        Link link = linkTo(TagController.class).withSelfRel();
+        return CollectionModel.of(tagDtoList, link);
+    }
+
+    private TagDto addSelfLink(TagDto tagDto, Long id) {
+        Link selfLink = linkTo(TagController.class).slash(id).withSelfRel();
+        tagDto.add(selfLink);
+        return tagDto;
     }
 }

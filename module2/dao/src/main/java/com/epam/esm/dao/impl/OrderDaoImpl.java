@@ -11,6 +11,7 @@ import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_ID;
 import static com.epam.esm.dao.util.SqlQuery.ORDER_FIND_ALL;
 import static com.epam.esm.dao.util.SqlQuery.ORDER_FIND_BY_USER_ID;
 
@@ -43,6 +44,7 @@ public class OrderDaoImpl implements OrderDao {
     @Override
     public List<Order> retrieveByUserId(Long userId, Page page) {
         return entityManager.createQuery(ORDER_FIND_BY_USER_ID, Order.class)
+                .setParameter(COLUMN_LABEL_ID, userId)
                 .setFirstResult(page.getPageNumber() * page.getSize())
                 .setMaxResults(page.getSize())
                 .getResultList();

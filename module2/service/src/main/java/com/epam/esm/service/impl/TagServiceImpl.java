@@ -6,7 +6,7 @@ import com.epam.esm.dao.util.Page;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
-import com.epam.esm.service.mapper.impl.TagMapperImpl;
+import com.epam.esm.service.mapper.TagMapper;
 import com.epam.esm.service.validator.TagValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.service.exception.ErrorCode.ERROR_000400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_203400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_205400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_206400;
@@ -28,7 +27,7 @@ import static com.epam.esm.service.exception.ErrorCode.ERROR_207400;
 public class TagServiceImpl implements TagService {
 
     private final TagDao tagDao;
-    private final TagMapperImpl tagMapper;
+    private final TagMapper tagMapper;
     private final TagValidator tagValidator;
 
     @Override

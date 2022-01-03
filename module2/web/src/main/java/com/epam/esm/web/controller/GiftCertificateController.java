@@ -4,7 +4,10 @@ import com.epam.esm.dao.util.Page;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.dao.util.GiftCertificateParameter;
+import com.epam.esm.service.dto.TagDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,6 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * Gift certificate controller.
@@ -43,7 +49,8 @@ public class GiftCertificateController {
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
     public GiftCertificateDto create(@RequestBody GiftCertificateDto giftCertificateDto) {
-        return giftCertificateService.create(giftCertificateDto);
+        GiftCertificateDto createdGiftCertificateDto = giftCertificateService.create(giftCertificateDto);
+        return addSelfLink(createdGiftCertificateDto, createdGiftCertificateDto.getId());
     }
 
     /**
@@ -66,7 +73,7 @@ public class GiftCertificateController {
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public GiftCertificateDto retrieveById(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
-        return giftCertificateService.retrieveById(id);
+        return addSelfLink(giftCertificateService.retrieveById(id), id);
     }
 
     /**
@@ -80,7 +87,7 @@ public class GiftCertificateController {
     @ResponseStatus(code = HttpStatus.OK)
     public GiftCertificateDto update(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
                                      @RequestBody GiftCertificateDto giftCertificateDto) {
-        return giftCertificateService.update(id, giftCertificateDto);
+        return addSelfLink(giftCertificateService.update(id, giftCertificateDto), id);
     }
 
     /**
@@ -94,7 +101,7 @@ public class GiftCertificateController {
     @ResponseStatus(code = HttpStatus.OK)
     public GiftCertificateDto updatePart(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
                                          @RequestBody GiftCertificateDto giftCertificateDto) {
-        return giftCertificateService.updatePart(id, giftCertificateDto);
+        return addSelfLink(giftCertificateService.updatePart(id, giftCertificateDto), id);
     }
 
     /**
@@ -103,16 +110,41 @@ public class GiftCertificateController {
      * @param pageNumber               the page number
      * @param size                     the size
      * @param giftCertificateParameter the gift certificate parameter
-     * @return the list of gift certificate dto
+     * @return the collection model of gift certificate dto
      */
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
-    public List<GiftCertificateDto> retrieveAll(@RequestParam(defaultValue = "0", name = "page")
+    public CollectionModel<GiftCertificateDto> retrieveAll(@RequestParam(defaultValue = "0", name = "page")
                                                 @Min(0) @Max(Integer.MAX_VALUE) Integer pageNumber,
                                                 @RequestParam(defaultValue = "3")
                                                 @Min(1) @Max(Integer.MAX_VALUE) Integer size,
                                                 GiftCertificateParameter giftCertificateParameter) {
-        return giftCertificateService.retrieveGiftCertificatesByParameter(new Page(pageNumber, size),
-                giftCertificateParameter);
+        return addSelfLinkToList(giftCertificateService.retrieveGiftCertificatesByParameter(new Page(pageNumber, size),
+                giftCertificateParameter));
+    }
+
+    private CollectionModel<GiftCertificateDto> addSelfLinkToList(List<GiftCertificateDto> giftCertificateDtoList) {
+        giftCertificateDtoList.forEach(giftCertificateDto -> {
+            Link selfLink = linkTo(methodOn(GiftCertificateController.class)
+                    .retrieveById(giftCertificateDto.getId())).withSelfRel();
+            giftCertificateDto.add(selfLink);
+            addSelfLinkToTagDtoList(giftCertificateDto.getTags());
+        });
+        Link link = linkTo(GiftCertificateController.class).withSelfRel();
+        return CollectionModel.of(giftCertificateDtoList, link);
+    }
+
+    private GiftCertificateDto addSelfLink(GiftCertificateDto giftCertificateDto, Long id) {
+        Link selfLink = linkTo(GiftCertificateController.class).slash(id).withSelfRel();
+        giftCertificateDto.add(selfLink);
+        addSelfLinkToTagDtoList(giftCertificateDto.getTags());
+        return giftCertificateDto;
+    }
+
+    private void addSelfLinkToTagDtoList(List<TagDto> tagDtoList) {
+        tagDtoList.forEach(tagDto -> {
+            Link selfLink = linkTo(methodOn(TagController.class).retrieveById(tagDto.getId())).withSelfRel();
+            tagDto.add(selfLink);
+        });
     }
 }
