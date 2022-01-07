@@ -17,7 +17,7 @@ public class OrderDto extends RepresentationModel<OrderDto>  {
 
     private Long id;
     private Long userId;
-    private GiftCertificateDto giftCertificateDto;
+    private GiftCertificateDto giftCertificate;
     private Instant purchaseDate;
     private BigDecimal cost;
 }

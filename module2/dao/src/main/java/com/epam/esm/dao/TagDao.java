@@ -45,8 +45,8 @@ public interface TagDao extends CreateDao<Tag>, DeleteDao<Tag>, GetDao<Tag> {
     /**
      * Find most popular user tag by user id.
      *
-     * @param id the user id
+     * @param userId the user id
      * @return the optional tag
      */
-    Optional<Tag> findMostPopularUserTagByUserId(Long id);
+    Optional<Tag> findMostPopularUserTagByUserId(Long userId);
 }

@@ -25,10 +25,8 @@ subprojects {
         implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: spring_boot_version
         implementation group: 'org.springframework.boot', name: 'spring-boot-starter-hateoas', version: '2.6.2'
         implementation group: 'org.springframework', name: 'spring-orm', version: spring_version
-        implementation group: 'javax.validation', name: 'validation-api', version: javax_version
         compileOnly group: 'org.projectlombok', name: 'lombok', version: lombok_version
         annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombok_version
-        implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
         implementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: junit_version
         testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit_version
         testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.1.0'

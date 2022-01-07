@@ -5,9 +5,6 @@ plugins {
 dependencies {
     implementation project (':dao')
     implementation project (':service')
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.6.1'
-    implementation group: 'org.springframework', name: 'spring-webmvc', version: spring_version
-    implementation group: 'org.springframework', name: 'spring-tx', version: spring_version
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.0'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.6.2'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '2.6.2'
 }
-

@@ -35,7 +35,7 @@ public final class DynamicQuery {
                          CriteriaBuilder criteriaBuilder,
                          CriteriaQuery<GiftCertificate> giftCertificateCriteria,
                          Root<GiftCertificate> giftCertificateRoot) {
-        if (isEnumValueValid(giftCertificateParameter.getSort())) {
+        if (giftCertificateParameter.getSort() != null) {
             giftCertificateCriteria
                     .orderBy(OrderType.ASC.equals(giftCertificateParameter.getOrder()) ?
                             criteriaBuilder.asc(giftCertificateRoot
@@ -49,7 +49,7 @@ public final class DynamicQuery {
                                             CriteriaBuilder criteriaBuilder,
                                             Root<GiftCertificate> giftCertificateRoot) {
         List<Predicate> predicates = new ArrayList<>();
-        if (isParameterValid(giftCertificateParameter.getName())) {
+        if (giftCertificateParameter.getName() != null) {
             predicates.add(criteriaBuilder.like(giftCertificateRoot.get(GiftCertificate_.NAME),
                     giftCertificateParameter.getName() + PERCENT));
         }
@@ -60,7 +60,7 @@ public final class DynamicQuery {
                                                    CriteriaBuilder criteriaBuilder,
                                                    Root<GiftCertificate> giftCertificateRoot) {
         List<Predicate> predicates = new ArrayList<>();
-        if (isParameterValid(giftCertificateParameter.getDescription())) {
+        if (giftCertificateParameter.getDescription() != null) {
             predicates.add(criteriaBuilder.like(giftCertificateRoot.get(GiftCertificate_.DESCRIPTION),
                     giftCertificateParameter.getDescription() + PERCENT));
         }
@@ -70,22 +70,10 @@ public final class DynamicQuery {
     private static List<Predicate> retrieveByTagName(GiftCertificateParameter giftCertificateParameter,
                                                Root<GiftCertificate> giftCertificateRoot) {
         List<Predicate> predicates = new ArrayList<>();
-        if (giftCertificateParameter.getTagName() != null && isValidTagNames(giftCertificateParameter.getTagName())) {
+        if (giftCertificateParameter.getTagName() != null) {
             predicates.add(giftCertificateRoot.join(GiftCertificate_.tags).get(Tag_.NAME)
                     .in(giftCertificateParameter.getTagName()));
         }
         return predicates;
-    }
-
-    private static boolean isValidTagNames(List<String> tagNames) {
-        return tagNames.stream().anyMatch(DynamicQuery::isParameterValid);
-    }
-
-    private static boolean isParameterValid(String parameter) {
-        return parameter != null && !parameter.isBlank();
-    }
-
-    private static <E extends Enum<E>> boolean isEnumValueValid(E clazz) {
-        return clazz != null;
     }
 }

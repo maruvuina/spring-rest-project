@@ -23,4 +23,12 @@ public interface GiftCertificateDao extends CreateDao<GiftCertificate>,
      */
     List<GiftCertificate> findGiftCertificatesByParameter(Page page,
                                                           GiftCertificateParameter giftCertificateParameter);
+
+    /**
+     * Exists gift certificate by name.
+     *
+     * @param name the name
+     * @return the boolean
+     */
+    boolean existsByName(String name);
 }

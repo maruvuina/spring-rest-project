@@ -30,7 +30,7 @@ public class OrderMapperImpl implements OrderMapper {
         return OrderDto.builder()
                 .id(order.getId())
                 .userId(order.getUser().getId())
-                .giftCertificateDto(giftCertificateMapper.mapToDto(order.getGiftCertificate()))
+                .giftCertificate(giftCertificateMapper.mapToDto(order.getGiftCertificate()))
                 .purchaseDate(order.getPurchaseDate())
                 .cost(order.getCost())
                 .build();

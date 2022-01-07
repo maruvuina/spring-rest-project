@@ -14,6 +14,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_NAME;
+import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_EXISTS;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_FIND_ALL;
 
 @Component
@@ -61,5 +63,11 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
                 .setFirstResult(page.getPageNumber() * page.getSize())
                 .setMaxResults(page.getSize())
                 .getResultList();
+    }
+
+    @Override
+    public boolean existsByName(String name) {
+        return entityManager.createQuery(GIFT_CERTIFICATE_EXISTS, Boolean.class)
+                .setParameter(COLUMN_LABEL_NAME, name).getSingleResult();
     }
 }

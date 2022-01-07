@@ -5,8 +5,6 @@ import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.web.exception.ExceptionMessageTranslator;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -22,11 +20,17 @@ public class ErrorHandlingControllerAdvice {
 
     private final ExceptionMessageTranslator exceptionMessageTranslator;
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorApi> handleConstraintViolationException(ConstraintViolationException ex) {
+        return new ResponseEntity<>(new ErrorApi(ex.getLocalizedMessage(), ErrorCode.ERROR_000400.getValue()),
+                HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler({ServiceException.class})
     public ResponseEntity<ErrorApi> handleResourceServiceException(ServiceException ex) {
         String errorMessage = retrieveErrorMessage(ex);
         return new ResponseEntity<>(new ErrorApi(errorMessage, ex.getErrorCode().getValue()),
-                HttpStatus.BAD_REQUEST);
+                HttpStatus.valueOf(Integer.parseInt(ex.getErrorCode().getValue().substring(3))));
     }
 
     @ExceptionHandler({NoHandlerFoundException.class})
@@ -36,27 +40,17 @@ public class ErrorHandlingControllerAdvice {
 
     @ExceptionHandler({JsonMappingException.class})
     public ResponseEntity<ErrorApi> handleResourceJsonMappingException() {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_003400.getValue(), HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler({EmptyResultDataAccessException.class})
-    public ResponseEntity<ErrorApi> handleResourceEmptyResultDataAccessException() {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_001500.getValue());
-    }
-
-    @ExceptionHandler({DuplicateKeyException.class})
-    public ResponseEntity<ErrorApi> handleResourceDuplicateKeyException() {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_002500.getValue());
+        return retrieveExceptionErrorApi(ErrorCode.ERROR_002400.getValue(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({BindException.class})
     public ResponseEntity<ErrorApi> handleResourceBindException() {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_003500.getValue());
+        return retrieveExceptionErrorApi(ErrorCode.ERROR_001500.getValue());
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorApi> handleConstraintViolationException() {
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_000400.getValue(), HttpStatus.BAD_REQUEST);
+    @ExceptionHandler({Exception.class})
+    public ResponseEntity<ErrorApi> handleException() {
+        return retrieveExceptionErrorApi(ErrorCode.ERROR_000500.getValue());
     }
 
     private ResponseEntity<ErrorApi> retrieveExceptionErrorApi(String errorCode, HttpStatus httpStatus) {

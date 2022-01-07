@@ -3,9 +3,9 @@ package com.epam.esm.web.controller;
 import com.epam.esm.dao.util.Page;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.TagService;
+import com.epam.esm.web.hateoas.HateoasInformation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,10 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.util.List;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * Tag controller.
@@ -36,6 +32,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class TagController {
 
     private final TagService tagService;
+    private final HateoasInformation hateoasInformation;
 
     /**
      * Create tag.
@@ -47,7 +44,7 @@ public class TagController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public TagDto create(@Valid @RequestBody TagDto tagDto) {
         TagDto createdTagDto = tagService.create(tagDto);
-        return addSelfLink(createdTagDto, createdTagDto.getId());
+        return hateoasInformation.addSelfLinkToTag(createdTagDto, createdTagDto.getId());
     }
 
     /**
@@ -74,7 +71,7 @@ public class TagController {
                                     @Min(0) @Max(Integer.MAX_VALUE) Integer pageNumber,
                                     @RequestParam(defaultValue = "3")
                                     @Min(1) @Max(Integer.MAX_VALUE) Integer size) {
-        return addSelfLinkToList(tagService.retrieveAll(new Page(pageNumber, size)));
+        return hateoasInformation.addSelfLinkToTagList(tagService.retrieveAll(new Page(pageNumber, size)));
     }
 
     /**
@@ -86,7 +83,7 @@ public class TagController {
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public TagDto retrieveById(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
-        return addSelfLink(tagService.retrieveById(id), id);
+        return hateoasInformation.addSelfLinkToTag(tagService.retrieveById(id), id);
     }
 
     /**
@@ -98,21 +95,6 @@ public class TagController {
     @GetMapping("/users/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public TagDto retrieveMostPopularUserTagByUserId(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
-        return addSelfLink(tagService.retrieveMostPopularUserTagByUserId(id), id);
-    }
-
-    private CollectionModel<TagDto> addSelfLinkToList(List<TagDto> tagDtoList) {
-        tagDtoList.forEach(tagDto -> {
-            Link selfLink = linkTo(methodOn(TagController.class).retrieveById(tagDto.getId())).withSelfRel();
-            tagDto.add(selfLink);
-        });
-        Link link = linkTo(TagController.class).withSelfRel();
-        return CollectionModel.of(tagDtoList, link);
-    }
-
-    private TagDto addSelfLink(TagDto tagDto, Long id) {
-        Link selfLink = linkTo(TagController.class).slash(id).withSelfRel();
-        tagDto.add(selfLink);
-        return tagDto;
+        return hateoasInformation.addSelfLinkToTagUsers(tagService.retrieveMostPopularUserTagByUserId(id), id);
     }
 }

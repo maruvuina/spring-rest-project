@@ -71,4 +71,11 @@ public final class SqlQuery {
                 "GROUP BY gt.tag_id " +
                 "ORDER BY SUM(g.price) DESC " +
                 "LIMIT 1)";
+
+    public static final String HAS_USER_ORDERS =
+            "select case when count(o) > 0 then true else false end from Order o where o.user.id = :id";
+
+    @Language("JPAQL")
+    public static final String GIFT_CERTIFICATE_EXISTS =
+            "select case when count(g) > 0 then true else false end from GiftCertificate g where g.name = :name";
 }

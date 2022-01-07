@@ -10,6 +10,7 @@ import com.epam.esm.service.OrderService;
 import com.epam.esm.service.UserService;
 import com.epam.esm.service.dto.OrderCreateDto;
 import com.epam.esm.service.dto.OrderDto;
+import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.mapper.GiftCertificateMapper;
 import com.epam.esm.service.mapper.OrderMapper;
 import com.epam.esm.service.mapper.UserMapper;
@@ -21,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.epam.esm.service.exception.ErrorCode.ERROR_301404;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_402404;
 
 @Slf4j
 @Service
@@ -38,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDto create(OrderCreateDto orderCreateDto) {
-        orderValidator.validateOrderCreateDto(orderCreateDto);
+        orderValidator.validate(orderCreateDto);
         User user = userMapper.mapTo(userService.retrieveById(orderCreateDto.getUserId()));
         GiftCertificate giftCertificate = giftCertificateMapper.mapTo(giftCertificateService
                 .retrieveById(orderCreateDto.getGiftCertificateId()));
@@ -48,6 +52,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderDto> retrieveByUserId(Long userId, Page page) {
+        if (!userService.hasUserOrders(userId)) {
+            log.error("User with id = {} does not make orders", userId);
+            throw new ServiceException(ERROR_402404, String.valueOf(userId));
+        }
         return orderDao.retrieveByUserId(userId, page)
                 .stream()
                 .map(orderMapper::mapToDto)
@@ -64,6 +72,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto retrieveById(Long id) {
-        return orderMapper.mapToDto(orderDao.findById(id).get());
+        return orderMapper.mapToDto(orderDao.findById(id)
+                .orElseThrow(() -> {
+                    log.error("There is no order with id = {}", id);
+                    return new ServiceException(ERROR_301404, String.valueOf(id));
+                }));
     }
 }

@@ -11,6 +11,8 @@ import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_ID;
+import static com.epam.esm.dao.util.SqlQuery.HAS_USER_ORDERS;
 import static com.epam.esm.dao.util.SqlQuery.USER_FIND_ALL;
 
 @Component
@@ -37,5 +39,12 @@ public class UserDaoImpl implements UserDao {
                 .setFirstResult(page.getPageNumber() * page.getSize())
                 .setMaxResults(page.getSize())
                 .getResultList();
+    }
+
+    @Override
+    public boolean hasUserOrders(Long id) {
+        return entityManager.createQuery(HAS_USER_ORDERS, Boolean.class)
+                .setParameter(COLUMN_LABEL_ID, id)
+                .getSingleResult();
     }
 }

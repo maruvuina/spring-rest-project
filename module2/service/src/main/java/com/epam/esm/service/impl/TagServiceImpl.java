@@ -4,6 +4,7 @@ import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.Tag;
 import com.epam.esm.dao.util.Page;
 import com.epam.esm.service.TagService;
+import com.epam.esm.service.UserService;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.mapper.TagMapper;
@@ -16,10 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.epam.esm.service.exception.ErrorCode.ERROR_201404;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_202404;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_203404;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_202400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_203400;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_205400;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_206400;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_207400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_204400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_402404;
 
 @Slf4j
 @Service
@@ -29,11 +33,15 @@ public class TagServiceImpl implements TagService {
     private final TagDao tagDao;
     private final TagMapper tagMapper;
     private final TagValidator tagValidator;
+    private final UserService userService;
 
     @Override
     @Transactional
     public TagDto create(TagDto tagDto) {
         tagValidator.validate(tagDto);
+        if (existsByName(tagDto.getName())) {
+            throw new ServiceException(ERROR_204400, tagDto.getName());
+        }
         Tag createdTag = tagDao.create(tagMapper.mapTo(tagDto));
         return tagMapper.mapToDto(createdTag);
     }
@@ -42,7 +50,7 @@ public class TagServiceImpl implements TagService {
     @Transactional
     public void delete(Long id) {
         existsInGiftCertificateTag(id);
-        Tag tag = tagDao.findById(id).orElseThrow(() -> new ServiceException(ERROR_206400));
+        Tag tag = tagDao.findById(id).orElseThrow(() -> new ServiceException(ERROR_203400));
         tagDao.delete(tag);
         log.info("Tag deleted with id = {}", id);
     }
@@ -57,7 +65,11 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveById(Long id) {
-        return tagMapper.mapToDto(tagDao.findById(id).get());
+        return tagMapper.mapToDto(tagDao.findById(id)
+                .orElseThrow(() -> {
+                    log.error("There is no tag with id = {}", id);
+                    return new ServiceException(ERROR_201404, String.valueOf(id));
+                }));
     }
 
     @Override
@@ -79,24 +91,28 @@ public class TagServiceImpl implements TagService {
         tagValidator.validateName(name);
         return tagMapper.mapToDto(tagDao.findByName(name)
                 .orElseThrow(() -> {
-                    log.error("An error occurred while getting tag by name = {}", name);
-                    return new ServiceException(ERROR_203400, name);
+                    log.error("There is no tag with name = {}", name);
+                    return new ServiceException(ERROR_202404, name);
                 }));
     }
 
     @Override
-    public TagDto retrieveMostPopularUserTagByUserId(Long id) {
-        return tagMapper.mapToDto(tagDao.findMostPopularUserTagByUserId(id)
+    public TagDto retrieveMostPopularUserTagByUserId(Long userId) {
+        if(!userService.hasUserOrders(userId)) {
+            log.error("User with id = {} does not make orders", userId);
+            throw new ServiceException(ERROR_402404, String.valueOf(userId));
+        }
+        return tagMapper.mapToDto(tagDao.findMostPopularUserTagByUserId(userId)
                 .orElseThrow(() -> {
-                    log.error("An error occurred while getting most popular user tag by user id = {}", id);
-                    return new ServiceException(ERROR_207400, String.valueOf(id));
+                    log.error("User with id = {} does not have the most popular tag", userId);
+                    return new ServiceException(ERROR_203404, String.valueOf(userId));
                 }));
     }
 
     private void existsInGiftCertificateTag(Long id) {
         if (tagDao.existsInGiftCertificateTag(id)) {
             log.error("Tag cannot be deleted because there is a link to it");
-            throw new ServiceException(ERROR_205400, String.valueOf(id));
+            throw new ServiceException(ERROR_202400, String.valueOf(id));
         }
     }
 }

@@ -3,9 +3,9 @@ package com.epam.esm.web.controller;
 import com.epam.esm.dao.util.Page;
 import com.epam.esm.service.UserService;
 import com.epam.esm.service.dto.UserDto;
+import com.epam.esm.web.hateoas.HateoasInformation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.util.List;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * User controller.
@@ -32,6 +28,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class UserController {
 
     private final UserService userService;
+    private final HateoasInformation hateoasInformation;
 
     /**
      * Retrieve all users.
@@ -45,7 +42,7 @@ public class UserController {
                                      @Min(0) @Max(Integer.MAX_VALUE) Integer pageNumber,
                                      @RequestParam(defaultValue = "3")
                                      @Min(1) @Max(Integer.MAX_VALUE) Integer size) {
-        return addSelfLinkToList(userService.retrieveAll(new Page(pageNumber, size)));
+        return hateoasInformation.addSelfLinkToUserList(userService.retrieveAll(new Page(pageNumber, size)));
     }
 
     /**
@@ -57,21 +54,6 @@ public class UserController {
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public UserDto retrieveById(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
-        return addSelfLink(userService.retrieveById(id), id);
-    }
-
-    private CollectionModel<UserDto> addSelfLinkToList(List<UserDto> userDtoList) {
-        userDtoList.forEach(userDto -> {
-            Link selfLink = linkTo(methodOn(UserController.class).retrieveById(userDto.getId())).withSelfRel();
-            userDto.add(selfLink);
-        });
-        Link link = linkTo(TagController.class).withSelfRel();
-        return CollectionModel.of(userDtoList, link);
-    }
-
-    private UserDto addSelfLink(UserDto userDto, Long id) {
-        Link selfLink = linkTo(UserController.class).slash(id).withSelfRel();
-        userDto.add(selfLink);
-        return userDto;
+        return hateoasInformation.addSelfLinkToUser(userService.retrieveById(id), id);
     }
 }

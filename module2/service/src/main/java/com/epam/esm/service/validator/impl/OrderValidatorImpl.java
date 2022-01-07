@@ -14,18 +14,18 @@ import static com.epam.esm.service.exception.ErrorCode.ERROR_302400;
 public class OrderValidatorImpl implements OrderValidator {
 
     @Override
-    public void validateOrderCreateDto(OrderCreateDto orderCreateDto) {
-        if (isIdParamValid(orderCreateDto.getUserId())) {
-            log.error("User id is invalid");
+    public void validate(OrderCreateDto orderCreateDto) {
+        if (isIdParamInvalid(orderCreateDto.getUserId())) {
+            log.error("User id = {} is invalid", orderCreateDto.getUserId());
             throw new ServiceException(ERROR_301400, String.valueOf(orderCreateDto.getUserId()));
         }
-        if(isIdParamValid(orderCreateDto.getGiftCertificateId())) {
-            log.error("Gift certificate id is invalid");
+        if(isIdParamInvalid(orderCreateDto.getGiftCertificateId())) {
+            log.error("Gift certificate id = {} is invalid", orderCreateDto.getGiftCertificateId());
             throw new ServiceException(ERROR_302400, String.valueOf(orderCreateDto.getGiftCertificateId()));
         }
     }
 
-    private boolean isIdParamValid(Long id) {
-        return id != null && id > 0;
+    private boolean isIdParamInvalid(Long id) {
+        return id == null || id <= 0 || id >= Long.MAX_VALUE;
     }
 }

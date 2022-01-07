@@ -22,16 +22,6 @@ public interface GiftCertificateService extends CreateService<GiftCertificateDto
     GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto);
 
     /**
-     * Update part gift certificate.
-     *
-     * @param id                 the id
-     * @param giftCertificateDto the gift certificate dto
-     * @return the gift certificate dto
-     */
-    GiftCertificateDto updatePart(Long id, GiftCertificateDto giftCertificateDto);
-
-
-    /**
      * Retrieve gift certificates by parameter.
      *
      * @param page                     the page
