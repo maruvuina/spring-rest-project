@@ -11,7 +11,13 @@ public interface UserService extends GetService<UserDto> {
      * Check if user has user orders.
      *
      * @param id the user id
-     * @return the boolean
      */
-    boolean hasUserOrders(Long id);
+    void hasUserOrders(Long id);
+
+    /**
+     * Exists by id.
+     *
+     * @param userId the user id
+     */
+    void existsById(Long userId);
 }

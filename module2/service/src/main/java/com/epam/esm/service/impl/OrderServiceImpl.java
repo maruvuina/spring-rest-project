@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.epam.esm.service.exception.ErrorCode.ERROR_301404;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_402404;
 
 @Slf4j
 @Service
@@ -44,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto create(OrderCreateDto orderCreateDto) {
         orderValidator.validate(orderCreateDto);
         User user = userMapper.mapTo(userService.retrieveById(orderCreateDto.getUserId()));
-        GiftCertificate giftCertificate = giftCertificateMapper.mapTo(giftCertificateService
+        GiftCertificate giftCertificate = giftCertificateMapper.mapToGiftCertificateForOrder(giftCertificateService
                 .retrieveById(orderCreateDto.getGiftCertificateId()));
         Order createdOrder = orderDao.create(orderMapper.mapTo(user, giftCertificate));
         return orderMapper.mapToDto(createdOrder);
@@ -52,10 +51,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderDto> retrieveByUserId(Long userId, Page page) {
-        if (!userService.hasUserOrders(userId)) {
-            log.error("User with id = {} does not make orders", userId);
-            throw new ServiceException(ERROR_402404, String.valueOf(userId));
-        }
+        userService.existsById(userId);
+        userService.hasUserOrders(userId);
         return orderDao.retrieveByUserId(userId, page)
                 .stream()
                 .map(orderMapper::mapToDto)

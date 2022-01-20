@@ -77,30 +77,30 @@ public class GiftCertificateController {
      * Update gift certificate.
      *
      * @param id                 the id
-     * @param giftCertificateDto the gift certificate dto
+     * @param giftCertificate the gift certificate dto
      * @return the gift certificate dto
      */
     @PutMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public GiftCertificateDto update(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
-                                     @RequestBody GiftCertificateDto giftCertificateDto) {
+                                     @RequestBody GiftCertificateDto giftCertificate) {
         return hateoasInformation.addSelfLinkToGiftCertificate(giftCertificateService
-                .update(id, giftCertificateDto), id);
+                .update(id, giftCertificate), id);
     }
 
     /**
      * Update part gift certificate.
      *
      * @param id                 the id
-     * @param giftCertificateDto the gift certificate dto
+     * @param giftCertificate the gift certificate dto
      * @return the gift certificate dto
      */
     @PatchMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public GiftCertificateDto updatePart(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
-                                         @RequestBody GiftCertificateDto giftCertificateDto) {
+                                         @RequestBody GiftCertificateDto giftCertificate) {
         return hateoasInformation.addSelfLinkToGiftCertificate(giftCertificateService
-                .update(id, giftCertificateDto), id);
+                .update(id, giftCertificate), id);
     }
 
     /**

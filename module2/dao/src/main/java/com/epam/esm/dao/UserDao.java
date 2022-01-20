@@ -14,4 +14,12 @@ public interface UserDao extends CreateDao<User>, GetDao<User> {
      * @return the boolean
      */
     boolean hasUserOrders(Long id);
+
+    /**
+     * Exists by id.
+     *
+     * @param id the id
+     * @return the boolean
+     */
+    boolean existsById(Long id);
 }

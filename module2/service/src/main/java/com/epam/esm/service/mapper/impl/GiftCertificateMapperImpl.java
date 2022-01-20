@@ -19,14 +19,14 @@ public class GiftCertificateMapperImpl implements GiftCertificateMapper {
     private final TagMapper tagMapper;
 
     @Override
-    public GiftCertificate mapTo(GiftCertificateDto giftCertificateDto) {
-        GiftCertificate giftCertificate = mapToCreateGiftCertificate(giftCertificateDto);
+    public GiftCertificate mapToGiftCertificateForOrder(GiftCertificateDto giftCertificateDto) {
+        GiftCertificate giftCertificate = mapTo(giftCertificateDto);
         giftCertificate.setTags(retrieveTagsToGiftCertificate(giftCertificateDto.getTags()));
         return giftCertificate;
     }
 
     @Override
-    public GiftCertificate mapToUpdateGiftCertificate(GiftCertificateDto giftCertificateDto) {
+    public GiftCertificate mapTo(GiftCertificateDto giftCertificateDto) {
         return GiftCertificate
                 .builder()
                 .id(giftCertificateDto.getId())
@@ -34,7 +34,6 @@ public class GiftCertificateMapperImpl implements GiftCertificateMapper {
                 .description(giftCertificateDto.getDescription())
                 .price(giftCertificateDto.getPrice())
                 .duration(giftCertificateDto.getDuration())
-                .lastUpdateDate(retrieveDate())
                 .build();
     }
 
@@ -75,13 +74,6 @@ public class GiftCertificateMapperImpl implements GiftCertificateMapper {
                 oldGiftCertificate.setLastUpdateDate(newGiftCertificate.getLastUpdateDate());
             }
         }
-    }
-
-    @Override
-    public GiftCertificate mapToCreateGiftCertificate(GiftCertificateDto giftCertificateDto) {
-        GiftCertificate giftCertificate = mapToUpdateGiftCertificate(giftCertificateDto);
-        giftCertificate.setCreateDate(retrieveDate());
-        return giftCertificate;
     }
 
     private List<TagDto> retrieveTagsToGiftCertificateDto(List<Tag> tags) {

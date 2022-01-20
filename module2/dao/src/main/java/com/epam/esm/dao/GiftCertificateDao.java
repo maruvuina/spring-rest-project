@@ -31,4 +31,21 @@ public interface GiftCertificateDao extends CreateDao<GiftCertificate>,
      * @return the boolean
      */
     boolean existsByName(String name);
+
+    /**
+     * Exists gift certificate by name for update.
+     *
+     * @param name the name
+     * @param id   the id
+     * @return the boolean
+     */
+    boolean existsByNameUpdate(String name, Long id);
+
+    /**
+     * Exists in order.
+     *
+     * @param id the id
+     * @return the boolean
+     */
+    boolean existsInOrder(Long id);
 }

@@ -45,7 +45,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         if(giftCertificateDao.existsByName(giftCertificateDto.getName())) {
             throw new ServiceException(ERROR_105400, giftCertificateDto.getName());
         }
-        GiftCertificate giftCertificate = giftCertificateMapper.mapToCreateGiftCertificate(giftCertificateDto);
+        GiftCertificate giftCertificate = giftCertificateMapper.mapTo(giftCertificateDto);
         giftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
         GiftCertificate createdGiftCertificate = giftCertificateDao.create(giftCertificate);
         return giftCertificateMapper.mapToDto(createdGiftCertificate);
@@ -54,8 +54,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public void delete(Long id) {
-        GiftCertificate giftCertificate = giftCertificateDao.findById(id)
-                .orElseThrow(() -> new ServiceException(ERROR_108400));
+        GiftCertificate giftCertificate = retrieveSavedGiftCertificate(id);
+        existsInOrder(id);
         giftCertificateDao.delete(giftCertificate);
         log.info("GiftCertificate deleted with id = {}", id);
     }
@@ -77,7 +77,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
         giftCertificateValidator.validateDataToUpdate(giftCertificateDto);
-        GiftCertificate newGiftCertificate = giftCertificateMapper.mapToUpdateGiftCertificate(giftCertificateDto);
+        if (giftCertificateDao.existsByNameUpdate(giftCertificateDto.getName(), id)) {
+            throw new ServiceException(ERROR_105400, giftCertificateDto.getName());
+        }
+        GiftCertificate newGiftCertificate = giftCertificateMapper.mapTo(giftCertificateDto);
         GiftCertificate savedGiftCertificate = retrieveSavedGiftCertificate(id);
         giftCertificateMapper.mergeGiftCertificate(newGiftCertificate, savedGiftCertificate);
         if (giftCertificateDto.getTags() != null) {
@@ -121,5 +124,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                     log.error("There is no gift certificate with id = {}", id);
                     return new ServiceException(ERROR_101404, String.valueOf(id));
                 });
+    }
+
+    private void existsInOrder(Long id) {
+        if (giftCertificateDao.existsInOrder(id)) {
+            log.error("Gift certificate cannot be deleted because there is a link to it in orders");
+            throw new ServiceException(ERROR_108400, String.valueOf(id));
+        }
     }
 }

@@ -20,6 +20,7 @@ import static com.epam.esm.service.exception.ErrorCode.ERROR_104400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_106400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_107400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_109400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_110400;
 
 @Slf4j
 @Component
@@ -57,6 +58,10 @@ public class GiftCertificateValidatorImpl implements GiftCertificateValidator {
     public void validateDataToCreate(GiftCertificateDto giftCertificateDto) {
         validateIdWhenCreate(giftCertificateDto.getId());
         validateDate(giftCertificateDto);
+        if (giftCertificateDto.getTags() == null) {
+            log.error("GiftCertificate list tag are null");
+            throw new ServiceException(ERROR_109400);
+        }
         validateTags(giftCertificateDto.getTags());
         validate(giftCertificateDto);
     }
@@ -65,20 +70,22 @@ public class GiftCertificateValidatorImpl implements GiftCertificateValidator {
     public void validateDataToUpdate(GiftCertificateDto giftCertificateDto) {
         validateIdWhenCreate(giftCertificateDto.getId());
         validateDate(giftCertificateDto);
-        validateTags(giftCertificateDto.getTags());
+        if (giftCertificateDto.getTags() != null) {
+            validateTags(giftCertificateDto.getTags());
+        }
         validateUpdate(giftCertificateDto);
     }
 
     @Override
     public void validateGiftCertificateParameter(GiftCertificateParameter giftCertificateParameter) {
         if (giftCertificateParameter.getTagName() != null) {
-            giftCertificateParameter.getTagName().forEach(this::validateName);
+            giftCertificateParameter.getTagName().forEach(this::validateSearchParameter);
         }
         if (giftCertificateParameter.getName() != null) {
-            validateName(giftCertificateParameter.getName());
+            validateSearchParameter(giftCertificateParameter.getName());
         }
         if (giftCertificateParameter.getDescription() != null) {
-            validateDescription(giftCertificateParameter.getDescription());
+            validateSearchParameter(giftCertificateParameter.getDescription());
         }
     }
 
@@ -98,6 +105,11 @@ public class GiftCertificateValidatorImpl implements GiftCertificateValidator {
     }
 
     private void validateDate(GiftCertificateDto giftCertificateDto) {
+        if (giftCertificateDto.getCreateDate() != null &&
+                giftCertificateDto.getLastUpdateDate() != null) {
+            log.error("Fields create date and last update date cannot be modified via request body");
+            throw new ServiceException(ERROR_110400);
+        }
         if (giftCertificateDto.getCreateDate() != null) {
             log.error("Field create date cannot be modified via request body");
             throw new ServiceException(ERROR_106400);
@@ -131,10 +143,13 @@ public class GiftCertificateValidatorImpl implements GiftCertificateValidator {
     }
 
     private void validateTags(List<TagDto> tagDtoList) {
-        if (tagDtoList == null) {
-            log.error("GiftCertificate list tag are null");
-            throw new ServiceException(ERROR_109400);
-        }
         tagDtoList.forEach(tagValidator::validate);
+    }
+
+    private void validateSearchParameter(String parameter) {
+        if (StringUtils.isBlank(parameter) || parameter.length() < 1) {
+            log.error("Invalid gift certificate parameter = {}", parameter);
+            throw new ServiceException(ERROR_101400, parameter);
+        }
     }
 }

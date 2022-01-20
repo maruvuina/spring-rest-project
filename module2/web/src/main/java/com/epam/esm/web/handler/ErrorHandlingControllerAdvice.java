@@ -5,6 +5,7 @@ import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.web.exception.ExceptionMessageTranslator;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -16,12 +17,14 @@ import javax.validation.ConstraintViolationException;
 
 @RequiredArgsConstructor
 @ControllerAdvice
+@Slf4j
 public class ErrorHandlingControllerAdvice {
 
     private final ExceptionMessageTranslator exceptionMessageTranslator;
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorApi> handleConstraintViolationException(ConstraintViolationException ex) {
+        log.error(ex.getLocalizedMessage());
         return new ResponseEntity<>(new ErrorApi(ex.getLocalizedMessage(), ErrorCode.ERROR_000400.getValue()),
                 HttpStatus.BAD_REQUEST);
     }
@@ -34,22 +37,32 @@ public class ErrorHandlingControllerAdvice {
     }
 
     @ExceptionHandler({NoHandlerFoundException.class})
-    public ResponseEntity<ErrorApi> handleResourceNoHandlerFoundException() {
+    public ResponseEntity<ErrorApi> handleResourceNoHandlerFoundException(NoHandlerFoundException ex) {
+        log.error(ex.getLocalizedMessage());
         return retrieveExceptionErrorApi(ErrorCode.ERROR_000404.getValue(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler({JsonMappingException.class})
-    public ResponseEntity<ErrorApi> handleResourceJsonMappingException() {
+    public ResponseEntity<ErrorApi> handleResourceJsonMappingException(JsonMappingException ex) {
+        log.error(ex.getLocalizedMessage());
         return retrieveExceptionErrorApi(ErrorCode.ERROR_002400.getValue(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({BindException.class})
-    public ResponseEntity<ErrorApi> handleResourceBindException() {
+    public ResponseEntity<ErrorApi> handleResourceBindException(BindException ex) {
+        log.error(ex.getLocalizedMessage());
         return retrieveExceptionErrorApi(ErrorCode.ERROR_001500.getValue());
     }
 
+    @ExceptionHandler({NumberFormatException.class})
+    public ResponseEntity<ErrorApi> handleResourceNumberFormatException(NumberFormatException ex) {
+        log.error(ex.getLocalizedMessage());
+        return retrieveExceptionErrorApi(ErrorCode.ERROR_001400.getValue());
+    }
+
     @ExceptionHandler({Exception.class})
-    public ResponseEntity<ErrorApi> handleException() {
+    public ResponseEntity<ErrorApi> handleException(Exception ex) {
+        log.error(ex.getLocalizedMessage());
         return retrieveExceptionErrorApi(ErrorCode.ERROR_000500.getValue());
     }
 

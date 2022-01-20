@@ -14,8 +14,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
 import java.util.Optional;
 
+import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_ID;
 import static com.epam.esm.dao.util.ColumnLabel.COLUMN_LABEL_NAME;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_EXISTS;
+import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_EXISTS_IN_ORDER;
+import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_EXISTS_UPDATE;
 import static com.epam.esm.dao.util.SqlQuery.GIFT_CERTIFICATE_FIND_ALL;
 
 @Component
@@ -69,5 +72,19 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     public boolean existsByName(String name) {
         return entityManager.createQuery(GIFT_CERTIFICATE_EXISTS, Boolean.class)
                 .setParameter(COLUMN_LABEL_NAME, name).getSingleResult();
+    }
+
+    @Override
+    public boolean existsByNameUpdate(String name, Long id) {
+        return entityManager.createQuery(GIFT_CERTIFICATE_EXISTS_UPDATE, Boolean.class)
+                .setParameter(COLUMN_LABEL_NAME, name)
+                .setParameter(COLUMN_LABEL_ID, id)
+                .getSingleResult();
+    }
+
+    @Override
+    public boolean existsInOrder(Long id) {
+        return entityManager.createQuery(GIFT_CERTIFICATE_EXISTS_IN_ORDER, Boolean.class)
+                .setParameter(COLUMN_LABEL_ID, id).getSingleResult();
     }
 }

@@ -78,4 +78,17 @@ public final class SqlQuery {
     @Language("JPAQL")
     public static final String GIFT_CERTIFICATE_EXISTS =
             "select case when count(g) > 0 then true else false end from GiftCertificate g where g.name = :name";
+
+    @Language("JPAQL")
+    public static final String GIFT_CERTIFICATE_EXISTS_UPDATE =
+            "select case when count(g) > 0 then true else false end " +
+                    "from GiftCertificate g where g.name = :name and g.id <> :id";
+
+    @Language("JPAQL")
+    public static final String USER_EXISTS =
+            "select case when count(u) > 0 then true else false end from User u where u.id = :id";
+
+    public static final String GIFT_CERTIFICATE_EXISTS_IN_ORDER =
+            "select case when count(o.giftCertificate.id) > 0 then true else false end " +
+                    "from Order o where o.giftCertificate.id = :id";
 }

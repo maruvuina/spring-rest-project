@@ -21,9 +21,7 @@ import static com.epam.esm.service.exception.ErrorCode.ERROR_201404;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_202404;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_203404;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_202400;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_203400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_204400;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_402404;
 
 @Slf4j
 @Service
@@ -49,8 +47,8 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public void delete(Long id) {
+        Tag tag = retrieveSavedTag(id);
         existsInGiftCertificateTag(id);
-        Tag tag = tagDao.findById(id).orElseThrow(() -> new ServiceException(ERROR_203400));
         tagDao.delete(tag);
         log.info("Tag deleted with id = {}", id);
     }
@@ -65,11 +63,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveById(Long id) {
-        return tagMapper.mapToDto(tagDao.findById(id)
-                .orElseThrow(() -> {
-                    log.error("There is no tag with id = {}", id);
-                    return new ServiceException(ERROR_201404, String.valueOf(id));
-                }));
+        return tagMapper.mapToDto(retrieveSavedTag(id));
     }
 
     @Override
@@ -98,10 +92,8 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveMostPopularUserTagByUserId(Long userId) {
-        if(!userService.hasUserOrders(userId)) {
-            log.error("User with id = {} does not make orders", userId);
-            throw new ServiceException(ERROR_402404, String.valueOf(userId));
-        }
+        userService.existsById(userId);
+        userService.hasUserOrders(userId);
         return tagMapper.mapToDto(tagDao.findMostPopularUserTagByUserId(userId)
                 .orElseThrow(() -> {
                     log.error("User with id = {} does not have the most popular tag", userId);
@@ -114,5 +106,13 @@ public class TagServiceImpl implements TagService {
             log.error("Tag cannot be deleted because there is a link to it");
             throw new ServiceException(ERROR_202400, String.valueOf(id));
         }
+    }
+
+    private Tag retrieveSavedTag(Long id) {
+        return tagDao.findById(id)
+                .orElseThrow(() -> {
+                    log.error("There is no tag with id = {}", id);
+                    return new ServiceException(ERROR_201404, String.valueOf(id));
+                });
     }
 }
