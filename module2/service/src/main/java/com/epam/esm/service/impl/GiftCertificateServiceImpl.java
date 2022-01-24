@@ -41,7 +41,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
-        giftCertificateValidator.validateDataToCreate(giftCertificateDto);
+        giftCertificateValidator.validate(giftCertificateDto);
         if(giftCertificateDao.existsByName(giftCertificateDto.getName())) {
             throw new ServiceException(ERROR_105400, giftCertificateDto.getName());
         }
@@ -76,18 +76,15 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto update(Long id, GiftCertificateDto giftCertificateDto) {
-        giftCertificateValidator.validateDataToUpdate(giftCertificateDto);
-        if (giftCertificateDao.existsByNameUpdate(giftCertificateDto.getName(), id)) {
-            throw new ServiceException(ERROR_105400, giftCertificateDto.getName());
-        }
-        GiftCertificate newGiftCertificate = giftCertificateMapper.mapTo(giftCertificateDto);
-        GiftCertificate savedGiftCertificate = retrieveSavedGiftCertificate(id);
-        giftCertificateMapper.mergeGiftCertificate(newGiftCertificate, savedGiftCertificate);
-        if (giftCertificateDto.getTags() != null) {
-            savedGiftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
-        }
-        giftCertificateDao.update(savedGiftCertificate);
-        return giftCertificateMapper.mapToDto(savedGiftCertificate);
+        giftCertificateValidator.validate(giftCertificateDto);
+        return updateData(id, giftCertificateDto);
+    }
+
+    @Override
+    @Transactional
+    public GiftCertificateDto updatePart(Long id, GiftCertificateDto giftCertificateDto) {
+        giftCertificateValidator.validateDataToPartUpdate(giftCertificateDto);
+        return updateData(id, giftCertificateDto);
     }
 
     @Override
@@ -131,5 +128,19 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             log.error("Gift certificate cannot be deleted because there is a link to it in orders");
             throw new ServiceException(ERROR_108400, String.valueOf(id));
         }
+    }
+
+    private GiftCertificateDto updateData(Long id, GiftCertificateDto giftCertificateDto) {
+        if (giftCertificateDao.existsByNameUpdate(giftCertificateDto.getName(), id)) {
+            throw new ServiceException(ERROR_105400, giftCertificateDto.getName());
+        }
+        GiftCertificate newGiftCertificate = giftCertificateMapper.mapTo(giftCertificateDto);
+        GiftCertificate savedGiftCertificate = retrieveSavedGiftCertificate(id);
+        giftCertificateMapper.mergeGiftCertificate(newGiftCertificate, savedGiftCertificate);
+        if (giftCertificateDto.getTags() != null) {
+            savedGiftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
+        }
+        giftCertificateDao.update(savedGiftCertificate);
+        return giftCertificateMapper.mapToDto(savedGiftCertificate);
     }
 }

@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.epam.esm.service.exception.ErrorCode.ERROR_101400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_102400;
@@ -52,34 +53,31 @@ public class GiftCertificateValidatorImpl implements GiftCertificateValidator {
         validateDescription(giftCertificateDto.getDescription());
         validatePrice(giftCertificateDto.getPrice().longValue());
         validateDuration(giftCertificateDto.getDuration());
-    }
-
-    @Override
-    public void validateDataToCreate(GiftCertificateDto giftCertificateDto) {
-        validateIdWhenCreate(giftCertificateDto.getId());
         validateDate(giftCertificateDto);
         if (giftCertificateDto.getTags() == null) {
             log.error("GiftCertificate list tag are null");
             throw new ServiceException(ERROR_109400);
         }
         validateTags(giftCertificateDto.getTags());
-        validate(giftCertificateDto);
     }
 
     @Override
-    public void validateDataToUpdate(GiftCertificateDto giftCertificateDto) {
+    public void validateDataToPartUpdate(GiftCertificateDto giftCertificateDto) {
         validateIdWhenCreate(giftCertificateDto.getId());
         validateDate(giftCertificateDto);
         if (giftCertificateDto.getTags() != null) {
             validateTags(giftCertificateDto.getTags());
         }
-        validateUpdate(giftCertificateDto);
+        validateUpdatePart(giftCertificateDto);
     }
 
     @Override
     public void validateGiftCertificateParameter(GiftCertificateParameter giftCertificateParameter) {
         if (giftCertificateParameter.getTagName() != null) {
             giftCertificateParameter.getTagName().forEach(this::validateSearchParameter);
+            giftCertificateParameter.setTagName(giftCertificateParameter.getTagName().stream()
+                    .map(tagName -> StringUtils.strip(tagName).toLowerCase())
+                    .collect(Collectors.toList()));
         }
         if (giftCertificateParameter.getName() != null) {
             validateSearchParameter(giftCertificateParameter.getName());
@@ -89,7 +87,7 @@ public class GiftCertificateValidatorImpl implements GiftCertificateValidator {
         }
     }
 
-    private void validateUpdate(GiftCertificateDto giftCertificateDto) {
+    private void validateUpdatePart(GiftCertificateDto giftCertificateDto) {
         if (giftCertificateDto.getName() != null) {
             validateName(giftCertificateDto.getName());
         }

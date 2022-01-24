@@ -100,7 +100,7 @@ public class GiftCertificateController {
     public GiftCertificateDto updatePart(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
                                          @RequestBody GiftCertificateDto giftCertificate) {
         return hateoasInformation.addSelfLinkToGiftCertificate(giftCertificateService
-                .update(id, giftCertificate), id);
+                .updatePart(id, giftCertificate), id);
     }
 
     /**

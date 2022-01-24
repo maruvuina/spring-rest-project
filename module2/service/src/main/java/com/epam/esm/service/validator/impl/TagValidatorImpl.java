@@ -20,6 +20,7 @@ public class TagValidatorImpl implements TagValidator {
     public void validate(TagDto tagDto) {
         validateIdWhenCreate(tagDto.getId());
         validateName(tagDto.getName());
+        tagDto.setName(StringUtils.strip(tagDto.getName()).toLowerCase());
     }
 
     @Override

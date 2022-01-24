@@ -38,10 +38,10 @@ public final class DynamicQuery {
                          Root<GiftCertificate> giftCertificateRoot) {
         if (giftCertificateParameter.getSort() != null) {
             giftCertificateCriteria
-                    .orderBy(OrderType.ASC.equals(giftCertificateParameter.getOrder()) ?
-                            criteriaBuilder.asc(giftCertificateRoot
-                                    .get(giftCertificateParameter.getSort().getValue())) :
+                    .orderBy(OrderType.DESC.equals(giftCertificateParameter.getOrder()) ?
                             criteriaBuilder.desc(giftCertificateRoot
+                                    .get(giftCertificateParameter.getSort().getValue())) :
+                            criteriaBuilder.asc(giftCertificateRoot
                                     .get(giftCertificateParameter.getSort().getValue())));
         }
     }

@@ -10,18 +10,11 @@ public interface GiftCertificateValidator extends Validator<GiftCertificateDto>,
 
 
     /**
-     * Validate data to create.
+     * Validate data to part update.
      *
      * @param giftCertificateDto the gift certificate dto
      */
-    void validateDataToCreate(GiftCertificateDto giftCertificateDto);
-
-    /**
-     * Validate data to update.
-     *
-     * @param giftCertificateDto the gift certificate dto
-     */
-    void validateDataToUpdate(GiftCertificateDto giftCertificateDto);
+    void validateDataToPartUpdate(GiftCertificateDto giftCertificateDto);
 
     /**
      * Validate gift certificate parameter.
