@@ -24,12 +24,6 @@ public class UserDaoImpl implements UserDao {
     private EntityManager entityManager;
 
     @Override
-    public User create(User user) {
-        entityManager.persist(user);
-        return user;
-    }
-
-    @Override
     public Optional<User> findById(Long id) {
         return Optional.ofNullable(entityManager.find(User.class, id));
     }
