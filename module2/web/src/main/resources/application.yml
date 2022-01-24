@@ -4,8 +4,11 @@ spring:
     url: jdbc:postgresql://localhost:5432/gift_certificates_system
     username: postgres
     password: root
-
   jpa:
     open-in-view: false
   banner:
     location: newBanner.txt
+
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false

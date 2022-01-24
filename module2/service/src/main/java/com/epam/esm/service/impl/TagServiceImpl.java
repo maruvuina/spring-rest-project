@@ -92,8 +92,8 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto retrieveMostPopularUserTagByUserId(Long userId) {
-        userService.existsById(userId);
-        userService.hasUserOrders(userId);
+        userService.checkIfUserExistsById(userId);
+        userService.checkIfUserMakeOrders(userId);
         return tagMapper.mapToDto(tagDao.findMostPopularUserTagByUserId(userId)
                 .orElseThrow(() -> {
                     log.error("User with id = {} does not have the most popular tag", userId);

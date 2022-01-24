@@ -12,12 +12,12 @@ public interface UserService extends GetService<UserDto> {
      *
      * @param id the user id
      */
-    void hasUserOrders(Long id);
+    void checkIfUserMakeOrders(Long id);
 
     /**
      * Exists by id.
      *
-     * @param userId the user id
+     * @param id the user id
      */
-    void existsById(Long userId);
+    void checkIfUserExistsById(Long id);
 }

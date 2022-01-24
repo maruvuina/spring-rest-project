@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void hasUserOrders(Long id) {
+    public void checkIfUserMakeOrders(Long id) {
         if (!userDao.hasUserOrders(id)) {
             log.error("User with id = {} does not make orders", id);
             throw new ServiceException(ERROR_402404, String.valueOf(id));
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void existsById(Long id) {
+    public void checkIfUserExistsById(Long id) {
         if (!userDao.existsById(id)) {
             log.error("User with id = {} does not exists", id);
             throw new ServiceException(ERROR_401404, String.valueOf(id));

@@ -51,8 +51,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderDto> retrieveByUserId(Long userId, Page page) {
-        userService.existsById(userId);
-        userService.hasUserOrders(userId);
+        userService.checkIfUserExistsById(userId);
+        userService.checkIfUserMakeOrders(userId);
         return orderDao.retrieveByUserId(userId, page)
                 .stream()
                 .map(orderMapper::mapToDto)
