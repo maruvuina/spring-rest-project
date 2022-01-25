@@ -43,6 +43,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
         giftCertificateValidator.validate(giftCertificateDto);
         if(giftCertificateDao.existsByName(giftCertificateDto.getName())) {
+            log.error("Gift certificate with name {} already exists", giftCertificateDto.getName());
             throw new ServiceException(ERROR_105400, giftCertificateDto.getName());
         }
         GiftCertificate giftCertificate = giftCertificateMapper.mapTo(giftCertificateDto);
@@ -132,6 +133,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private GiftCertificateDto updateData(Long id, GiftCertificateDto giftCertificateDto) {
         if (giftCertificateDao.existsByNameUpdate(giftCertificateDto.getName(), id)) {
+            log.error("Gift certificate with name {} already exists", giftCertificateDto.getName());
             throw new ServiceException(ERROR_105400, giftCertificateDto.getName());
         }
         GiftCertificate newGiftCertificate = giftCertificateMapper.mapTo(giftCertificateDto);

@@ -18,10 +18,6 @@ subprojects {
     }
 
     dependencies {
-        implementation group: 'org.springframework', name: 'spring-core', version: spring_version
-        implementation (group: 'org.springframework', name: 'spring-context', version: spring_version) {
-            exclude group: 'commons-logging', module: 'commons-logging'
-        }
         implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: spring_boot_version
         implementation group: 'org.springframework.boot', name: 'spring-boot-starter-hateoas', version: spring_boot_version
         implementation group: 'org.springframework', name: 'spring-orm', version: spring_version

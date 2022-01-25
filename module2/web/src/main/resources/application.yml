@@ -2,8 +2,8 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/gift_certificates_system
-    username: postgres
-    password: root
+    username: ${username}
+    password: ${password}
   jpa:
     open-in-view: false
   banner:
