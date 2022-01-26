@@ -31,7 +31,6 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
     @ManyToOne
     @JoinColumn(name = "id_user", nullable = false)
@@ -41,7 +40,7 @@ public class Order {
     private GiftCertificate giftCertificate;
     @Column(name = "purchase_date", nullable = false)
     private Instant purchaseDate;
-    @Column(name = "cost", nullable = false)
+    @Column(nullable = false)
     private BigDecimal cost;
 
     @Override

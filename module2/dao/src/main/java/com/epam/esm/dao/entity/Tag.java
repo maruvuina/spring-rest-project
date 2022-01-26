@@ -29,9 +29,8 @@ public class Tag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String name;
     @ManyToMany(mappedBy = "tags")
     private List<GiftCertificate> giftCertificates;
