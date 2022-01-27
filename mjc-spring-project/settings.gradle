@@ -1,4 +1,4 @@
-rootProject.name = 'module2'
+rootProject.name = 'mjc-spring-project'
 include 'dao'
 include 'service'
 include 'web'

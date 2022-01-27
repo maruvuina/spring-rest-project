@@ -38,6 +38,7 @@ public class TagServiceImpl implements TagService {
     public TagDto create(TagDto tagDto) {
         tagValidator.validate(tagDto);
         if (existsByName(tagDto.getName())) {
+            log.error("Tag with name '{}' already exists", tagDto.getName());
             throw new ServiceException(ERROR_204400, tagDto.getName());
         }
         Tag createdTag = tagDao.create(tagMapper.mapTo(tagDto));
