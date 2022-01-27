@@ -2,26 +2,87 @@ package com.epam.esm.service.mapper;
 
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.dao.entity.GiftCertificate;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
-/**
- * The interface Gift certificate mapper.
- */
-public interface GiftCertificateMapper extends Mapper<GiftCertificate, GiftCertificateDto>,
-        MapperDto<GiftCertificate, GiftCertificateDto> {
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
-    /**
-     * Map method to gift certificate for order.
-     *
-     * @param giftCertificateDto the gift certificate dto
-     * @return the gift certificate
-     */
-    GiftCertificate mapToGiftCertificateForOrder(GiftCertificateDto giftCertificateDto);
+@Component
+@RequiredArgsConstructor
+public class GiftCertificateMapper {
 
-    /**
-     * Merge gift certificate.
-     *
-     * @param newGiftCertificate the new gift certificate
-     * @param oldGiftCertificate the old gift certificate
-     */
-    void mergeGiftCertificate(GiftCertificate newGiftCertificate, GiftCertificate oldGiftCertificate);
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+    private static final String TIME_ZONE = "UTC";
+
+    public GiftCertificate mapToGiftCertificate(GiftCertificateDto giftCertificateDto) {
+        GiftCertificate giftCertificate = mapTo(giftCertificateDto);
+        giftCertificate.setCreateDate(retrieveDate());
+        giftCertificate.setLastUpdateDate(retrieveDate());
+        return giftCertificate;
+    }
+
+    public GiftCertificate mapToUpdateGiftCertificate(GiftCertificateDto giftCertificateDto) {
+        GiftCertificate giftCertificate = mapTo(giftCertificateDto);
+        giftCertificate.setLastUpdateDate(retrieveDate());
+        return giftCertificate;
+    }
+
+    public GiftCertificateDto mapToGiftCertificateDto(GiftCertificate giftCertificate) {
+        return GiftCertificateDto
+                .builder()
+                .id(giftCertificate.getId())
+                .name(giftCertificate.getName())
+                .description(giftCertificate.getDescription())
+                .price(giftCertificate.getPrice())
+                .duration(giftCertificate.getDuration())
+                .createDate(retrieveFormatterDate(giftCertificate.getCreateDate()))
+                .lastUpdateDate(retrieveFormatterDate(giftCertificate.getLastUpdateDate()))
+                .build();
+    }
+
+    public void mergeGiftCertificate(GiftCertificate newGiftCertificate, GiftCertificate oldGiftCertificate) {
+        if (newGiftCertificate != null) {
+            if (newGiftCertificate.getName() != null) {
+                oldGiftCertificate.setName(newGiftCertificate.getName());
+            }
+            if (newGiftCertificate.getDescription() != null) {
+                oldGiftCertificate.setDescription(newGiftCertificate.getDescription());
+            }
+            if (newGiftCertificate.getPrice() != null) {
+                oldGiftCertificate.setPrice(newGiftCertificate.getPrice());
+            }
+            if (newGiftCertificate.getDuration() != null) {
+                oldGiftCertificate.setDuration(newGiftCertificate.getDuration());
+            }
+            if (newGiftCertificate.getCreateDate() != null) {
+                oldGiftCertificate.setCreateDate(newGiftCertificate.getCreateDate());
+            }
+            if (newGiftCertificate.getLastUpdateDate() != null) {
+                oldGiftCertificate.setLastUpdateDate(newGiftCertificate.getLastUpdateDate());
+            }
+        }
+    }
+
+    private GiftCertificate mapTo(GiftCertificateDto giftCertificateDto) {
+        return GiftCertificate
+                .builder()
+                .name(giftCertificateDto.getName())
+                .description(giftCertificateDto.getDescription())
+                .price(giftCertificateDto.getPrice())
+                .duration(giftCertificateDto.getDuration())
+                .build();
+    }
+
+    private String retrieveFormatterDate(Instant instant) {
+        return DateTimeFormatter
+                .ofPattern(DATE_FORMAT)
+                .withZone(ZoneId.of(TIME_ZONE))
+                .format(Instant.parse(instant.toString()));
+    }
+
+    private Instant retrieveDate() {
+        return Instant.now();
+    }
 }

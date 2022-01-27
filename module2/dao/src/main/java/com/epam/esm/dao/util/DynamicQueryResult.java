@@ -3,10 +3,12 @@ package com.epam.esm.dao.util;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.util.List;
+
 @AllArgsConstructor
 @Getter
-public class Page {
+public class DynamicQueryResult {
 
-    private Integer pageNumber;
-    private Integer size;
+    private String query;
+    private List<String> parameter;
 }

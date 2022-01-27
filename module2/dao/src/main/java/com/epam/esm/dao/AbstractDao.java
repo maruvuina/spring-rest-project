@@ -1,16 +1,29 @@
 package com.epam.esm.dao;
 
-import com.epam.esm.dao.util.Page;
-
 import java.util.List;
 import java.util.Optional;
 
 /**
- *This is an interface for get operations of entity.
+ * This is an interface for basic CRUD operations.
  *
  * @param <T> a concrete type of entity
  */
-public interface GetDao<T> {
+public interface AbstractDao<T> {
+
+    /**
+     * Create entity.
+     *
+     * @param t the entity
+     * @return the optional of entity
+     */
+    Optional<T> create(T t);
+
+    /**
+     * Delete entity.
+     *
+     * @param id an id of entity
+     */
+    void delete(Long id);
 
     /**
      * Find entity by id.
@@ -23,8 +36,7 @@ public interface GetDao<T> {
     /**
      * Find all entities.
      *
-     * @param page the page
      * @return the list of entities
      */
-    List<T> findAll(Page page);
+    List<T> findAll();
 }

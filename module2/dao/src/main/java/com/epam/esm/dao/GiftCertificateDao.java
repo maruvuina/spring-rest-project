@@ -1,51 +1,46 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.dao.entity.GiftCertificate;
-import com.epam.esm.dao.util.GiftCertificateParameter;
-import com.epam.esm.dao.util.Page;
+import com.epam.esm.dao.entity.Tag;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This is an interface for dao operations of Gift certificate entity.
  */
-public interface GiftCertificateDao extends CreateDao<GiftCertificate>,
-        DeleteDao<GiftCertificate>, GetDao<GiftCertificate> {
-
-    GiftCertificate update(GiftCertificate giftCertificate);
+public interface GiftCertificateDao extends AbstractDao<GiftCertificate> {
 
     /**
      * Find gift certificates by parameter.
      *
-     * @param page                     the page
-     * @param giftCertificateParameter the gift certificate parameter
+     * @param query     the query
+     * @param parameter the parameter
      * @return the list of gift certificates
      */
-    List<GiftCertificate> findGiftCertificatesByParameter(Page page,
-                                                          GiftCertificateParameter giftCertificateParameter);
+    List<GiftCertificate> findGiftCertificatesByParameter(String query, List<String> parameter);
 
     /**
-     * Exists gift certificate by name.
+     * Update optional.
      *
-     * @param name the name
-     * @return the boolean
+     * @param id              the id
+     * @param giftCertificate the gift certificate
+     * @return the optional of gift certificate
      */
-    boolean existsByName(String name);
+    Optional<GiftCertificate> update(Long id, GiftCertificate giftCertificate);
 
     /**
-     * Exists gift certificate by name for update.
-     *
-     * @param name the name
-     * @param id   the id
-     * @return the boolean
-     */
-    boolean existsByNameUpdate(String name, Long id);
-
-    /**
-     * Exists in order.
+     * Clear gift certificate tags.
      *
      * @param id the id
-     * @return the boolean
      */
-    boolean existsInOrder(Long id);
+    void clearGiftCertificateTags(Long id);
+
+    /**
+     * Retrieve tags by gift certificate id.
+     *
+     * @param giftCertificateId the gift certificate id
+     * @return the list of tags
+     */
+    List<Tag> retrieveTagsByGiftCertificateId(Long giftCertificateId);
 }

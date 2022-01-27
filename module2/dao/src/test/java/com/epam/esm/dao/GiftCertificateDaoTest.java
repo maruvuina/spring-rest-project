@@ -2,11 +2,16 @@ package com.epam.esm.dao;
 
 import com.epam.esm.dao.entity.GiftCertificate;
 import com.epam.esm.dao.entity.Tag;
-import com.epam.esm.dao.util.GiftCertificateParameter;
-import com.epam.esm.dao.util.Page;
+import com.epam.esm.dao.impl.GiftCertificateDaoImpl;
 import org.hamcrest.collection.IsEmptyCollection;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -16,25 +21,29 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class GiftCertificateDaoTest {
 
-    private final GiftCertificateDao giftCertificateDaoMock = mock(GiftCertificateDao.class);
+    private EmbeddedDatabase database;
+    private GiftCertificateDao giftCertificateDao;
     private GiftCertificate giftCertificate;
     private final Long giftCertificateId = 1L;
     private final String giftCertificateName = "Новогодний обед";
 
     @BeforeEach
     void setUp() {
-        Tag tag = new Tag();
-        tag.setId(1L);
-        tag.setName("подаркинановыйгод");
+        database = new EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .addScript("create-database.sql")
+                .addScript("insert-data.sql")
+                .build();
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(database);
+        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(database);
+        Tag tag = new Tag(1L, "подаркинановыйгод");
         List<Tag> tags = new ArrayList<>();
         tags.add(tag);
         giftCertificate = new GiftCertificate();
@@ -46,68 +55,49 @@ class GiftCertificateDaoTest {
         giftCertificate.setCreateDate(Instant.now());
         giftCertificate.setLastUpdateDate(Instant.now());
         giftCertificate.setTags(tags);
+        giftCertificateDao = new GiftCertificateDaoImpl(jdbcTemplate, namedParameterJdbcTemplate);
+    }
+
+    @AfterEach
+    void tearDown() {
+        database.shutdown();
     }
 
     @Test
     void create() {
-        when(giftCertificateDaoMock.create(giftCertificate)).thenReturn(giftCertificate);
-        GiftCertificate actual = giftCertificateDaoMock.create(giftCertificate);
-        assertEquals(giftCertificateId, actual.getId());
+        GiftCertificate actual = giftCertificateDao.create(giftCertificate).get();
+        Long expected = 2L;
+        assertEquals(expected, actual.getId());
         assertEquals(giftCertificate.getName(), actual.getName());
     }
 
     @Test
     void delete() {
-        doNothing().when(giftCertificateDaoMock).delete(giftCertificate);
-        giftCertificateDaoMock.delete(giftCertificate);
-        verify(giftCertificateDaoMock,times(1)).delete(giftCertificate);
+        GiftCertificateDao giftCertificateDaoMock = mock(GiftCertificateDao.class);
+        doNothing().when(giftCertificateDaoMock).delete(giftCertificateId);
+        giftCertificateDaoMock.delete(giftCertificateId);
+        verify(giftCertificateDaoMock,times(1)).delete(giftCertificateId);
     }
 
     @Test
     void findById() {
-        when(giftCertificateDaoMock.findById(giftCertificateId))
-                .thenReturn(java.util.Optional.ofNullable(giftCertificate));
-        GiftCertificate actual = giftCertificateDaoMock.findById(giftCertificateId).get();
+        GiftCertificate actual = giftCertificateDao.findById(1L).get();
         assertEquals(giftCertificateId, actual.getId());
         assertEquals(giftCertificateName, actual.getName());
     }
 
     @Test
     void findGiftCertificatesByParameter() {
-        List<GiftCertificate> gifts = new ArrayList<>();
-        gifts.add(giftCertificate);
-        Page page = new Page(0, 1);
-        GiftCertificateParameter giftCertificateParameter = new GiftCertificateParameter();
-        when(giftCertificateDaoMock.findGiftCertificatesByParameter(page, giftCertificateParameter))
-                .thenReturn(gifts);
-        List<GiftCertificate> actual = giftCertificateDaoMock
-                .findGiftCertificatesByParameter(page, giftCertificateParameter);
+        String query = "SELECT g.id, g.name, description, price, duration, create_date, last_update_date " +
+                "FROM gift_certificate AS g";
+        List<GiftCertificate> actual = giftCertificateDao.findGiftCertificatesByParameter(query, new ArrayList<>());
         assertThat(actual, not(IsEmptyCollection.empty()));
     }
 
     @Test
     void update() {
-        when(giftCertificateDaoMock.update(giftCertificate)).thenReturn(giftCertificate);
-        GiftCertificate actual = giftCertificateDaoMock.update(giftCertificate);
+        GiftCertificate actual = giftCertificateDao.update(giftCertificateId, giftCertificate).get();
         assertEquals(giftCertificateId, actual.getId());
         assertEquals(giftCertificateName, actual.getName());
-    }
-
-    @Test
-    void existsByName() {
-        when(giftCertificateDaoMock.existsByName(giftCertificateName)).thenReturn(true);
-        assertTrue(giftCertificateDaoMock.existsByName(giftCertificateName));
-    }
-
-    @Test
-    void existsByNameUpdate() {
-        when(giftCertificateDaoMock.existsByNameUpdate(giftCertificateName, giftCertificateId)).thenReturn(true);
-        assertTrue(giftCertificateDaoMock.existsByNameUpdate(giftCertificateName, giftCertificateId));
-    }
-
-    @Test
-    void existsInOrder() {
-        when(giftCertificateDaoMock.existsInOrder(giftCertificateId)).thenReturn(true);
-        assertTrue(giftCertificateDaoMock.existsInOrder(giftCertificateId));
     }
 }

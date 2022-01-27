@@ -1,15 +1,13 @@
 ext {
-    hibernate_version = '5.6.2.Final'
     postgresql_version = '42.3.1'
     annotations_version = '12.0'
 }
 
 dependencies {
-    implementation group: 'org.hibernate', name: 'hibernate-core', version: hibernate_version
+    implementation group: 'org.springframework', name: 'spring-jdbc', version: spring_version
     implementation group: 'org.postgresql', name: 'postgresql', version: postgresql_version
     implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.0'
     implementation group: 'com.intellij', name: 'annotations', version: annotations_version
-    annotationProcessor group: 'org.hibernate', name: 'hibernate-jpamodelgen', version: '5.6.3.Final'
+    testImplementation group: 'com.h2database', name: 'h2', version: '2.0.202'
     testImplementation group: 'org.hamcrest', name: 'hamcrest-library', version: '2.2'
-    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.6.2'
 }

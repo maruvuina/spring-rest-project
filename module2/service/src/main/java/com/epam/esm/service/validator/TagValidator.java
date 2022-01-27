@@ -5,4 +5,4 @@ import com.epam.esm.service.dto.TagDto;
 /**
  * This is an interface for validation operations of Tag entity.
  */
-public interface TagValidator extends Validator<TagDto>, NameValidator {}
+public interface TagValidator extends Validator<TagDto> {}

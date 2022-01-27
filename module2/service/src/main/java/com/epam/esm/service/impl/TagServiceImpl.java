@@ -2,9 +2,7 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.dao.TagDao;
 import com.epam.esm.dao.entity.Tag;
-import com.epam.esm.dao.util.Page;
 import com.epam.esm.service.TagService;
-import com.epam.esm.service.UserService;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.mapper.TagMapper;
@@ -12,16 +10,14 @@ import com.epam.esm.service.validator.TagValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.epam.esm.service.exception.ErrorCode.ERROR_201404;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_202404;
-import static com.epam.esm.service.exception.ErrorCode.ERROR_203404;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_202400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_203400;
 import static com.epam.esm.service.exception.ErrorCode.ERROR_204400;
+import static com.epam.esm.service.exception.ErrorCode.ERROR_205400;
 
 @Slf4j
 @Service
@@ -31,39 +27,38 @@ public class TagServiceImpl implements TagService {
     private final TagDao tagDao;
     private final TagMapper tagMapper;
     private final TagValidator tagValidator;
-    private final UserService userService;
 
     @Override
-    @Transactional
     public TagDto create(TagDto tagDto) {
         tagValidator.validate(tagDto);
-        if (existsByName(tagDto.getName())) {
-            throw new ServiceException(ERROR_204400, tagDto.getName());
-        }
-        Tag createdTag = tagDao.create(tagMapper.mapTo(tagDto));
-        return tagMapper.mapToDto(createdTag);
+        Tag createdTag = retrieveCreatedTag(tagDto);
+        return tagMapper.mapToTagDto(createdTag);
     }
 
     @Override
-    @Transactional
     public void delete(Long id) {
-        Tag tag = retrieveSavedTag(id);
+        tagValidator.validatedIdPathVariable(id);
         existsInGiftCertificateTag(id);
-        tagDao.delete(tag);
+        tagDao.delete(id);
         log.info("Tag deleted with id = {}", id);
     }
 
     @Override
-    public List<TagDto> retrieveAll(Page page) {
-        return tagDao.findAll(page)
+    public List<TagDto> retrieveAll() {
+        return tagDao.findAll()
                 .stream()
-                .map(tagMapper::mapToDto)
+                .map(tagMapper::mapToTagDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public TagDto retrieveById(Long id) {
-        return tagMapper.mapToDto(retrieveSavedTag(id));
+        tagValidator.validatedIdPathVariable(id);
+        return tagMapper.mapToTagDto(tagDao.findById(id)
+                .orElseThrow(() -> {
+                    log.error("An error occurred while getting tag by id = {}", id);
+                    return new ServiceException(ERROR_202400, String.valueOf(id));
+                }));
     }
 
     @Override
@@ -74,45 +69,35 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<TagDto> retrieveTagsByGiftCertificateId(Long id) {
+        tagValidator.validatedIdPathVariable(id);
         return tagDao.findTagsByGiftCertificateId(id)
                 .stream()
-                .map(tagMapper::mapToDto)
+                .map(tagMapper::mapToTagDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public TagDto retrieveByName(String name) {
         tagValidator.validateName(name);
-        return tagMapper.mapToDto(tagDao.findByName(name)
+        return tagMapper.mapToTagDto(tagDao.findByName(name)
                 .orElseThrow(() -> {
-                    log.error("There is no tag with name = {}", name);
-                    return new ServiceException(ERROR_202404, name);
+                    log.error("An error occurred while getting tag by name = {}", name);
+                    return new ServiceException(ERROR_203400, name);
                 }));
     }
 
-    @Override
-    public TagDto retrieveMostPopularUserTagByUserId(Long userId) {
-        userService.checkIfUserExistsById(userId);
-        userService.checkIfUserMakeOrders(userId);
-        return tagMapper.mapToDto(tagDao.findMostPopularUserTagByUserId(userId)
+    private Tag retrieveCreatedTag(TagDto tagDto) {
+        return tagDao.create(tagMapper.mapToTag(tagDto))
                 .orElseThrow(() -> {
-                    log.error("User with id = {} does not have the most popular tag", userId);
-                    return new ServiceException(ERROR_203404, String.valueOf(userId));
-                }));
+                    log.error("An error occurred while saving the tag");
+                    return new ServiceException(ERROR_204400);
+                });
     }
 
     private void existsInGiftCertificateTag(Long id) {
         if (tagDao.existsInGiftCertificateTag(id)) {
             log.error("Tag cannot be deleted because there is a link to it");
-            throw new ServiceException(ERROR_202400, String.valueOf(id));
+            throw new ServiceException(ERROR_205400, String.valueOf(id));
         }
-    }
-
-    private Tag retrieveSavedTag(Long id) {
-        return tagDao.findById(id)
-                .orElseThrow(() -> {
-                    log.error("There is no tag with id = {}", id);
-                    return new ServiceException(ERROR_201404, String.valueOf(id));
-                });
     }
 }

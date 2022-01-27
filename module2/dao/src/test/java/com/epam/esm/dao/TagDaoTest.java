@@ -1,65 +1,92 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.dao.entity.Tag;
+import com.epam.esm.dao.impl.TagDaoImpl;
+import org.hamcrest.collection.IsEmptyCollection;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class TagDaoTest {
 
-    private final TagDao tagDaoMock = mock(TagDao.class);
+    private EmbeddedDatabase database;
+    private TagDao tagDao;
+    private final String tagName = "новыйгод";
     private final Long tagId = 1L;
-    private final String tagName = "подаркинановыйгод";
     private Tag tag;
 
     @BeforeEach
     void setUp() {
-        tag = new Tag();
-        tag.setId(tagId);
-        tag.setName(tagName);
+        database = new EmbeddedDatabaseBuilder()
+                .setType(EmbeddedDatabaseType.H2)
+                .addScript("create-database.sql")
+                .addScript("insert-data.sql")
+                .build();
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(database);
+        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(database);
+        tagDao = new TagDaoImpl(jdbcTemplate, namedParameterJdbcTemplate);
+        tag = new Tag(10L, "подаркинановыйгод");
+    }
+
+    @AfterEach
+    void tearDown() {
+        database.shutdown();
     }
 
     @Test
     void create() {
-        when(tagDaoMock.create(tag)).thenReturn(tag);
-        Tag actual = tagDaoMock.create(tag);
-        assertEquals(tagId, actual.getId());
+        Tag actual = tagDao.create(tag).get();
+        Long expected = 3L;
+        assertEquals(expected, actual.getId());
         assertEquals(tag.getName(), actual.getName());
     }
 
     @Test
     void delete() {
-        doNothing().when(tagDaoMock).delete(tag);
-        tagDaoMock.delete(tag);
-        verify(tagDaoMock, times(1)).delete(tag);
+        TagDao tagDaoMock = mock(TagDao.class);
+        doNothing().when(tagDaoMock).delete(tagId);
+        tagDaoMock.delete(tagId);
+        verify(tagDaoMock,times(1)).delete(tagId);
     }
 
     @Test
     void findById() {
-        when(tagDaoMock.findById(tagId)).thenReturn(java.util.Optional.ofNullable(tag));
-        Tag actual = tagDaoMock.findById(tagId).get();
+        Tag actual = tagDao.findById(tagId).get();
         assertEquals(tagId, actual.getId());
         assertEquals(tagName, actual.getName());
     }
 
     @Test
     void findByName() {
-        when(tagDaoMock.findByName(tagName)).thenReturn(java.util.Optional.ofNullable(tag));
-        Tag actual = tagDaoMock.findByName(tagName).get();
+        Tag actual = tagDao.findByName(tagName).get();
         assertEquals(tagId, actual.getId());
         assertEquals(tagName, actual.getName());
     }
 
     @Test
+    void findTagsByGiftCertificateId() {
+        List<Tag> actual = tagDao.findTagsByGiftCertificateId(1L);
+        assertThat(actual, not(IsEmptyCollection.empty()));
+    }
+
+    @Test
     void existsByName() {
-        when(tagDaoMock.existsByName(tagName)).thenReturn(true);
-        assertTrue(tagDaoMock.existsByName(tagName));
+        assertTrue(tagDao.existsByName(tagName));
     }
 }
