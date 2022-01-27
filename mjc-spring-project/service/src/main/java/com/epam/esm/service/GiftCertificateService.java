@@ -10,7 +10,7 @@ import java.util.List;
  * This is an interface for service operations of Gift certificate entity.
  */
 public interface GiftCertificateService extends CreateService<GiftCertificateDto>,
-        DeleteService<GiftCertificateDto>, GetService<GiftCertificateDto> {
+        GetService<GiftCertificateDto>, DeleteService<GiftCertificateDto> {
 
     /**
      * Update gift certificate.

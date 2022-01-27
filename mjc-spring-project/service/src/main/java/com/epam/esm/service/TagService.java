@@ -8,7 +8,7 @@ import java.util.List;
  * This is an interface for service operations of Tag entity.
  */
 public interface TagService extends CreateService<TagDto>,
-        DeleteService<TagDto>, GetService<TagDto> {
+        GetService<TagDto>, DeleteService<TagDto> {
 
     /**
      * Exists by name.
