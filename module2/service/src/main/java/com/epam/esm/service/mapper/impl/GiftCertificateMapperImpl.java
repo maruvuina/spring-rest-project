@@ -22,6 +22,8 @@ public class GiftCertificateMapperImpl implements GiftCertificateMapper {
     public GiftCertificate mapToGiftCertificateForOrder(GiftCertificateDto giftCertificateDto) {
         GiftCertificate giftCertificate = mapTo(giftCertificateDto);
         giftCertificate.setTags(retrieveTagsToGiftCertificate(giftCertificateDto.getTags()));
+        giftCertificate.setCreateDate(giftCertificateDto.getCreateDate());
+        giftCertificate.setLastUpdateDate(giftCertificateDto.getLastUpdateDate());
         return giftCertificate;
     }
 
