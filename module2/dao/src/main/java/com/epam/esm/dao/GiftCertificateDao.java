@@ -1,46 +1,51 @@
 package com.epam.esm.dao;
 
 import com.epam.esm.dao.entity.GiftCertificate;
-import com.epam.esm.dao.entity.Tag;
+import com.epam.esm.dao.util.GiftCertificateParameter;
+import com.epam.esm.dao.util.Page;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * This is an interface for dao operations of Gift certificate entity.
  */
-public interface GiftCertificateDao extends AbstractDao<GiftCertificate> {
+public interface GiftCertificateDao extends CreateDao<GiftCertificate>,
+        DeleteDao<GiftCertificate>, GetDao<GiftCertificate> {
+
+    GiftCertificate update(GiftCertificate giftCertificate);
 
     /**
      * Find gift certificates by parameter.
      *
-     * @param query     the query
-     * @param parameter the parameter
+     * @param page                     the page
+     * @param giftCertificateParameter the gift certificate parameter
      * @return the list of gift certificates
      */
-    List<GiftCertificate> findGiftCertificatesByParameter(String query, List<String> parameter);
+    List<GiftCertificate> findGiftCertificatesByParameter(Page page,
+                                                          GiftCertificateParameter giftCertificateParameter);
 
     /**
-     * Update optional.
+     * Exists gift certificate by name.
      *
-     * @param id              the id
-     * @param giftCertificate the gift certificate
-     * @return the optional of gift certificate
+     * @param name the name
+     * @return the boolean
      */
-    Optional<GiftCertificate> update(Long id, GiftCertificate giftCertificate);
+    boolean existsByName(String name);
 
     /**
-     * Clear gift certificate tags.
+     * Exists gift certificate by name for update.
+     *
+     * @param name the name
+     * @param id   the id
+     * @return the boolean
+     */
+    boolean existsByNameUpdate(String name, Long id);
+
+    /**
+     * Exists in order.
      *
      * @param id the id
+     * @return the boolean
      */
-    void clearGiftCertificateTags(Long id);
-
-    /**
-     * Retrieve tags by gift certificate id.
-     *
-     * @param giftCertificateId the gift certificate id
-     * @return the list of tags
-     */
-    List<Tag> retrieveTagsByGiftCertificateId(Long giftCertificateId);
+    boolean existsInOrder(Long id);
 }

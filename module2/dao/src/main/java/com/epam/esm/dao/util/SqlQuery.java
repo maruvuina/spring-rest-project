@@ -6,77 +6,89 @@ public final class SqlQuery {
 
     private SqlQuery() {}
 
-    @Language("PostgreSQL")
-    public static final String TAG_CREATE = "INSERT INTO tag (name) VALUES (:name)";
+    @Language("JPAQL")
+    public static final String TAG_FIND_ALL = "select distinct t from Tag t order by t.id";
 
-    @Language("PostgreSQL")
-    public static final String TAG_DELETE = "DELETE FROM tag WHERE id = ?";
+    @Language("JPAQL")
+    public static final String TAG_FIND_BY_NAME = "select t from Tag t where t.name = :name";
 
-    @Language("PostgreSQL")
-    public static final String TAG_FIND_BY_ID = "SELECT id, name FROM tag WHERE id = ?";
-
-    @Language("PostgreSQL")
-    public static final String TAG_FIND_ALL = "SELECT id, name FROM tag";
-
-    @Language("PostgreSQL")
-    public static final String TAG_FIND_BY_NAME = "SELECT id, name FROM tag WHERE name = ?";
-
-    @Language("PostgreSQL")
-    public static final String GIFT_CERTIFICATE_CREATE =
-            "INSERT INTO gift_certificate (name, description, price, duration, create_date, last_update_date) " +
-                    "VALUES (:name, :description, :price, :duration, :create_date, :last_update_date)";
-
-    @Language("PostgreSQL")
-    public static final String GIFT_CERTIFICATE_FIND_BY_ID =
-            "SELECT id, name, description, price, duration, create_date, last_update_date " +
-                    "FROM gift_certificate WHERE id = ?";
-
-    @Language("PostgreSQL")
-    public static final String GIFT_CERTIFICATE_FIND_ALL =
-            "SELECT id, name, description, price, duration, create_date, last_update_date " +
-                    "FROM gift_certificate";
-
-    @Language("PostgreSQL")
-    public static final String GIFT_CERTIFICATE_DELETE = "DELETE FROM gift_certificate WHERE id = ?";
-
-    @Language("PostgreSQL")
-    public static final String GIFT_CERTIFICATE_UPDATE =
-            "UPDATE gift_certificate SET name = :name, description = :description, " +
-                    "price = :price, duration = :duration, " +
-                    "last_update_date = :last_update_date WHERE id = :id";
-
-    @Language("PostgreSQL")
-    public static final String GIFT_CERTIFICATE_TAG_CREATE =
-            "INSERT INTO gift_certificate_tag (gift_certificate_id, tag_id) VALUES (?, ?)";
-
-    @Language("PostgreSQL")
     public static final String TAG_FIND_BY_GIFT_CERTIFICATE_ID =
-            "SELECT id, name " +
-                    "FROM tag " +
-                    "INNER JOIN gift_certificate_tag gct on tag.id = gct.tag_id " +
-                    "WHERE gift_certificate_id = ?";
+            "select t from Tag t " +
+                    "inner join t.giftCertificates g " +
+                    "where g.id = :id";
 
-    @Language("PostgreSQL")
+    @Language("JPAQL")
     public static final String TAG_EXISTS =
-            "SELECT exists(SELECT 1 FROM tag WHERE name = ?)";
-
-    @Language("PostgreSQL")
-    public static final String GIFT_CERTIFICATE_TAG_EXISTS =
-            "SELECT exists (SELECT 1 FROM gift_certificate_tag " +
-                    "WHERE gift_certificate_id = ? AND tag_id = ?)";
+            "select case when count(t) > 0 then true else false end from Tag t where t.name = :name";
 
     @Language("PostgreSQL")
     public static final String TAG_EXISTS_IN_GIFT_CERTIFICATE_TAG =
-            "SELECT exists (SELECT 1 FROM gift_certificate_tag WHERE tag_id = ?)";
+            "SELECT exists (SELECT 1 FROM gift_certificate_tag WHERE tag_id = :id)";
+
+    @Language("JPAQL")
+    public static final String GIFT_CERTIFICATE_FIND_ALL = "select distinct g from GiftCertificate g order by g.id";
+
+    @Language("JPAQL")
+    public static final String USER_FIND_ALL = "select distinct u from User u order by u.id";
+
+    @Language("JPAQL")
+    public static final String ORDER_FIND_ALL = "select distinct o from Order o order by o.id";
+
+    public static final String ORDER_FIND_BY_USER_ID =
+            "select o from Order o " +
+                    "inner join o.user u " +
+                    "where u.id = :id";
 
     @Language("PostgreSQL")
-    public static final String CLEAR_TAGS_BY_GIFT_CERTIFICATE_ID =
-            "DELETE FROM gift_certificate_tag WHERE gift_certificate_id = ?";
+    public static final String FIND_MOST_POPULAR_USER_TAG =
+            "SELECT tag.id, tag.name " +
+            "FROM tag " +
+            "WHERE tag.id = " +
+                "(SELECT gt.tag_id " +
+                "FROM order_table AS o " +
+                "INNER JOIN gift_certificate_tag AS gt ON o.id_gift_certificate = gt.gift_certificate_id " +
+                "INNER JOIN gift_certificate AS g ON g.id = gt.gift_certificate_id " +
+                "WHERE o.id_user = :id AND gt.tag_id IN " +
+                        "(SELECT tags.ti " +
+                        " FROM " +
+                        " ( SELECT tcota.ti, tcota.count_of_tag_appears " +
+                        "   FROM " +
+                        "    ( SELECT gt.tag_id AS ti, COUNT(gt.tag_id) AS count_of_tag_appears " +
+                        "     FROM order_table AS o " +
+                        "     INNER JOIN gift_certificate_tag AS gt ON o.id_gift_certificate = gt.gift_certificate_id " +
+                        "     WHERE o.id_user = :id " +
+                        "     GROUP BY gt.tag_id ) as tcota " +
+                        "     WHERE tcota.count_of_tag_appears = " +
+                        "       ( SELECT MAX(ticota.count_of_tag_appears) AS m " +
+                        "        FROM " +
+                        "         ( SELECT COUNT(gt.tag_id) AS count_of_tag_appears " +
+                        "          FROM order_table AS o " +
+                        "          INNER JOIN gift_certificate_tag AS gt ON o.id_gift_certificate = " +
+                        "gt.gift_certificate_id " +
+                        "          WHERE o.id_user = :id " +
+                        "          GROUP BY gt.tag_id " +
+                        "          ORDER BY count_of_tag_appears ) AS ticota ) ) AS tags) " +
+                "GROUP BY gt.tag_id " +
+                "ORDER BY SUM(g.price) DESC " +
+                "LIMIT 1)";
 
-    @Language("PostgreSQL")
-    public static final String RETRIEVE_TAGS_BY_GIFT_CERTIFICATE_ID =
-            "SELECT t.id, t.name FROM tag AS t " +
-                    "INNER JOIN gift_certificate_tag AS gct ON gct.tag_id = t.id " +
-                    "INNER JOIN gift_certificate AS g ON g.id = gct.gift_certificate_id " +
-                    "WHERE g.id = ?";
+    public static final String HAS_USER_ORDERS =
+            "select case when count(o) > 0 then true else false end from Order o where o.user.id = :id";
+
+    @Language("JPAQL")
+    public static final String GIFT_CERTIFICATE_EXISTS =
+            "select case when count(g) > 0 then true else false end from GiftCertificate g where g.name = :name";
+
+    @Language("JPAQL")
+    public static final String GIFT_CERTIFICATE_EXISTS_UPDATE =
+            "select case when count(g) > 0 then true else false end " +
+                    "from GiftCertificate g where g.name = :name and g.id <> :id";
+
+    @Language("JPAQL")
+    public static final String USER_EXISTS =
+            "select case when count(u) > 0 then true else false end from User u where u.id = :id";
+
+    public static final String GIFT_CERTIFICATE_EXISTS_IN_ORDER =
+            "select case when count(o.giftCertificate.id) > 0 then true else false end " +
+                    "from Order o where o.giftCertificate.id = :id";
 }

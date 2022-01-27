@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * This is an interface for dao operations of Tag entity.
  */
-public interface TagDao extends AbstractDao<Tag> {
+public interface TagDao extends CreateDao<Tag>, DeleteDao<Tag>, GetDao<Tag> {
 
     /**
      * Find tag by name.
@@ -41,4 +41,12 @@ public interface TagDao extends AbstractDao<Tag> {
      * @return the boolean
      */
     boolean existsInGiftCertificateTag(Long tagId);
+
+    /**
+     * Find most popular user tag by user id.
+     *
+     * @param userId the user id
+     * @return the optional tag
+     */
+    Optional<Tag> findMostPopularUserTagByUserId(Long userId);
 }

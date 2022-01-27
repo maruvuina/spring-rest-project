@@ -4,6 +4,7 @@ import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.validator.TagValidator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import static com.epam.esm.service.exception.ErrorCode.ERROR_201400;
@@ -19,14 +20,15 @@ public class TagValidatorImpl implements TagValidator {
     public void validate(TagDto tagDto) {
         validateIdWhenCreate(tagDto.getId());
         validateName(tagDto.getName());
+        tagDto.setName(StringUtils.strip(tagDto.getName()).toLowerCase());
     }
 
     @Override
     public void validateName(String name) {
-        if (name == null || name.isBlank() ||
+        if (StringUtils.isBlank(name) ||
                 !(name.length() >= STRING_MIN_LENGTH && name.length() <= STRING_MAX_LENGTH)) {
             log.error("Invalid tag name = {}", name);
-            throw new ServiceException(ERROR_201400);
+            throw new ServiceException(ERROR_201400, name);
         }
     }
 }
