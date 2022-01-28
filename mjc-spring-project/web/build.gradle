@@ -11,5 +11,6 @@ dependencies {
     implementation project (':service')
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: spring_boot_version
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: spring_boot_version
+    //implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: spring_boot_version
     implementation group: 'org.atteo', name: 'evo-inflector', version: '1.3'
 }

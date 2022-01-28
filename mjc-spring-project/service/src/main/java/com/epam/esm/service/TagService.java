@@ -21,10 +21,10 @@ public interface TagService extends CreateService<TagDto>,
     /**
      * Retrieve tags by gift certificate id.
      *
-     * @param id the id
+     * @param giftCertificateId the giftCertificate id
      * @return the list of tag dto
      */
-    List<TagDto> retrieveTagsByGiftCertificateId(Long id);
+    List<TagDto> retrieveTagsByGiftCertificateId(Long giftCertificateId);
 
     /**
      * Retrieve by name tag.

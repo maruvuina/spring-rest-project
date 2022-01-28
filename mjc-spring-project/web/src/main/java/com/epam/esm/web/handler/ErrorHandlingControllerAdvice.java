@@ -60,11 +60,11 @@ public class ErrorHandlingControllerAdvice {
         return retrieveExceptionErrorApi(ErrorCode.ERROR_001400.getValue());
     }
 
-    @ExceptionHandler({Exception.class})
-    public ResponseEntity<ErrorApi> handleException(Exception ex) {
-        log.error(ex.getLocalizedMessage());
-        return retrieveExceptionErrorApi(ErrorCode.ERROR_000500.getValue());
-    }
+//    @ExceptionHandler({Exception.class})
+//    public ResponseEntity<ErrorApi> handleException(Exception ex) {
+//        log.error(ex.getLocalizedMessage());
+//        return retrieveExceptionErrorApi(ErrorCode.ERROR_000500.getValue());
+//    }
 
     private ResponseEntity<ErrorApi> retrieveExceptionErrorApi(String errorCode, HttpStatus httpStatus) {
         return retrieveErrorApi(errorCode, httpStatus);
