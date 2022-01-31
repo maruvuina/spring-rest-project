@@ -12,6 +12,7 @@ import com.epam.esm.service.mapper.TagMapper;
 import com.epam.esm.service.validator.TagValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ public class TagServiceImpl implements TagService {
     @Transactional
     public TagDto create(TagDto tagDto) {
         tagValidator.validate(tagDto);
+        tagDto.setName(StringUtils.strip(tagDto.getName()).toLowerCase());
         if (existsByName(tagDto.getName())) {
             log.error("Tag with name '{}' already exists", tagDto.getName());
             throw new ServiceException(ERROR_204400, tagDto.getName());
@@ -75,15 +77,6 @@ public class TagServiceImpl implements TagService {
     public boolean existsByName(String name) {
         tagValidator.validateName(name);
         return tagRepository.existsByName(name);
-    }
-
-    //delete
-    @Override
-    public List<TagDto> retrieveTagsByGiftCertificateId(Long giftCertificateId) {
-        return tagRepository.findByGiftCertificateId(giftCertificateId)
-                .stream()
-                .map(tagMapper::mapToDto)
-                .collect(Collectors.toList());
     }
 
     @Override

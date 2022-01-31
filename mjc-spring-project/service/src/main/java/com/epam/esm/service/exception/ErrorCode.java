@@ -11,6 +11,8 @@ public enum ErrorCode {
     ERROR_001400("001400"),
     ERROR_002400("002400"),
 
+    ERROR_000403("000403"),
+
     ERROR_101404("101404"),
     ERROR_101400("101400"),
     ERROR_102400("102400"),
@@ -34,9 +36,11 @@ public enum ErrorCode {
     ERROR_301400("301400"),
     ERROR_302400("302400"),
     ERROR_301404("301404"),
+    ERROR_302404("302404"),
 
     ERROR_401404("401404"),
-    ERROR_402404("402404");
+    ERROR_402404("402404"),
+    ERROR_401400("401400");
 
     private final String value;
 

@@ -32,6 +32,8 @@ public class Tag {
     private Long id;
     @Column(nullable = false, unique = true)
     private String name;
+    @Column(name = "is_deleted")
+    private boolean isDeleted = Boolean.FALSE;
     @ManyToMany(mappedBy = "tags")
     private List<GiftCertificate> giftCertificates;
 

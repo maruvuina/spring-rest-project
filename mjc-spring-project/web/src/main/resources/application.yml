@@ -12,3 +12,8 @@ spring:
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
+
+jwt:
+  header: Authorization
+  secret: epam
+  expiration: 604800

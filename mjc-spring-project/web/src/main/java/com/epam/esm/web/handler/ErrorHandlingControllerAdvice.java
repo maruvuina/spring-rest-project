@@ -8,22 +8,31 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.validation.ConstraintViolationException;
 
+@Slf4j
 @RequiredArgsConstructor
 @ControllerAdvice
-@Slf4j
 public class ErrorHandlingControllerAdvice {
 
     private final ExceptionMessageTranslator exceptionMessageTranslator;
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorApi> handleConstraintViolationException(ConstraintViolationException ex) {
+        log.error(ex.getLocalizedMessage());
+        return new ResponseEntity<>(new ErrorApi(ex.getLocalizedMessage(), ErrorCode.ERROR_000400.getValue()),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorApi> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         log.error(ex.getLocalizedMessage());
         return new ResponseEntity<>(new ErrorApi(ex.getLocalizedMessage(), ErrorCode.ERROR_000400.getValue()),
                 HttpStatus.BAD_REQUEST);
@@ -60,11 +69,18 @@ public class ErrorHandlingControllerAdvice {
         return retrieveExceptionErrorApi(ErrorCode.ERROR_001400.getValue());
     }
 
-//    @ExceptionHandler({Exception.class})
-//    public ResponseEntity<ErrorApi> handleException(Exception ex) {
-//        log.error(ex.getLocalizedMessage());
-//        return retrieveExceptionErrorApi(ErrorCode.ERROR_000500.getValue());
-//    }
+    @ExceptionHandler({AuthenticationException.class})
+    public ResponseEntity<ErrorApi> handleAuthenticationException(AuthenticationException ex) {
+        log.error(ex.getLocalizedMessage());
+        return new ResponseEntity<>(new ErrorApi(ex.getLocalizedMessage(), ErrorCode.ERROR_000403.getValue()),
+                HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler({Exception.class})
+    public ResponseEntity<ErrorApi> handleException(Exception ex) {
+        log.error(ex.getLocalizedMessage());
+        return retrieveExceptionErrorApi(ErrorCode.ERROR_000500.getValue());
+    }
 
     private ResponseEntity<ErrorApi> retrieveExceptionErrorApi(String errorCode, HttpStatus httpStatus) {
         return retrieveErrorApi(errorCode, httpStatus);

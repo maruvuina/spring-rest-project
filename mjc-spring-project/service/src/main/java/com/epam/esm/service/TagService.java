@@ -2,8 +2,6 @@ package com.epam.esm.service;
 
 import com.epam.esm.service.dto.TagDto;
 
-import java.util.List;
-
 /**
  * This is an interface for service operations of Tag entity.
  */
@@ -17,14 +15,6 @@ public interface TagService extends CreateService<TagDto>,
      * @return the boolean
      */
     boolean existsByName(String name);
-
-    /**
-     * Retrieve tags by gift certificate id.
-     *
-     * @param giftCertificateId the giftCertificate id
-     * @return the list of tag dto
-     */
-    List<TagDto> retrieveTagsByGiftCertificateId(Long giftCertificateId);
 
     /**
      * Retrieve by name tag.

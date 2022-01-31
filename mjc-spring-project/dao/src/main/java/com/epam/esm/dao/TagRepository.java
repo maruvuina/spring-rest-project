@@ -2,12 +2,15 @@ package com.epam.esm.dao;
 
 import com.epam.esm.dao.entity.Tag;
 import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -59,7 +62,8 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
      * @param name the name
      * @return the optional
      */
-    Optional<Tag> findByName(String name);
+    @Query("select t from Tag t where t.name = :name and t.isDeleted = false")
+    Optional<Tag> findByName(@Param("name") String name);
 
     /**
      * Exists by name.
@@ -68,15 +72,6 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
      * @return the boolean
      */
     boolean existsByName(String name);
-
-    /**
-     * Find by gift certificate id.
-     *
-     * @param giftCertificateId the gift certificate id
-     * @return the list
-     */
-    @Query("select t from Tag t inner join t.giftCertificates g where g.id = :giftCertificateId")
-    List<Tag> findByGiftCertificateId(@Param("giftCertificateId") Long giftCertificateId);
 
     /**
      * Exists in gift certificate tag table.
@@ -95,4 +90,36 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
      */
     @Query(value = FIND_MOST_POPULAR_USER_TAG, nativeQuery = true)
     Optional<Tag> findMostPopularUserTagByUserId(@Param("userId") Long userId);
+
+    /**
+     * Delete tag.
+     *
+     * @param tag Tag
+     */
+    @Override
+    @Query("update Tag t set t.isDeleted = true where t = :tag")
+    @Modifying
+    void delete(@NotNull @Param("tag") Tag tag);
+
+    /**
+     * Find all tags.
+     *
+     * @param pageable Pageable
+     * @return a page of tags
+     */
+    @NotNull
+    @Override
+    @Query("select t from Tag t where t.isDeleted = false")
+    Page<Tag> findAll(@NotNull Pageable pageable);
+
+    /**
+     * Find tag by id.
+     *
+     * @param id tag id
+     * @return the optional
+     */
+    @NotNull
+    @Override
+    @Query("select t from Tag t where t.id = :id and t.isDeleted = false")
+    Optional<Tag> findById(@NotNull @Param("id") Long id);
 }

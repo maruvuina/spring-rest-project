@@ -8,6 +8,7 @@ import com.epam.esm.web.hateoas.HateoasInformation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +43,7 @@ public class OrderController {
      */
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('users:makeOrder')")
     public OrderDto create(@Valid @RequestBody OrderCreateDto orderCreateDto) {
         OrderDto createdOrderDto = orderService.create(orderCreateDto);
         return hateoasInformation.addSelfLinkToOrder(createdOrderDto, createdOrderDto.getId());
@@ -55,6 +57,7 @@ public class OrderController {
      * @return the collection model of order dto
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('users:readAdmin')")
     public CollectionModel<OrderDto> retrieveAll(@RequestParam(defaultValue = "0", name = "page")
                                       @Min(0) @Max(Integer.MAX_VALUE) Integer pageNumber,
                                       @RequestParam(defaultValue = "3")
@@ -70,6 +73,7 @@ public class OrderController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
+    @PreAuthorize("hasAuthority('users:read')")
     public OrderDto retrieveById(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
         return hateoasInformation.addSelfLinkToOrder(orderService.retrieveById(id), id);
     }
@@ -82,6 +86,7 @@ public class OrderController {
      */
     @GetMapping("/users/{id}")
     @ResponseStatus(code = HttpStatus.OK)
+    @PreAuthorize("hasAuthority('users:readAdmin')")
     public CollectionModel<OrderDto> retrieveByUserId(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long userId,
                                            @RequestParam(defaultValue = "0", name = "page")
                                            @Min(0) @Max(Integer.MAX_VALUE) Integer pageNumber,

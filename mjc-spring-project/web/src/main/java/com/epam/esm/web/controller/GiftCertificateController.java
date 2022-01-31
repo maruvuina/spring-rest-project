@@ -8,6 +8,7 @@ import com.epam.esm.web.hateoas.HateoasInformation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +45,7 @@ public class GiftCertificateController {
      */
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('users:write')")
     public GiftCertificateDto create(@RequestBody GiftCertificateDto giftCertificateDto) {
         GiftCertificateDto createdGiftCertificateDto = giftCertificateService.create(giftCertificateDto);
         return hateoasInformation.addSelfLinkToGiftCertificate(createdGiftCertificateDto,
@@ -57,6 +59,7 @@ public class GiftCertificateController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('users:modify')")
     public void delete(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
         giftCertificateService.delete(id);
     }
@@ -82,6 +85,7 @@ public class GiftCertificateController {
      */
     @PutMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
+    @PreAuthorize("hasAuthority('users:modify')")
     public GiftCertificateDto update(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
                                      @RequestBody GiftCertificateDto giftCertificate) {
         return hateoasInformation.addSelfLinkToGiftCertificate(giftCertificateService
@@ -97,6 +101,7 @@ public class GiftCertificateController {
      */
     @PatchMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
+    @PreAuthorize("hasAuthority('users:modify')")
     public GiftCertificateDto updatePart(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id,
                                          @RequestBody GiftCertificateDto giftCertificate) {
         return hateoasInformation.addSelfLinkToGiftCertificate(giftCertificateService

@@ -9,6 +9,8 @@ import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -33,4 +35,10 @@ public class User {
     private String password;
     @Column(nullable = false)
     private String name;
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
+    @Enumerated(value = EnumType.STRING)
+    @Column(name = "status")
+    private Status status;
 }

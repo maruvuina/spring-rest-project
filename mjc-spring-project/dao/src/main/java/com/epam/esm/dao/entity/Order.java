@@ -42,6 +42,8 @@ public class Order {
     private Instant purchaseDate;
     @Column(nullable = false)
     private BigDecimal cost;
+    @Column(name = "is_deleted")
+    private boolean isDeleted = Boolean.FALSE;
 
     @Override
     public String toString() {

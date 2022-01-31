@@ -51,6 +51,8 @@ public class GiftCertificate {
     private Instant createDate;
     @Column(name = "last_update_date", nullable = false)
     private Instant lastUpdateDate;
+    @Column(name = "is_deleted")
+    private boolean isDeleted = Boolean.FALSE;
     @ManyToMany(cascade = CascadeType.MERGE,
             fetch = FetchType.EAGER)
     @JoinTable(name = "gift_certificate_tag",

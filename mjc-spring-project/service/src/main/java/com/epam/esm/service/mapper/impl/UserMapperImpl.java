@@ -1,5 +1,7 @@
 package com.epam.esm.service.mapper.impl;
 
+import com.epam.esm.dao.entity.Role;
+import com.epam.esm.dao.entity.Status;
 import com.epam.esm.dao.entity.User;
 import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.mapper.UserMapper;
@@ -15,6 +17,8 @@ public class UserMapperImpl implements UserMapper {
                 .email(userDto.getEmail())
                 .password(userDto.getPassword())
                 .name(userDto.getName())
+                .role(Role.USER)
+                .status(Status.ACTIVE)
                 .build();
     }
 
@@ -25,6 +29,8 @@ public class UserMapperImpl implements UserMapper {
                 .email(user.getEmail())
                 .password(user.getPassword())
                 .name(user.getName())
+                .role(String.valueOf(user.getRole()))
+                .status(String.valueOf(user.getStatus()))
                 .build();
     }
 }
