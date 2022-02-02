@@ -9,6 +9,8 @@ import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.mapper.UserMapper;
 import com.epam.esm.service.security.jwt.JwtProvider;
+import com.epam.esm.service.validator.AuthenticationValidator;
+import com.epam.esm.service.validator.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,9 +31,12 @@ public class AuthServiceImpl implements AuthService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final UserValidator userValidator;
+    private final AuthenticationValidator authenticationValidator;
 
     @Override
     public AuthenticationResponse signup(UserDto userDto) {
+        userValidator.validate(userDto);
         String email = userDto.getEmail();
         if (userRepository.existsByEmail(email)) {
             log.error("User with email = '{}' already exists", email);
@@ -43,6 +48,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public AuthenticationResponse login(AuthenticationRequest authenticationRequest) {
+        authenticationValidator.validate(authenticationRequest);
         String email = authenticationRequest.getEmail();
         User user = userRepository.findByEmail(email).orElseThrow(() -> {
             log.error("There is no user with email = {}", email);
