@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -71,6 +72,13 @@ public class ErrorHandlingControllerAdvice {
 
     @ExceptionHandler({AuthenticationException.class})
     public ResponseEntity<ErrorApi> handleAuthenticationException(AuthenticationException ex) {
+        log.error(ex.getLocalizedMessage());
+        return new ResponseEntity<>(new ErrorApi(ex.getLocalizedMessage(), ErrorCode.ERROR_000403.getValue()),
+                HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler({AccessDeniedException.class})
+    public ResponseEntity<ErrorApi> handleAccessDeniedException(AccessDeniedException ex) {
         log.error(ex.getLocalizedMessage());
         return new ResponseEntity<>(new ErrorApi(ex.getLocalizedMessage(), ErrorCode.ERROR_000403.getValue()),
                 HttpStatus.FORBIDDEN);

@@ -24,26 +24,26 @@ public class UserValidatorImpl implements UserValidator {
         String email = userDto.getEmail();
         String password = userDto.getPassword();
         String name = userDto.getName();
-        if(validateParameter(email) && validateParameter(password) && validateParameter(name)) {
+        if(validateEmail(email) && validatePassword(password) && validateName(name)) {
             log.error("Invalid email = {} password = {} name = {}", email, password, name);
             throw new ServiceException(ERROR_505400, email + " : " + password + " : " + name);
         }
-        if (validateParameter(email)) {
+        if (validateEmail(email)) {
             log.error("Invalid email = {}", email);
-            throw new ServiceException(ERROR_501400, email);
+            throw new ServiceException(ERROR_501400);
         }
-        if (validateParameter(password)) {
+        if (validatePassword(password)) {
             log.error("Invalid password = {}", password);
             throw new ServiceException(ERROR_502400, password);
         }
-        if (validateParameter(name)) {
+        if (validateName(name)) {
             log.error("Invalid name = {}", name);
             throw new ServiceException(ERROR_503400, name);
         }
     }
 
-    private boolean validateParameter(String parameter) {
-        return StringUtils.isBlank(parameter) ||
-                !(parameter.length() >= STRING_MIN_LENGTH && parameter.length() <= STRING_MAX_LENGTH);
+    private boolean validateName(String name) {
+        return StringUtils.isBlank(name) ||
+                !(name.length() >= STRING_MIN_LENGTH && name.length() <= STRING_MAX_LENGTH);
     }
 }

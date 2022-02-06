@@ -3,6 +3,7 @@ package com.epam.esm.service.security.jwt;
 import com.epam.esm.service.exception.JwtAuthenticationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -36,9 +37,8 @@ public class JwtFilter extends GenericFilterBean {
             }
         } catch (JwtAuthenticationException e) {
             SecurityContextHolder.clearContext();
-            ((HttpServletResponse) response).sendError(e.getHttpStatus().value());
-            log.error("JWT is expired or invalid");
-            throw new JwtAuthenticationException("JWT is expired or invalid");
+            ((HttpServletResponse) response).sendError(HttpStatus.UNAUTHORIZED.value());
+            log.error(e.getLocalizedMessage());
         }
         chain.doFilter(request, response);
     }

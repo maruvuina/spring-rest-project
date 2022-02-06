@@ -4,12 +4,11 @@ import com.epam.esm.dao.UserRepository;
 import com.epam.esm.dao.entity.User;
 import com.epam.esm.service.AuthService;
 import com.epam.esm.service.dto.AuthenticationRequest;
-import com.epam.esm.service.dto.AuthenticationResponse;
 import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.mapper.UserMapper;
 import com.epam.esm.service.security.jwt.JwtProvider;
-import com.epam.esm.service.validator.AuthenticationValidator;
+import com.epam.esm.service.validator.AuthorizationValidator;
 import com.epam.esm.service.validator.UserValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +31,10 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final UserValidator userValidator;
-    private final AuthenticationValidator authenticationValidator;
+    private final AuthorizationValidator authorizationValidator;
 
     @Override
-    public AuthenticationResponse signup(UserDto userDto) {
+    public String signup(UserDto userDto) {
         userValidator.validate(userDto);
         String email = userDto.getEmail();
         if (userRepository.existsByEmail(email)) {
@@ -44,11 +43,11 @@ public class AuthServiceImpl implements AuthService {
         }
         userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         User user = userRepository.save(userMapper.mapTo(userDto));
-        return retrieveAuthenticationResponse(email, user.getRole().name());
+        return jwtProvider.generateToken(user);
     }
 
-    public AuthenticationResponse login(AuthenticationRequest authenticationRequest) {
-        authenticationValidator.validate(authenticationRequest);
+    public String login(AuthenticationRequest authenticationRequest) {
+        authorizationValidator.validate(authenticationRequest);
         String email = authenticationRequest.getEmail();
         User user = userRepository.findByEmail(email).orElseThrow(() -> {
             log.error("There is no user with email = {}", email);
@@ -56,14 +55,6 @@ public class AuthServiceImpl implements AuthService {
         });
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email,
                 authenticationRequest.getPassword()));
-        return retrieveAuthenticationResponse(email, user.getRole().name());
-    }
-
-    private AuthenticationResponse retrieveAuthenticationResponse(String email, String role) {
-        String token = jwtProvider.generateToken(email, role);
-        return AuthenticationResponse.builder()
-                .email(email)
-                .token(token)
-                .build();
+        return jwtProvider.generateToken(user);
     }
 }

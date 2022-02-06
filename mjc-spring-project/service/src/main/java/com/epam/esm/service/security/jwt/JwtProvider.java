@@ -1,5 +1,6 @@
 package com.epam.esm.service.security.jwt;
 
+import com.epam.esm.dao.entity.User;
 import com.epam.esm.service.exception.JwtAuthenticationException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -7,6 +8,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +26,7 @@ import java.util.Date;
 import static java.util.Date.from;
 import static org.springframework.util.StringUtils.hasText;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
@@ -39,9 +42,10 @@ public class JwtProvider {
     @Value("${jwt.expiration}")
     private Long jwtExpirationInMillis;
 
-    public String generateToken(String username, String role) {
-        Claims claims = Jwts.claims().setSubject(username);
-        claims.put("role", role);
+    public String generateToken(User user) {
+        Claims claims = Jwts.claims().setSubject(user.getEmail());
+        claims.put("id", user.getId());
+        claims.put("role", user.getRole().name());
         Date at = from(Instant.now());
         Date exp = from(Instant.now().plusMillis(jwtExpirationInMillis));
         return Jwts.builder()
@@ -57,7 +61,8 @@ public class JwtProvider {
             Jws<Claims> claimsJws = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
             return !claimsJws.getBody().getExpiration().before(from(Instant.now()));
         } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtAuthenticationException("JWT is expired or invalid", HttpStatus.UNAUTHORIZED);
+            log.error(e.getLocalizedMessage());
+            throw new JwtAuthenticationException("JWT is expired or invalid");
         }
     }
 

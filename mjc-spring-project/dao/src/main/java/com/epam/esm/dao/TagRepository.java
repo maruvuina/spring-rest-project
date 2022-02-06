@@ -25,9 +25,9 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
 
     @Language("PostgreSQL")
     String FIND_MOST_POPULAR_USER_TAG =
-            "SELECT tag.id, tag.name " +
-                    "FROM tag " +
-                    "WHERE tag.id = " +
+            "SELECT tag.id, tag.name, tag.is_deleted " +
+            "FROM tag " +
+            "WHERE tag.id = " +
                     "(SELECT gt.tag_id " +
                     "FROM order_table AS o " +
                     "INNER JOIN gift_certificate_tag AS gt ON o.id_gift_certificate = gt.gift_certificate_id " +
@@ -35,26 +35,27 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
                     "WHERE o.id_user = :userId AND gt.tag_id IN " +
                     "(SELECT tags.ti " +
                     " FROM " +
-                    " ( SELECT tcota.ti, tcota.count_of_tag_appears " +
+                    " (SELECT tcota.ti, tcota.count_of_tag_appears " +
                     "   FROM " +
-                    "    ( SELECT gt.tag_id AS ti, COUNT(gt.tag_id) AS count_of_tag_appears " +
+                    "    (SELECT gt.tag_id AS ti, COUNT(gt.tag_id) AS count_of_tag_appears " +
                     "     FROM order_table AS o " +
                     "     INNER JOIN gift_certificate_tag AS gt ON o.id_gift_certificate = gt.gift_certificate_id " +
                     "     WHERE o.id_user = :userId " +
-                    "     GROUP BY gt.tag_id ) as tcota " +
+                    "     GROUP BY gt.tag_id) AS tcota " +
                     "     WHERE tcota.count_of_tag_appears = " +
-                    "       ( SELECT MAX(ticota.count_of_tag_appears) AS m " +
+                    "       (SELECT MAX(ticota.count_of_tag_appears) AS m " +
                     "        FROM " +
-                    "         ( SELECT COUNT(gt.tag_id) AS count_of_tag_appears " +
+                    "         (SELECT COUNT(gt.tag_id) AS count_of_tag_appears " +
                     "          FROM order_table AS o " +
                     "          INNER JOIN gift_certificate_tag AS gt ON o.id_gift_certificate = " +
                     "gt.gift_certificate_id " +
                     "          WHERE o.id_user = :userId " +
                     "          GROUP BY gt.tag_id " +
-                    "          ORDER BY count_of_tag_appears ) AS ticota ) ) AS tags) " +
+                    "          ORDER BY count_of_tag_appears) AS ticota) ) AS tags) " +
                     "GROUP BY gt.tag_id " +
                     "ORDER BY SUM(g.price) DESC " +
-                    "LIMIT 1)";
+                    "LIMIT 1) " +
+            "AND tag.is_deleted = false";
 
     /**
      * Find by name.

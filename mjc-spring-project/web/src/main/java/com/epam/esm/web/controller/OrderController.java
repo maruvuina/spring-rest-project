@@ -73,7 +73,7 @@ public class OrderController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('users:read')")
+    @PreAuthorize("hasAuthority('users:readAdmin')")
     public OrderDto retrieveById(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
         return hateoasInformation.addSelfLinkToOrder(orderService.retrieveById(id), id);
     }
@@ -86,7 +86,7 @@ public class OrderController {
      */
     @GetMapping("/users/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('users:readAdmin')")
+    @PreAuthorize("authentication.principal.id == #userId or hasAuthority('users:readAdmin')")
     public CollectionModel<OrderDto> retrieveByUserId(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long userId,
                                            @RequestParam(defaultValue = "0", name = "page")
                                            @Min(0) @Max(Integer.MAX_VALUE) Integer pageNumber,

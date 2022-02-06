@@ -1,5 +1,6 @@
 package com.epam.esm.service.security;
 
+import com.epam.esm.dao.entity.Role;
 import com.epam.esm.dao.entity.Status;
 import com.epam.esm.dao.entity.User;
 import lombok.Data;
@@ -8,17 +9,21 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class SecurityUser implements UserDetails {
 
+    private final Long id;
     private final String username;
     private final String password;
-    private final List<SimpleGrantedAuthority> authorities;
+    private final Set<SimpleGrantedAuthority> authorities;
     private final boolean isActive;
 
-    public SecurityUser(String username, String password, List<SimpleGrantedAuthority> authorities, boolean isActive) {
+    public SecurityUser(Long id, String username, String password, Set<SimpleGrantedAuthority> authorities,
+                        boolean isActive) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.authorities = authorities;
@@ -28,6 +33,10 @@ public class SecurityUser implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     @Override
@@ -61,13 +70,14 @@ public class SecurityUser implements UserDetails {
     }
 
     public static UserDetails fromUser(User user) {
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(), user.getPassword(),
-                user.getStatus().equals(Status.ACTIVE),
-                user.getStatus().equals(Status.ACTIVE),
-                user.getStatus().equals(Status.ACTIVE),
-                user.getStatus().equals(Status.ACTIVE),
-                user.getRole().getAuthorities()
-        );
+        return new SecurityUser(user.getId(), user.getEmail(),
+                user.getPassword(), retrieveAuthorities(user.getRole()),
+                user.getStatus().equals(Status.ACTIVE));
+    }
+
+    private static Set<SimpleGrantedAuthority> retrieveAuthorities(Role role) {
+        return role.getPermissions().stream()
+                .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
+                .collect(Collectors.toSet());
     }
 }

@@ -8,7 +8,6 @@ import com.epam.esm.service.dto.GiftCertificateDto;
  */
 public interface GiftCertificateValidator extends Validator<GiftCertificateDto>, NameValidator {
 
-
     /**
      * Validate data to part update.
      *

@@ -1,6 +1,7 @@
 package com.epam.esm.web.hateoas;
 
 import com.epam.esm.service.dto.GiftCertificateDto;
+import com.epam.esm.service.dto.OrderCreateDto;
 import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.dto.UserDto;
@@ -13,12 +14,18 @@ import org.springframework.hateoas.Link;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
 public class HateoasInformation {
+
+    private static final String CREATE = "create";
+    private static final String UPDATE = "update";
+    private static final String GET_BY_ID = "get by id";
+    private static final String USERS = "users";
 
     public CollectionModel<TagDto> addSelfLinkToTagList(List<TagDto> tags) {
         addSelfLinkToTagDtoList(tags);
@@ -27,33 +34,35 @@ public class HateoasInformation {
     }
 
     public TagDto addSelfLinkToTag(TagDto tag, Long id) {
-        Link selfLink = linkTo(TagController.class).slash(id).withSelfRel();
-        tag.add(selfLink);
+        tag.add(linkTo(TagController.class).slash(id).withSelfRel());
+        tag.add(linkTo(methodOn(TagController.class).create(tag)).withRel(CREATE));
         return tag;
     }
 
     public TagDto addSelfLinkToTagUsers(TagDto tag, Long id) {
-        Link selfLink = linkTo(TagController.class).slash("users").slash(id).withSelfRel();
-        tag.add(selfLink);
+        tag.add(linkTo(TagController.class).slash(USERS).slash(id).withSelfRel());
         return tag;
     }
 
     public CollectionModel<GiftCertificateDto> addSelfLinkToGiftCertificateList(List<GiftCertificateDto>
                                                                                         giftCertificates) {
-        giftCertificates.forEach(giftCertificate -> {
-            Link selfLink = linkTo(methodOn(GiftCertificateController.class)
-                    .retrieveById(giftCertificate.getId())).withSelfRel();
-            giftCertificate.add(selfLink);
-            addSelfLinkToTagDtoList(giftCertificate.getTags());
-        });
+        List<GiftCertificateDto> giftCertificateDtoList = giftCertificates.stream()
+                .map(giftCertificate -> {
+                    giftCertificate = addSelfLinkToGiftCertificate(giftCertificate, giftCertificate.getId());
+                    addSelfLinkToTagDtoList(giftCertificate.getTags());
+                    return giftCertificate;
+                })
+                .collect(Collectors.toList());
         Link link = linkTo(GiftCertificateController.class).withSelfRel();
-        return CollectionModel.of(giftCertificates, link);
+        return CollectionModel.of(giftCertificateDtoList, link);
     }
 
     public GiftCertificateDto addSelfLinkToGiftCertificate(GiftCertificateDto giftCertificate, Long id) {
-        Link selfLink = linkTo(GiftCertificateController.class).slash(id).withSelfRel();
-        giftCertificate.add(selfLink);
-        addSelfLinkToTagDtoList(giftCertificate.getTags());
+        giftCertificate.add(linkTo(GiftCertificateController.class).slash(id).withSelfRel());
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .create(giftCertificate)).withRel(CREATE));
+        giftCertificate.add(linkTo(methodOn(GiftCertificateController.class)
+                .update(id, giftCertificate)).withRel(UPDATE));
         return giftCertificate;
     }
 
@@ -85,8 +94,8 @@ public class HateoasInformation {
     }
 
     public OrderDto addSelfLinkToOrder(OrderDto order, Long id) {
-        Link selfLink = linkTo(OrderController.class).slash(id).withSelfRel();
-        order.add(selfLink);
+        order.add(linkTo(OrderController.class).slash(id).withSelfRel());
+        order.add(linkTo(methodOn(OrderController.class).create(new OrderCreateDto())).withRel(CREATE));
         setLinkToGiftCertificateDto(order.getGiftCertificate());
         addSelfLinkToTagDtoList(order.getGiftCertificate().getTags());
         return order;
@@ -94,8 +103,8 @@ public class HateoasInformation {
 
     private void addSelfLinkToTagDtoList(List<TagDto> tags) {
         tags.forEach(tag -> {
-            Link selfLink = linkTo(methodOn(TagController.class).retrieveById(tag.getId())).withSelfRel();
-            tag.add(selfLink);
+            tag.add(linkTo(methodOn(TagController.class).retrieveById(tag.getId())).withRel(GET_BY_ID));
+            tag.add(linkTo(methodOn(TagController.class).create(tag)).withRel(CREATE));
         });
     }
 

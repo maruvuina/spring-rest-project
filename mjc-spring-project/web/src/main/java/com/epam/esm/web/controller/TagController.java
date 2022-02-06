@@ -94,13 +94,13 @@ public class TagController {
     /**
      * Retrieve most popular user tag by user id.
      *
-     * @param id the user id
+     * @param userId the user id
      * @return the tag dto
      */
     @GetMapping("/users/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    @PreAuthorize("hasAuthority('users:readAdmin')")
-    public TagDto retrieveMostPopularUserTagByUserId(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
-        return hateoasInformation.addSelfLinkToTagUsers(tagService.retrieveMostPopularUserTagByUserId(id), id);
+    @PreAuthorize("authentication.principal.id == #userId or hasAuthority('users:readAdmin')")
+    public TagDto retrieveMostPopularUserTagByUserId(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long userId) {
+        return hateoasInformation.addSelfLinkToTagUsers(tagService.retrieveMostPopularUserTagByUserId(userId), userId);
     }
 }
