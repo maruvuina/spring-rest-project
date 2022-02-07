@@ -55,7 +55,7 @@ public class TagServiceImpl implements TagService {
     public void delete(Long id) {
         Tag tag = retrieveSavedTag(id);
         existsInGiftCertificateTag(id);
-        tagRepository.delete(tag);
+        tagRepository.softDelete(tag);
         log.info("Tag deleted with id = {}", id);
     }
 

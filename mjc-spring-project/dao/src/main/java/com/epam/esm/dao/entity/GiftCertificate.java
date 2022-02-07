@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -26,6 +27,7 @@ import java.util.List;
 /**
  * Represents a Gift certificate.
  */
+@Where(clause = "is_deleted = false")
 @Table(name = "gift_certificate")
 @Entity
 @Builder
@@ -53,6 +55,7 @@ public class GiftCertificate {
     private Instant lastUpdateDate;
     @Column(name = "is_deleted")
     private boolean isDeleted = Boolean.FALSE;
+    @Where(clause = "isDeleted = false")
     @ManyToMany(cascade = CascadeType.MERGE,
             fetch = FetchType.EAGER)
     @JoinTable(name = "gift_certificate_tag",

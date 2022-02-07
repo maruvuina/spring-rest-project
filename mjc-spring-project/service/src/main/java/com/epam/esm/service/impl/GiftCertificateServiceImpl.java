@@ -64,7 +64,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public void delete(Long id) {
         GiftCertificate giftCertificate = retrieveSavedGiftCertificate(id);
         existsInOrder(id);
-        giftCertificateRepository.delete(giftCertificate);
+        giftCertificateRepository.softDelete(giftCertificate);
         log.info("GiftCertificate deleted with id = {}", id);
     }
 

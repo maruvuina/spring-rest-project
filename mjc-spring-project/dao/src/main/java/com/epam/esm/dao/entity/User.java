@@ -16,6 +16,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+/**
+ * Represents a User.
+ */
 @Table(name = "user_table")
 @Entity
 @Builder
