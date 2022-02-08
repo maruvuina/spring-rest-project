@@ -4,7 +4,6 @@ ext {
 
 dependencies {
     implementation project(':dao')
-    implementation group: 'org.springframework', name: 'spring-tx', version: spring_version
     implementation group: 'org.slf4j', name: 'jcl-over-slf4j', version: '1.7.32'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: logback_version
     implementation group: 'ch.qos.logback', name: 'logback-core', version: logback_version

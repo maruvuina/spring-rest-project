@@ -8,7 +8,11 @@ spring:
     open-in-view: false
   banner:
     location: newBanner.txt
-
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
+
+jwt:
+  header: Authorization
+  secret:
+  expiration: 604800

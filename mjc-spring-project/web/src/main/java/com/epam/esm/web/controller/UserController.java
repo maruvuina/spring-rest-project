@@ -7,6 +7,7 @@ import com.epam.esm.web.hateoas.HateoasInformation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +39,7 @@ public class UserController {
      * @return the collection model of user dto
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('users:readAdmin')")
     public CollectionModel<UserDto> retrieveAll(@RequestParam(defaultValue = "0", name = "page")
                                      @Min(0) @Max(Integer.MAX_VALUE) Integer pageNumber,
                                      @RequestParam(defaultValue = "3")
@@ -53,6 +55,7 @@ public class UserController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
+    @PreAuthorize("hasAuthority('users:readAdmin')")
     public UserDto retrieveById(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
         return hateoasInformation.addSelfLinkToUser(userService.retrieveById(id), id);
     }

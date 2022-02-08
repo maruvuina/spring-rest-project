@@ -1,6 +1,6 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.dao.OrderDao;
+import com.epam.esm.dao.OrderRepository;
 import com.epam.esm.dao.entity.GiftCertificate;
 import com.epam.esm.dao.entity.Order;
 import com.epam.esm.dao.entity.User;
@@ -17,6 +17,7 @@ import com.epam.esm.service.mapper.UserMapper;
 import com.epam.esm.service.validator.OrderValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,7 @@ import static com.epam.esm.service.exception.ErrorCode.ERROR_301404;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
-    private final OrderDao orderDao;
+    private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final UserService userService;
     private final UserMapper userMapper;
@@ -45,7 +46,7 @@ public class OrderServiceImpl implements OrderService {
         User user = userMapper.mapTo(userService.retrieveById(orderCreateDto.getUserId()));
         GiftCertificate giftCertificate = giftCertificateMapper.mapToGiftCertificateForOrder(giftCertificateService
                 .retrieveById(orderCreateDto.getGiftCertificateId()));
-        Order createdOrder = orderDao.create(orderMapper.mapTo(user, giftCertificate));
+        Order createdOrder = orderRepository.save(orderMapper.mapTo(user, giftCertificate));
         return orderMapper.mapToDto(createdOrder);
     }
 
@@ -53,7 +54,7 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDto> retrieveByUserId(Long userId, Page page) {
         userService.checkIfUserExistsById(userId);
         userService.checkIfUserMakeOrders(userId);
-        return orderDao.retrieveByUserId(userId, page)
+        return orderRepository.findByUserId(userId, PageRequest.of(page.getPageNumber(), page.getSize()))
                 .stream()
                 .map(orderMapper::mapToDto)
                 .collect(Collectors.toList());
@@ -61,7 +62,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderDto> retrieveAll(Page page) {
-        return orderDao.findAll(page)
+        return orderRepository.findAll(PageRequest.of(page.getPageNumber(), page.getSize()))
                 .stream()
                 .map(orderMapper::mapToDto)
                 .collect(Collectors.toList());
@@ -69,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto retrieveById(Long id) {
-        return orderMapper.mapToDto(orderDao.findById(id)
+        return orderMapper.mapToDto(orderRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("There is no order with id = {}", id);
                     return new ServiceException(ERROR_301404, String.valueOf(id));

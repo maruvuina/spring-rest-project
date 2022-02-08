@@ -18,4 +18,6 @@ public class UserDto extends RepresentationModel<UserDto> {
     private String email;
     private String password;
     private String name;
+    private String role;
+    private String status;
 }

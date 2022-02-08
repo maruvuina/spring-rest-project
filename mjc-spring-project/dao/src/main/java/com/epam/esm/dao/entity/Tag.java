@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,6 +19,7 @@ import java.util.List;
 /**
  * Represents a tag.
  */
+@Where(clause = "is_deleted = false")
 @Table(name = "tag")
 @Entity
 @Builder
@@ -32,6 +34,8 @@ public class Tag {
     private Long id;
     @Column(nullable = false, unique = true)
     private String name;
+    @Column(name = "is_deleted")
+    private boolean isDeleted = Boolean.FALSE;
     @ManyToMany(mappedBy = "tags")
     private List<GiftCertificate> giftCertificates;
 

@@ -7,6 +7,7 @@ import com.epam.esm.web.hateoas.HateoasInformation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +43,7 @@ public class TagController {
      */
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('users:write')")
     public TagDto create(@Valid @RequestBody TagDto tagDto) {
         TagDto createdTagDto = tagService.create(tagDto);
         return hateoasInformation.addSelfLinkToTag(createdTagDto, createdTagDto.getId());
@@ -53,6 +55,7 @@ public class TagController {
      * @param id the id
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('users:modify')")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
         tagService.delete(id);
@@ -67,6 +70,7 @@ public class TagController {
      * @return the collection model of tag dto
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('users:read')")
     public CollectionModel<TagDto> retrieveAll(@RequestParam(defaultValue = "0", name = "page")
                                     @Min(0) @Max(Integer.MAX_VALUE) Integer pageNumber,
                                     @RequestParam(defaultValue = "3")
@@ -82,6 +86,7 @@ public class TagController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
+    @PreAuthorize("hasAuthority('users:read')")
     public TagDto retrieveById(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
         return hateoasInformation.addSelfLinkToTag(tagService.retrieveById(id), id);
     }
@@ -89,12 +94,13 @@ public class TagController {
     /**
      * Retrieve most popular user tag by user id.
      *
-     * @param id the user id
+     * @param userId the user id
      * @return the tag dto
      */
     @GetMapping("/users/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public TagDto retrieveMostPopularUserTagByUserId(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long id) {
-        return hateoasInformation.addSelfLinkToTagUsers(tagService.retrieveMostPopularUserTagByUserId(id), id);
+    @PreAuthorize("authentication.principal.id == #userId or hasAuthority('users:readAdmin')")
+    public TagDto retrieveMostPopularUserTagByUserId(@PathVariable("id") @Min(1) @Max(Long.MAX_VALUE) Long userId) {
+        return hateoasInformation.addSelfLinkToTagUsers(tagService.retrieveMostPopularUserTagByUserId(userId), userId);
     }
 }

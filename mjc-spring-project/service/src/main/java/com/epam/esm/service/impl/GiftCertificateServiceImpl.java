@@ -1,9 +1,13 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.dao.GiftCertificateDao;
+import com.epam.esm.dao.GiftCertificateRepository;
 import com.epam.esm.dao.entity.GiftCertificate;
+import com.epam.esm.dao.entity.GiftCertificate_;
 import com.epam.esm.dao.entity.Tag;
+import com.epam.esm.dao.specification.GiftCertificateSpecification;
+import com.epam.esm.dao.util.OrderType;
 import com.epam.esm.dao.util.Page;
+import com.epam.esm.dao.util.SortType;
 import com.epam.esm.service.GiftCertificateService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.dto.GiftCertificateDto;
@@ -15,6 +19,9 @@ import com.epam.esm.service.mapper.TagMapper;
 import com.epam.esm.service.validator.GiftCertificateValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +39,7 @@ import static com.epam.esm.service.exception.ErrorCode.ERROR_108400;
 @RequiredArgsConstructor
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
-    private final GiftCertificateDao giftCertificateDao;
+    private final GiftCertificateRepository giftCertificateRepository;
     private final GiftCertificateMapper giftCertificateMapper;
     private final GiftCertificateValidator giftCertificateValidator;
     private final TagService tagService;
@@ -42,13 +49,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
         giftCertificateValidator.validate(giftCertificateDto);
-        if(giftCertificateDao.existsByName(giftCertificateDto.getName())) {
+        if(giftCertificateRepository.existsByName(giftCertificateDto.getName())) {
             log.error("Gift certificate with name {} already exists", giftCertificateDto.getName());
             throw new ServiceException(ERROR_105400, giftCertificateDto.getName());
         }
         GiftCertificate giftCertificate = giftCertificateMapper.mapTo(giftCertificateDto);
         giftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
-        GiftCertificate createdGiftCertificate = giftCertificateDao.create(giftCertificate);
+        GiftCertificate createdGiftCertificate = giftCertificateRepository.save(giftCertificate);
         return giftCertificateMapper.mapToDto(createdGiftCertificate);
     }
 
@@ -57,7 +64,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public void delete(Long id) {
         GiftCertificate giftCertificate = retrieveSavedGiftCertificate(id);
         existsInOrder(id);
-        giftCertificateDao.delete(giftCertificate);
+        giftCertificateRepository.softDelete(giftCertificate);
         log.info("GiftCertificate deleted with id = {}", id);
     }
 
@@ -68,7 +75,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public List<GiftCertificateDto> retrieveAll(Page page) {
-        return giftCertificateDao.findAll(page)
+        return giftCertificateRepository.findAll(PageRequest.of(page.getPageNumber(), page.getSize()))
                 .stream()
                 .map(giftCertificateMapper::mapToDto)
                 .collect(Collectors.toList());
@@ -93,11 +100,29 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public List<GiftCertificateDto> retrieveGiftCertificatesByParameter(Page page,
                                                                         GiftCertificateParameter giftCertificateParameter) {
         giftCertificateValidator.validateGiftCertificateParameter(giftCertificateParameter);
-        return giftCertificateDao
-                .findGiftCertificatesByParameter(page, giftCertificateParameter)
+        String name = giftCertificateParameter.getName();
+        String description = giftCertificateParameter.getDescription();
+        List<String> tags = giftCertificateParameter.getTagName();
+        Specification<GiftCertificate> specification =
+                Specification.where(name == null ? null :
+                                GiftCertificateSpecification.nameContains(name))
+                        .and(description == null ? null :
+                                GiftCertificateSpecification.descriptionContains(description))
+                        .and(tags == null ? null : GiftCertificateSpecification.hasTags(tags));
+        return giftCertificateRepository
+                .findAll(specification, PageRequest.of(page.getPageNumber(), page.getSize(),
+                        retrieveSortAndOrder(giftCertificateParameter)))
                 .stream()
                 .map(giftCertificateMapper::mapToDto)
                 .collect(Collectors.toList());
+    }
+
+    private Sort retrieveSortAndOrder(GiftCertificateParameter giftCertificateParameter) {
+        OrderType orderType = giftCertificateParameter.getOrder();
+        SortType sortType = giftCertificateParameter.getSort();
+        return Sort.by(orderType == null || orderType == OrderType.ASC ?
+                        Sort.Direction.ASC : Sort.Direction.DESC,
+                sortType == null ? GiftCertificate_.ID : sortType.getValue());
     }
 
     private List<Tag> setTagsToGiftCertificate(List<TagDto> tagDtoList) {
@@ -117,7 +142,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     private GiftCertificate retrieveSavedGiftCertificate(Long id) {
-        return giftCertificateDao.findById(id)
+        return giftCertificateRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("There is no gift certificate with id = {}", id);
                     return new ServiceException(ERROR_101404, String.valueOf(id));
@@ -125,14 +150,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     private void existsInOrder(Long id) {
-        if (giftCertificateDao.existsInOrder(id)) {
+        if (giftCertificateRepository.existsInOrder(id)) {
             log.error("Gift certificate cannot be deleted because there is a link to it in orders");
             throw new ServiceException(ERROR_108400, String.valueOf(id));
         }
     }
 
     private GiftCertificateDto updateData(Long id, GiftCertificateDto giftCertificateDto) {
-        if (giftCertificateDao.existsByNameUpdate(giftCertificateDto.getName(), id)) {
+        if (giftCertificateRepository.existsByNameAndIdNot(giftCertificateDto.getName(), id)) {
             log.error("Gift certificate with name {} already exists", giftCertificateDto.getName());
             throw new ServiceException(ERROR_105400, giftCertificateDto.getName());
         }
@@ -142,7 +167,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         if (giftCertificateDto.getTags() != null) {
             savedGiftCertificate.setTags(setTagsToGiftCertificate(giftCertificateDto.getTags()));
         }
-        giftCertificateDao.update(savedGiftCertificate);
+        giftCertificateRepository.save(savedGiftCertificate);
         return giftCertificateMapper.mapToDto(savedGiftCertificate);
     }
 }
