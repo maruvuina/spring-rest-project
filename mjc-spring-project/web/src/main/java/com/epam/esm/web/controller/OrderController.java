@@ -43,7 +43,7 @@ public class OrderController {
      */
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('users:makeOrder')")
+    @PreAuthorize("authentication.principal.id == #orderCreateDto.userId and hasAuthority('users:makeOrder')")
     public OrderDto create(@Valid @RequestBody OrderCreateDto orderCreateDto) {
         OrderDto createdOrderDto = orderService.create(orderCreateDto);
         return hateoasInformation.addSelfLinkToOrder(createdOrderDto, createdOrderDto.getId());

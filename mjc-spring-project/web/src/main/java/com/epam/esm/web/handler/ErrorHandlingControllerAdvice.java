@@ -4,6 +4,7 @@ import com.epam.esm.service.exception.ErrorCode;
 import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.web.exception.ExceptionMessageTranslator;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -82,6 +83,12 @@ public class ErrorHandlingControllerAdvice {
         log.error(ex.getLocalizedMessage());
         return new ResponseEntity<>(new ErrorApi(ex.getLocalizedMessage(), ErrorCode.ERROR_000403.getValue()),
                 HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler({InvalidFormatException.class})
+    public ResponseEntity<ErrorApi> handleInvalidFormatException(InvalidFormatException ex) {
+        log.error(ex.getLocalizedMessage());
+        return retrieveExceptionErrorApi(ErrorCode.ERROR_003400.getValue());
     }
 
     @ExceptionHandler({Exception.class})
