@@ -4,6 +4,7 @@ version '1.0-SNAPSHOT'
 subprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
+    apply plugin: 'jacoco'
 
     repositories {
         mavenCentral()
@@ -34,5 +35,18 @@ subprojects {
 
     test {
         useJUnitPlatform()
+    }
+
+    jacocoTestReport {
+        afterEvaluate {
+            classDirectories.setFrom(files(classDirectories.files.collect {
+                fileTree(dir: it, exclude: ['com/epam/esm/service/dto',
+                                            'com/epam/esm/service/security',
+                                            'com/epam/esm/service/validator',
+                                            'com/epam/esm/service/exception',
+                                            'com/epam/esm/service/mapper',
+                                            'com/epam/esm/service/converter']);
+            }))
+        }
     }
 }
